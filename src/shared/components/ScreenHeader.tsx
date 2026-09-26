@@ -25,7 +25,7 @@ export function ScreenHeader({ title, onBack, right, tone = 'light' }: ScreenHea
             onPress={onBack}
             hitSlop={hitSlop}
             accessibilityRole="button"
-            accessibilityLabel="back">
+            accessibilityLabel="voltar">
             <Icon name="chevronLeft" size={24} color={foreground} />
           </Pressable>
         ) : null}

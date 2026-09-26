@@ -17,7 +17,7 @@ export function SuccessSeal({ size = 88, tone = 'gold' }: SuccessSealProps) {
     <View
       style={[styles.circle, { width: size, height: size, backgroundColor: background }]}
       accessibilityRole="image"
-      accessibilityLabel="success">
+      accessibilityLabel="sucesso">
       <Icon name="check" size={size * 0.42} color={palette.white} />
     </View>
   );

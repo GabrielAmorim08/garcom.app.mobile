@@ -24,7 +24,7 @@ export function MapPreview({ location, height = 140, markers = [] }: MapPreviewP
   return (
     <View
       style={[styles.container, { height }]}
-      accessibilityLabel="map preview"
+      accessibilityLabel="prévia do mapa"
       accessibilityRole="image">
       <Svg width="100%" height="100%">
         <Rect x={0} y={0} width="100%" height="100%" fill={colors.surfaceAlt} />

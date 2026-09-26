@@ -24,7 +24,7 @@ export function Stepper({ value, onChange, min = 1, max = 99, accessibilityLabel
         icon="minus"
         disabled={!canDecrease}
         onPress={() => onChange(value - 1)}
-        label="decrease"
+        label="diminuir"
       />
       <AppText variant="subtitle" align="center" style={styles.value}>
         {String(value)}
@@ -33,7 +33,7 @@ export function Stepper({ value, onChange, min = 1, max = 99, accessibilityLabel
         icon="plus"
         disabled={!canIncrease}
         onPress={() => onChange(value + 1)}
-        label="increase"
+        label="aumentar"
       />
     </View>
   );
