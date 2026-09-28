@@ -15,6 +15,9 @@ export type WaiterTabParamList = {
 
 export type RootStackParamList = {
   Welcome: undefined;
+  SignIn: undefined;
+  SignUp: { role?: 'Waiter' | 'CompanyOwner' } | undefined;
+  EmailVerification: undefined;
 
   CompanyTabs: NavigatorScreenParams<CompanyTabParamList>;
   NewRequestStepOne: undefined;

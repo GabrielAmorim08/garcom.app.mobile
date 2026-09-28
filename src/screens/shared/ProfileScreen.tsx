@@ -24,6 +24,7 @@ export function ProfileScreen() {
 
   const mode = useAuthStore(state => state.mode);
   const setMode = useAuthStore(state => state.setMode);
+  const signOut = useAuthStore(state => state.signOut);
 
   const { data: user } = useCurrentUser();
   const { data: profile } = useWaiterProfile();
@@ -47,7 +48,7 @@ export function ProfileScreen() {
 
       <View style={styles.content}>
         <View style={styles.identity}>
-          <Avatar name={user?.fullName ?? 'ServeUp'} uri={user?.profilePhotoUrl} size={64} />
+          <Avatar name={user?.fullName ?? 'ServeUp'} uri={user?.profilePhotoPath} size={64} />
           <View style={styles.identityTexts}>
             <AppText variant="subtitle">{user?.fullName ?? '-'}</AppText>
             <AppText variant="caption" color={colors.textMuted}>
@@ -82,6 +83,12 @@ export function ProfileScreen() {
             variant="ghost"
             size="md"
             onPress={toggleLanguage}
+          />
+          <Button
+            label={t('auth.signOut')}
+            variant="ghost"
+            size="md"
+            onPress={() => void signOut()}
           />
         </Card>
       </View>

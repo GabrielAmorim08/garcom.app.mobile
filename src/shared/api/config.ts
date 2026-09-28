@@ -7,7 +7,7 @@ import { Platform } from 'react-native';
 const DEV_HOST = Platform.select({ android: '10.0.2.2', default: 'localhost' });
 
 export const apiConfig = {
-  baseUrl: __DEV__ ? `http://${DEV_HOST}:5080/api` : 'https://api.serveup.app/api',
+  baseUrl: __DEV__ ? `http://${DEV_HOST}:5181` : 'https://api.serveup.app',
   timeoutMs: 15_000,
   /** Serves screens from in-memory fixtures while the backend is not up yet. */
   useMocks: __DEV__,

@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
-import { useAuthStore } from '../../entities/auth/authStore';
 import { AppText, Button, Screen } from '../../shared/components';
 import { Wordmark } from '../../shared/components/Wordmark';
 import { colors, spacing } from '../../theme';
@@ -15,15 +14,6 @@ import { colors, spacing } from '../../theme';
 export function WelcomeScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
-  const setMode = useAuthStore(state => state.setMode);
-
-  function enterAs(mode: 'company' | 'waiter') {
-    setMode(mode);
-    navigation.reset({
-      index: 0,
-      routes: [{ name: mode === 'company' ? 'CompanyTabs' : 'WaiterTabs' }],
-    });
-  }
 
   return (
     <Screen background={colors.heroBackground} edges={['top', 'bottom']}>
@@ -36,11 +26,16 @@ export function WelcomeScreen() {
         </View>
 
         <View style={styles.actions}>
-          <Button label={t('auth.iAmACompany')} onPress={() => enterAs('company')} />
+          <Button label={t('auth.signIn')} onPress={() => navigation.navigate('SignIn')} />
           <Button
-            label={t('auth.iAmAWaiter')}
+            label={t('auth.createWaiterAccount')}
             variant="secondary"
-            onPress={() => enterAs('waiter')}
+            onPress={() => navigation.navigate('SignUp', { role: 'Waiter' })}
+          />
+          <Button
+            label={t('auth.createCompanyAccount')}
+            variant="ghost"
+            onPress={() => navigation.navigate('SignUp', { role: 'CompanyOwner' })}
           />
         </View>
       </View>

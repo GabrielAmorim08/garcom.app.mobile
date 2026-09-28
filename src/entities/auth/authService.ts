@@ -1,6 +1,6 @@
 import { httpClient } from '../../shared/api/httpClient';
 import { tokenStorage } from '../../shared/api/tokenStorage';
-import type { AuthSession, SignInRequest, SignUpRequest } from './types';
+import type { AuthSession, SignInRequest, SignUpRequest, VerifyEmailRequest } from './types';
 
 export const authService = {
   async signIn(payload: SignInRequest): Promise<AuthSession> {
@@ -15,6 +15,14 @@ export const authService = {
     return data;
   },
 
+  async resendEmailVerification(email: string): Promise<void> {
+    await httpClient.post('/auth/email-verification/resend', { email });
+  },
+
+  async verifyEmail(payload: VerifyEmailRequest): Promise<void> {
+    await httpClient.post('/auth/email-verification/verify', payload);
+  },
+
   /**
    * Revokes the refresh token server-side before clearing it locally. A failure here
    * must not keep the user signed in on the device.
@@ -22,6 +30,8 @@ export const authService = {
   async signOut(): Promise<void> {
     try {
       await httpClient.post('/auth/sign-out');
+    } catch {
+      // Backend logout is optional for now; local session cleanup must always win.
     } finally {
       await tokenStorage.clear();
     }

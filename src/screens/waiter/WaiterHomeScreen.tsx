@@ -46,7 +46,7 @@ export function WaiterHomeScreen() {
     <Screen>
       <View style={styles.topBar}>
         <Wordmark size={20} />
-        <Avatar name={user?.fullName ?? 'ServeUp'} uri={user?.profilePhotoUrl} size={32} />
+        <Avatar name={user?.fullName ?? 'ServeUp'} uri={user?.profilePhotoPath} size={32} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

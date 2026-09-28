@@ -20,7 +20,7 @@ export const mockUser: User = {
   fullName: 'Lucas Andrade',
   email: 'lucas@serveup.app',
   phone: '+55 11 90000-0000',
-  profilePhotoUrl: null,
+  profilePhotoPath: null,
   status: 'Active',
   roles: ['Waiter'],
 };

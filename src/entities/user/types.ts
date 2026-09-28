@@ -7,7 +7,7 @@ export interface User {
   fullName: string;
   email: string;
   phone: string;
-  profilePhotoUrl: string | null;
+  profilePhotoPath: string | null;
   status: UserStatus;
   roles: UserRoleType[];
 }

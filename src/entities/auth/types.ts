@@ -3,6 +3,7 @@ import type { User } from '../user/types';
 export interface SignInRequest {
   email: string;
   password: string;
+  device: DeviceInfoRequest;
 }
 
 export interface SignUpRequest {
@@ -11,11 +12,35 @@ export interface SignUpRequest {
   phone: string;
   password: string;
   role: 'Waiter' | 'CompanyOwner';
+  device: DeviceInfoRequest;
+  company?: CompanySignUpRequest;
 }
 
 export interface AuthSession {
   accessToken: string;
+  accessTokenExpiresAt: string;
   refreshToken: string;
-  expiresAt: string;
+  refreshTokenExpiresAt: string;
+  sessionId: string;
   user: User;
+}
+
+export interface DeviceInfoRequest {
+  deviceId: string;
+  platform: 'Android' | 'Ios';
+  deviceModel?: string;
+  appVersion?: string;
+}
+
+export interface CompanySignUpRequest {
+  legalName: string;
+  tradeName?: string;
+  taxId: string;
+  companyEmail: string;
+  companyPhone: string;
+}
+
+export interface VerifyEmailRequest {
+  email: string;
+  code: string;
 }
