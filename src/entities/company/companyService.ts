@@ -13,8 +13,8 @@ export const companyService = {
     return data;
   },
 
-  async update(id: string, payload: Partial<CreateCompanyRequest>): Promise<Company> {
-    const { data } = await httpClient.put<Company>(`/companies/${id}`, payload);
+  async updateMine(payload: Partial<CreateCompanyRequest>): Promise<Company> {
+    const { data } = await httpClient.put<Company>('/companies/mine', payload);
     return data;
   },
 };

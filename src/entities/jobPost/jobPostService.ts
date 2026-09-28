@@ -37,7 +37,7 @@ export const jobPostService = {
    * and can change without shipping a new app build.
    */
   async estimate(payload: Pick<CreateJobPostRequest,
-    'serviceKind' | 'shiftStart' | 'shiftEnd' | 'slots'>): Promise<JobPostEstimate> {
+    'serviceKind' | 'providerKind' | 'shiftStart' | 'shiftEnd' | 'slots'>): Promise<JobPostEstimate> {
     const { data } = await httpClient.post<JobPostEstimate>('/job-posts/estimate', payload);
     return data;
   },

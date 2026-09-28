@@ -24,6 +24,7 @@ export type RootStackParamList = {
   NewRequestStepTwo: undefined;
   NewRequestStepThree: undefined;
   RequestSent: { jobPostId: string };
+  CompanyServiceDetail: { jobPostId: string };
 
   WaiterTabs: NavigatorScreenParams<WaiterTabParamList>;
   ServiceDetail: { jobPostId: string };

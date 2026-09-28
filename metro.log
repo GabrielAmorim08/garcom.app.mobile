@@ -1,0 +1,228 @@
+
+> ServeUp@0.0.1 start
+> react-native start --port 8081
+
+
+Welcome to React Native v0.87
+Starting dev server on http://localhost:8081
+
+
+                        ▒▒▓▓▓▓▒▒
+                     ▒▓▓▓▒▒░░▒▒▓▓▓▒
+                  ▒▓▓▓▓░░░▒▒▒▒░░░▓▓▓▓▒
+                 ▓▓▒▒▒▓▓▓▓▓▓▓▓▓▓▓▓▒▒▒▓▓
+                 ▓▓░░░░░▒▓▓▓▓▓▓▒░░░░░▓▓
+                 ▓▓░░▓▓▒░░░▒▒░░░▒▓▒░░▓▓
+                 ▓▓░░▓▓▓▓▓▒▒▒▒▓▓▓▓▒░░▓▓
+                 ▓▓░░▓▓▓▓▓▓▓▓▓▓▓▓▓▒░░▓▓
+                 ▓▓▒░░▒▒▓▓▓▓▓▓▓▓▒░░░▒▓▓
+                  ▒▓▓▓▒░░░▒▓▓▒░░░▒▓▓▓▒
+                     ▒▓▓▓▒░░░░▒▓▓▓▒
+                        ▒▒▓▓▓▓▒▒
+
+
+                Welcome to Metro v0.87.0
+              Fast - Scalable - Integrated
+
+
+ INFO  Dev server ready. Press Ctrl+C to exit.
+ INFO  Key commands available:
+
+   r  - reload app(s)
+   d  - open Dev Menu
+   j  - open DevTools
+
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 0% (0/1)
+transform[stderr]: (node:28088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+transform[stderr]: (Use `node --trace-warnings ...` to show where the warning was created)
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 1% (1/5)
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 4% (2/5)
+transform[stderr]: (node:39076) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+transform[stderr]: (Use `node --trace-warnings ...` to show where the warning was created)
+transform[stderr]: (node:3244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+transform[stderr]: (Use `node --trace-warnings ...` to show where the warning was created)
+transform[stderr]: (node:44848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+transform[stderr]: (Use `node --trace-warnings ...` to show where the warning was created)
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 4% (5/104)
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 4% (6/104)
+transform[stderr]: (node:38568) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+transform[stderr]: (Use `node --trace-warnings ...` to show where the warning was created)
+transform[stderr]: (node:23512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+transform[stderr]: (Use `node --trace-warnings ...` to show where the warning was created)
+transform[stderr]: (node:13256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+transform[stderr]: (Use `node --trace-warnings ...` to show where the warning was created)
+transform[stderr]: (node:34864) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+transform[stderr]: (Use `node --trace-warnings ...` to show where the warning was created)
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 4% (22/150)
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 4% (37/172)
+ BUNDLE  ./index.js ▓░░░░░░░░░░░░░░░ 9% (60/196)
+ BUNDLE  ./index.js ▓░░░░░░░░░░░░░░░ 12% (74/213)
+ BUNDLE  ./index.js ▓▓░░░░░░░░░░░░░░ 14% (85/222)
+ BUNDLE  ./index.js ▓▓▓░░░░░░░░░░░░░ 20% (108/245)
+ BUNDLE  ./index.js ▓▓▓░░░░░░░░░░░░░ 20% (117/309)
+ BUNDLE  ./index.js ▓▓▓░░░░░░░░░░░░░ 20% (140/330)
+ BUNDLE  ./index.js ▓▓▓░░░░░░░░░░░░░ 20% (157/348)
+ BUNDLE  ./index.js ▓▓▓░░░░░░░░░░░░░ 21% (173/377)
+ BUNDLE  ./index.js ▓▓▓░░░░░░░░░░░░░ 23% (196/408)
+ BUNDLE  ./index.js ▓▓▓░░░░░░░░░░░░░ 24% (207/425)
+ BUNDLE  ./index.js ▓▓▓▓░░░░░░░░░░░░ 25% (228/449)
+ BUNDLE  ./index.js ▓▓▓▓░░░░░░░░░░░░ 27% (240/466)
+ BUNDLE  ./index.js ▓▓▓▓░░░░░░░░░░░░ 27% (244/470)
+ BUNDLE  ./index.js ▓▓▓▓░░░░░░░░░░░░ 27% (251/476)
+ BUNDLE  ./index.js ▓▓▓▓░░░░░░░░░░░░ 27% (258/491)
+ BUNDLE  ./index.js ▓▓▓▓░░░░░░░░░░░░ 28% (266/496)
+ BUNDLE  ./index.js ▓▓▓▓░░░░░░░░░░░░ 29% (274/505)
+ BUNDLE  ./index.js ▓▓▓▓░░░░░░░░░░░░ 30% (282/507)
+ BUNDLE  ./index.js ▓▓▓▓▓░░░░░░░░░░░ 32% (290/508)
+ BUNDLE  ./index.js ▓▓▓▓▓░░░░░░░░░░░ 32% (298/550)
+ BUNDLE  ./index.js ▓▓▓▓▓░░░░░░░░░░░ 32% (306/567)
+ BUNDLE  ./index.js ▓▓▓▓▓░░░░░░░░░░░ 32% (314/574)
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ BUNDLE  ./index.js ▓▓▓▓▓░░░░░░░░░░░ 32% (321/575)
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ BUNDLE  ./index.js ▓▓▓▓▓░░░░░░░░░░░ 32% (328/587)
+ BUNDLE  ./index.js ▓▓▓▓▓░░░░░░░░░░░ 32% (336/596)
+ BUNDLE  ./index.js ▓▓▓▓▓░░░░░░░░░░░ 33% (344/597)
+ BUNDLE  ./index.js ▓▓▓▓▓░░░░░░░░░░░ 34% (352/597)
+ BUNDLE  ./index.js ▓▓▓▓▓░░░░░░░░░░░ 35% (360/604)
+ BUNDLE  ./index.js ▓▓▓▓▓░░░░░░░░░░░ 36% (368/605)
+ BUNDLE  ./index.js ▓▓▓▓▓▓░░░░░░░░░░ 38% (376/605)
+ BUNDLE  ./index.js ▓▓▓▓▓▓░░░░░░░░░░ 39% (384/611)
+ BUNDLE  ./index.js ▓▓▓▓▓▓░░░░░░░░░░ 41% (392/612)
+ BUNDLE  ./index.js ▓▓▓▓▓▓░░░░░░░░░░ 43% (407/618)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓░░░░░░░░░ 44% (416/621)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓░░░░░░░░░ 47% (431/625)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 50% (447/629)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 52% (462/635)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 54% (470/638)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 54% (477/644)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 54% (485/655)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 54% (493/667)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 55% (501/675)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 55% (509/686)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 56% (516/687)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 56% (524/700)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57% (532/737)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57% (539/740)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57% (546/740)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57% (554/750)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57% (562/775)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57% (570/781)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57% (578/782)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57% (586/782)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57% (594/791)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57% (602/799)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57% (610/805)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 58% (618/811)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 58% (624/815)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 59% (632/820)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60% (640/826)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 61% (648/829)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 62% (656/831)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 63% (663/834)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64% (671/834)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64% (679/843)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64% (687/863)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64% (695/911)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64% (703/914)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64% (711/930)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64% (719/934)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64% (727/941)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64% (735/954)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64% (743/962)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64% (751/965)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64% (759/965)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64% (767/965)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64% (783/972)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66% (806/986)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 69% (830/999)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 72% (854/1006)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 74% (878/1016)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 77% (900/1027)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 77% (917/1043)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 79% (933/1045)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 82% (957/1054)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 83% (977/1073)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 84% (993/1080)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86% (1013/1091)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 89% (1036/1095)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 91% (1053/1102)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92% (1077/1190)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92% (1100/1199)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92% (1124/1200)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92% (1148/1206)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 93% (1172/1215)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 95% (1192/1232)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 95% (1212/1242)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 95% (1228/1268)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 95% (1242/1283)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 95% (1264/1296)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 95% (1280/1309)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 96% (1296/1321)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 97% (1313/1328)
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99% (1331/1334)
+ BUNDLE  ./index.js 
+ BUNDLE  ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99% (1334/1334)
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 0% (0/1)
+ BUNDLE  ./index.js 
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 0% (0/1)
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ BUNDLE  ./index.js 
+ ERROR  [timeout] connection terminated with Device for app='com.serveup' on device='sdk_gphone64_x86_64 - 13 - API 33' after not responding for 60 seconds.
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ ERROR  Error: Unable to resolve module ../screens/shared/SignInScreen from C:\ProjetosExt\garcom.app\garcom.app.mobile\src\navigation\RootNavigator.tsx: 
+
+None of these files exist:
+  * src\screens\shared\SignInScreen(.android.js|.native.js|.js|.android.jsx|.native.jsx|.jsx|.android.json|.native.json|.json|.android.ts|.native.ts|.ts|.android.tsx|.native.tsx|.tsx)
+  * src\screens\shared\SignInScreen
+   9 | import { NewRequestStepTwoScreen } from '../screens/company/NewRequestStepTwoScreen';
+  10 | import { RequestSentScreen } from '../screens/company/RequestSentScreen';
+> 11 | import { SignInScreen } from '../screens/shared/SignInScreen';
+     |                               ^
+  12 | import { SignUpScreen } from '../screens/shared/SignUpScreen';
+  13 | import { WelcomeScreen } from '../screens/shared/WelcomeScreen';
+  14 | import { MyServicesScreen } from '../screens/waiter/MyServicesScreen';
+    at ModuleResolver.resolveDependency (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\node-haste\DependencyGraph\ModuleResolution.js:143:15)
+    at DependencyGraph.resolveDependency (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\node-haste\DependencyGraph.js:263:43)
+    at C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\lib\transformHelpers.js:165:21
+    at resolveDependencies (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\buildSubgraph.js:43:25)
+    at visit (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\buildSubgraph.js:81:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Promise.all (index 1)
+    at async buildSubgraph (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\buildSubgraph.js:105:3)
+    at async Graph._buildDelta (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\Graph.js:163:22)
+    at async Graph.traverseDependencies (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\Graph.js:50:19)
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 0% (0/1)
+ BUNDLE  ./index.js 
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ ERROR  Error: Unable to resolve module ../screens/company/CompanyServiceDetailScreen from C:\ProjetosExt\garcom.app\garcom.app.mobile\src\navigation\RootNavigator.tsx: 
+
+None of these files exist:
+  * src\screens\company\CompanyServiceDetailScreen(.android.js|.native.js|.js|.android.jsx|.native.jsx|.jsx|.android.json|.native.json|.json|.android.ts|.native.ts|.ts|.android.tsx|.native.tsx|.tsx)
+  * src\screens\company\CompanyServiceDetailScreen
+   9 | import { NewRequestStepTwoScreen } from '../screens/company/NewRequestStepTwoScreen';
+  10 | import { RequestSentScreen } from '../screens/company/RequestSentScreen';
+> 11 | import { CompanyServiceDetailScreen } from '../screens/company/CompanyServiceDetailScreen';
+     |                                             ^
+  12 | import { EmailVerificationScreen } from '../screens/shared/EmailVerificationScreen';
+  13 | import { SignInScreen } from '../screens/shared/SignInScreen';
+  14 | import { SignUpScreen } from '../screens/shared/SignUpScreen';
+    at ModuleResolver.resolveDependency (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\node-haste\DependencyGraph\ModuleResolution.js:143:15)
+    at DependencyGraph.resolveDependency (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\node-haste\DependencyGraph.js:263:43)
+    at C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\lib\transformHelpers.js:165:21
+    at resolveDependencies (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\buildSubgraph.js:43:25)
+    at visit (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\buildSubgraph.js:81:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Promise.all (index 2)
+    at async buildSubgraph (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\buildSubgraph.js:105:3)
+    at async Graph._buildDelta (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\Graph.js:163:22)
+    at async Graph.traverseDependencies (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\Graph.js:50:19)
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.

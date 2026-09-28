@@ -22,6 +22,10 @@ export const queryClient = new QueryClient({
 export const queryKeys = {
   currentUser: ['currentUser'] as const,
 
+  company: {
+    mine: ['company', 'mine'] as const,
+  },
+
   jobPosts: {
     all: ['jobPosts'] as const,
     nearby: (lat: number, lng: number, radius: number) =>

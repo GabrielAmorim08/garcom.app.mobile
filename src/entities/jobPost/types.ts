@@ -7,6 +7,15 @@ export type PayType = 'PerShift' | 'PerHour';
 /** The four cards on step 1 of the request flow. */
 export type ServiceKind = 'PrivateEvent' | 'Restaurant' | 'Corporate' | 'Other';
 
+export type ProviderKind =
+  | 'Waiter'
+  | 'KitchenAssistant'
+  | 'PantryAttendant'
+  | 'Bartender'
+  | 'Receptionist'
+  | 'Cleaner'
+  | 'Other';
+
 export interface JobPost {
   id: string;
   companyId: string;
@@ -15,6 +24,7 @@ export interface JobPost {
   establishmentName: string | null;
 
   serviceKind: ServiceKind;
+  providerKind: ProviderKind;
   title: string;
   description: string | null;
 
@@ -45,6 +55,7 @@ export interface NearbyJobPost extends JobPost {
 
 export interface CreateJobPostRequest {
   serviceKind: ServiceKind;
+  providerKind: ProviderKind;
   establishmentId?: string | null;
   title: string;
   description?: string | null;
@@ -56,7 +67,7 @@ export interface CreateJobPostRequest {
   dressCode?: string | null;
   requirements?: string | null;
   address: Address;
-  location: GeoPoint;
+  location: GeoPoint | null;
 }
 
 export interface NearbyQuery {

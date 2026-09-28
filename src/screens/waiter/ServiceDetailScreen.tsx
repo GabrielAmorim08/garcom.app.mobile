@@ -64,7 +64,6 @@ export function ServiceDetailScreen() {
   }
 
   const hours = durationInHours(jobPost.shiftStart, jobPost.shiftEnd);
-  const perWaiter = jobPost.slots > 0 ? jobPost.payAmount / jobPost.slots : jobPost.payAmount;
   const addressLine = [jobPost.address.street, jobPost.address.number].filter(Boolean).join(', ');
   const cityLine = [jobPost.address.district, jobPost.address.city, jobPost.address.state]
     .filter(Boolean)
@@ -138,11 +137,9 @@ export function ServiceDetailScreen() {
             <AppText variant="price" color={colors.primaryPressed}>
               {formatCurrency(jobPost.payAmount)}
             </AppText>
-            {jobPost.slots > 1 ? (
-              <AppText variant="caption" color={colors.textMuted}>
-                {t('waiter.detail.perWaiter', { value: formatCurrency(perWaiter) })}
-              </AppText>
-            ) : null}
+            <AppText variant="caption" color={colors.textMuted}>
+              {t('waiter.detail.perProvider')}
+            </AppText>
           </View>
         </View>
 

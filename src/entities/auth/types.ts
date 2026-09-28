@@ -1,4 +1,5 @@
 import type { User } from '../user/types';
+import type { Address } from '../../shared/types/common';
 
 export interface SignInRequest {
   email: string;
@@ -38,6 +39,7 @@ export interface CompanySignUpRequest {
   taxId: string;
   companyEmail: string;
   companyPhone: string;
+  address: Address;
 }
 
 export interface VerifyEmailRequest {

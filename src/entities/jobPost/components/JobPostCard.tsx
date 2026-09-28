@@ -10,16 +10,17 @@ import {
   formatShortDate,
   formatTimeRange,
 } from '../../../shared/utils/format';
-import type { NearbyJobPost } from '../types';
+import type { JobPost, NearbyJobPost } from '../types';
 
 interface JobPostCardProps {
-  jobPost: NearbyJobPost;
+  jobPost: JobPost | NearbyJobPost;
   onPress: () => void;
 }
 
 /** Row in the waiter's nearby list: distance on the left, details, pay, headcount. */
 export function JobPostCard({ jobPost, onPress }: JobPostCardProps) {
   const { t } = useTranslation();
+  const distanceMeters = 'distanceMeters' in jobPost ? jobPost.distanceMeters : null;
 
   const addressLine = [jobPost.address.street, jobPost.address.number]
     .filter(Boolean)
@@ -28,9 +29,11 @@ export function JobPostCard({ jobPost, onPress }: JobPostCardProps) {
   return (
     <Card onPress={onPress} style={styles.card}>
       <View style={styles.row}>
-        <AppText variant="captionStrong" color={colors.primaryPressed} style={styles.distance}>
-          {t('common.distanceKm', { value: formatDistanceKm(jobPost.distanceMeters) })}
-        </AppText>
+        {distanceMeters !== null ? (
+          <AppText variant="captionStrong" color={colors.primaryPressed} style={styles.distance}>
+            {t('common.distanceKm', { value: formatDistanceKm(distanceMeters) })}
+          </AppText>
+        ) : null}
 
         <View style={styles.details}>
           <AppText variant="bodyStrong">{jobPost.title}</AppText>

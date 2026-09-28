@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -16,16 +16,18 @@ import {
   TextArea,
 } from '../../shared/components';
 import { formatCurrency } from '../../shared/utils/format';
-import { colors, spacing } from '../../theme';
+import { colors, radius, spacing, typography } from '../../theme';
 
 export function NewRequestStepThreeScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
 
-  const serviceKind = useNewRequestStore(state => state.serviceKind);
+  const providerKind = useNewRequestStore(state => state.providerKind);
   const slots = useNewRequestStore(state => state.slots);
+  const payAmount = useNewRequestStore(state => state.payAmount);
   const notes = useNewRequestStore(state => state.notes);
   const setSlots = useNewRequestStore(state => state.setSlots);
+  const setPayAmount = useNewRequestStore(state => state.setPayAmount);
   const setNotes = useNewRequestStore(state => state.setNotes);
   const getShiftRange = useNewRequestStore(state => state.getShiftRange);
   const toRequest = useNewRequestStore(state => state.toRequest);
@@ -33,14 +35,29 @@ export function NewRequestStepThreeScreen() {
 
   const range = getShiftRange();
   const estimateInput =
-    serviceKind && range ? { serviceKind, slots, ...range } : null;
+    providerKind && range ? { serviceKind: 'Other' as const, providerKind, slots, ...range } : null;
 
   const { data: estimate, isLoading: isEstimating } = useJobPostEstimate(estimateInput);
   const { mutateAsync: createJobPost, isPending } = useCreateJobPost();
+  const [payAmountText, setPayAmountText] = useState(payAmount ? toCurrencyInput(payAmount) : '');
 
-  const title = serviceKind
-    ? t(`serviceRequest.step1.types.${serviceKindKey(serviceKind)}.label` as never)
+  const title = providerKind
+    ? t(`serviceRequest.step1.providers.${providerKindKey(providerKind)}.label` as never)
     : '';
+
+  useEffect(() => {
+    if (!estimate || payAmount !== null) {
+      return;
+    }
+
+    setPayAmount(estimate.maxAmount);
+    setPayAmountText(toCurrencyInput(estimate.maxAmount));
+  }, [estimate, payAmount, setPayAmount]);
+
+  function changePayAmount(value: string) {
+    setPayAmountText(value);
+    setPayAmount(parseCurrencyInput(value));
+  }
 
   async function submit() {
     const payload = toRequest(title);
@@ -63,7 +80,7 @@ export function NewRequestStepThreeScreen() {
         <Button
           label={t('serviceRequest.step3.submit')}
           loading={isPending}
-          disabled={!estimateInput}
+          disabled={!estimateInput || !payAmount || payAmount <= 0}
           onPress={submit}
         />
       }>
@@ -111,19 +128,53 @@ export function NewRequestStepThreeScreen() {
             {t('serviceRequest.step3.estimateDisclaimer')}
           </AppText>
         </Card>
+
+        <View style={styles.inputGroup}>
+          <AppText variant="caption" color={colors.textSecondary}>
+            {t('serviceRequest.step3.payPerProvider')}
+          </AppText>
+          <TextInput
+            value={payAmountText}
+            onChangeText={changePayAmount}
+            placeholder="0,00"
+            placeholderTextColor={colors.textMuted}
+            keyboardType="decimal-pad"
+            style={styles.input}
+            accessibilityLabel={t('serviceRequest.step3.payPerProvider')}
+          />
+          <AppText variant="caption" color={colors.textMuted}>
+            {t('serviceRequest.step3.payPerProviderHint')}
+          </AppText>
+        </View>
       </View>
     </Screen>
   );
 }
 
-function serviceKindKey(kind: string): string {
+function parseCurrencyInput(value: string) {
+  const normalized = value.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.');
+  const amount = Number(normalized);
+  return Number.isFinite(amount) && amount > 0 ? amount : null;
+}
+
+function toCurrencyInput(value: number) {
+  return value.toFixed(2).replace('.', ',');
+}
+
+function providerKindKey(kind: string): string {
   switch (kind) {
-    case 'PrivateEvent':
-      return 'privateEvent';
-    case 'Restaurant':
-      return 'restaurant';
-    case 'Corporate':
-      return 'corporate';
+    case 'Waiter':
+      return 'waiter';
+    case 'KitchenAssistant':
+      return 'kitchenAssistant';
+    case 'PantryAttendant':
+      return 'pantryAttendant';
+    case 'Bartender':
+      return 'bartender';
+    case 'Receptionist':
+      return 'receptionist';
+    case 'Cleaner':
+      return 'cleaner';
     default:
       return 'other';
   }
@@ -138,4 +189,16 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   estimate: { gap: spacing.xs },
+  inputGroup: { gap: spacing.sm },
+  input: {
+    ...typography.body,
+    color: colors.textPrimary,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    minHeight: 48,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
 });

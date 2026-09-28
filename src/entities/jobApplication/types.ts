@@ -28,7 +28,7 @@ export interface JobApplicant {
   applicationId: string;
   waiterUserId: string;
   fullName: string;
-  profilePhotoUrl: string | null;
+  profilePhotoPath: string | null;
   averageRating: number;
   ratingsCount: number;
   completedServices: number;

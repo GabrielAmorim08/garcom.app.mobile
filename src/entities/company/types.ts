@@ -14,6 +14,7 @@ export interface Company {
   status: CompanyStatus;
   averageRating: number;
   ratingsCount: number;
+  address: Address;
 }
 
 export interface CreateCompanyRequest {
@@ -22,6 +23,7 @@ export interface CreateCompanyRequest {
   taxId: string;
   email: string;
   phone: string;
+  address: Address;
 }
 
 export type EstablishmentStatus = 'Active' | 'Inactive';

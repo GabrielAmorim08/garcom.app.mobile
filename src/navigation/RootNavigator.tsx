@@ -8,6 +8,7 @@ import { NewRequestStepOneScreen } from '../screens/company/NewRequestStepOneScr
 import { NewRequestStepThreeScreen } from '../screens/company/NewRequestStepThreeScreen';
 import { NewRequestStepTwoScreen } from '../screens/company/NewRequestStepTwoScreen';
 import { RequestSentScreen } from '../screens/company/RequestSentScreen';
+import { CompanyServiceDetailScreen } from '../screens/company/CompanyServiceDetailScreen';
 import { EmailVerificationScreen } from '../screens/shared/EmailVerificationScreen';
 import { SignInScreen } from '../screens/shared/SignInScreen';
 import { SignUpScreen } from '../screens/shared/SignUpScreen';
@@ -72,6 +73,7 @@ export function RootNavigator() {
             <Stack.Screen name="NewRequestStepOne" component={NewRequestStepOneScreen} />
             <Stack.Screen name="NewRequestStepTwo" component={NewRequestStepTwoScreen} />
             <Stack.Screen name="NewRequestStepThree" component={NewRequestStepThreeScreen} />
+            <Stack.Screen name="CompanyServiceDetail" component={CompanyServiceDetailScreen} />
             <Stack.Screen
               name="RequestSent"
               component={RequestSentScreen}

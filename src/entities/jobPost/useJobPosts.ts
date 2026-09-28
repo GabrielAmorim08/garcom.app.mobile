@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { mockApi } from '../../mocks/mockApi';
 import { apiConfig } from '../../shared/api/config';
 import { queryKeys } from '../../shared/api/queryClient';
+import { tokenStorage } from '../../shared/api/tokenStorage';
 import type { PagedResult } from '../../shared/types/common';
 import { jobPostService } from './jobPostService';
 import type {
@@ -16,16 +17,23 @@ import type {
 export function useNearbyJobPosts(query: NearbyQuery) {
   return useQuery<PagedResult<NearbyJobPost>>({
     queryKey: queryKeys.jobPosts.nearby(query.latitude, query.longitude, query.radiusMeters),
-    queryFn: () =>
-      apiConfig.useMocks ? mockApi.getNearbyJobPosts() : jobPostService.getNearby(query),
+    queryFn: async () =>
+      (await shouldUseApi()) ? jobPostService.getNearby(query) : mockApi.getNearbyJobPosts(),
   });
 }
 
 export function useJobPost(id: string) {
   return useQuery<NearbyJobPost | JobPost>({
     queryKey: queryKeys.jobPosts.detail(id),
-    queryFn: () => (apiConfig.useMocks ? mockApi.getJobPost(id) : jobPostService.getById(id)),
+    queryFn: async () => ((await shouldUseApi()) ? jobPostService.getById(id) : mockApi.getJobPost(id)),
     enabled: Boolean(id),
+  });
+}
+
+export function useMyJobPosts() {
+  return useQuery<PagedResult<JobPost>>({
+    queryKey: queryKeys.jobPosts.byCompany('mine'),
+    queryFn: () => jobPostService.getMine(),
   });
 }
 
@@ -33,15 +41,18 @@ export function useCreateJobPost() {
   const queryClient = useQueryClient();
 
   return useMutation<JobPost, Error, CreateJobPostRequest>({
-    mutationFn: payload =>
-      apiConfig.useMocks ? mockApi.createJobPost() : jobPostService.create(payload),
+    mutationFn: async payload =>
+      (await shouldUseApi()) ? jobPostService.create(payload) : mockApi.createJobPost(),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.jobPosts.all });
     },
   });
 }
 
-type EstimateInput = Pick<CreateJobPostRequest, 'serviceKind' | 'shiftStart' | 'shiftEnd' | 'slots'>;
+type EstimateInput = Pick<
+  CreateJobPostRequest,
+  'serviceKind' | 'providerKind' | 'shiftStart' | 'shiftEnd' | 'slots'
+>;
 
 /**
  * Runs only once the flow has a start, an end and a quantity, which is why it is
@@ -50,11 +61,15 @@ type EstimateInput = Pick<CreateJobPostRequest, 'serviceKind' | 'shiftStart' | '
 export function useJobPostEstimate(input: EstimateInput | null) {
   return useQuery<JobPostEstimate>({
     queryKey: ['jobPostEstimate', input],
-    queryFn: () =>
-      apiConfig.useMocks
-        ? mockApi.estimateJobPost(input!)
-        : jobPostService.estimate(input!),
+    queryFn: async () =>
+      (await shouldUseApi())
+        ? jobPostService.estimate(input!)
+        : mockApi.estimateJobPost(input!),
     enabled: Boolean(input),
     staleTime: 60_000,
   });
+}
+
+async function shouldUseApi(): Promise<boolean> {
+  return !apiConfig.useMocks || Boolean(await tokenStorage.read());
 }
