@@ -85,6 +85,7 @@ export function SignUpScreen() {
               taxId: onlyDigits(companyTaxId),
               companyEmail: companyEmail.trim(),
               companyPhone: onlyDigits(companyPhone),
+              address: {},
             }
           : undefined,
       });

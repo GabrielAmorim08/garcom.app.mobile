@@ -8,6 +8,11 @@ export const userService = {
     return data;
   },
 
+  async updateCurrent(payload: Pick<User, 'fullName' | 'phone'>): Promise<User> {
+    const { data } = await httpClient.put<User>('/users/me', payload);
+    return data;
+  },
+
   async getWaiterProfile(): Promise<WaiterProfile> {
     const { data } = await httpClient.get<WaiterProfile>('/waiter-profiles/me');
     return data;

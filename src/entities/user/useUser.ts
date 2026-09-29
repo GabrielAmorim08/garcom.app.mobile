@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { mockApi } from '../../mocks/mockApi';
 import { apiConfig } from '../../shared/api/config';
-import { queryKeys } from '../../shared/api/queryClient';
+import { queryClient, queryKeys } from '../../shared/api/queryClient';
 import { tokenStorage } from '../../shared/api/tokenStorage';
 import { userService } from './userService';
 import type { User, WaiterProfile } from './types';
@@ -22,5 +22,14 @@ export function useWaiterProfile() {
     queryKey: ['waiterProfile'],
     queryFn: () =>
       apiConfig.useMocks ? mockApi.getWaiterProfile() : userService.getWaiterProfile(),
+  });
+}
+
+export function useUpdateCurrentUser() {
+  return useMutation<User, Error, Pick<User, 'fullName' | 'phone'>>({
+    mutationFn: payload => userService.updateCurrent(payload),
+    onSuccess: user => {
+      queryClient.setQueryData(queryKeys.currentUser, user);
+    },
   });
 }

@@ -4,10 +4,11 @@ import { queryClient, queryKeys } from '../../shared/api/queryClient';
 import { companyService } from './companyService';
 import type { Company, CreateCompanyRequest } from './types';
 
-export function useMyCompany() {
+export function useMyCompany(enabled = true) {
   return useQuery<Company | null>({
     queryKey: queryKeys.company.mine,
     queryFn: companyService.getMine,
+    enabled,
   });
 }
 

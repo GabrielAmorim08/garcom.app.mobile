@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useMyJobPosts } from '../../entities/jobPost/useJobPosts';
 import type { JobPost } from '../../entities/jobPost/types';
-import { AppText, Badge, Button, Card, Icon, Screen, StatCard } from '../../shared/components';
+import { AppText, Badge, Button, Card, Icon, Screen } from '../../shared/components';
 import { HeroBackdrop } from '../../shared/components/HeroBackdrop';
 import { Wordmark } from '../../shared/components/Wordmark';
 import {
@@ -30,83 +30,94 @@ export function CompanyHomeScreen() {
     const nextService = dashboard.nextService;
 
     return (
-      <Screen scrollable contentStyle={styles.dashboardScroll}>
-        <View style={styles.dashboardHeader}>
-          <Wordmark tone="light" size={22} />
-          <Button
-            label={t('company.home.requestWaiter')}
-            size="md"
-            onPress={() => navigation.navigate('NewRequestStepOne')}
-          />
-        </View>
+      <Screen scrollable background={colors.background} contentStyle={styles.dashboardScroll}>
+        <View style={styles.dashboardHero}>
+          <View style={styles.dashboardHeader}>
+            <Wordmark tone="dark" size={22} />
+          </View>
 
-        <View style={styles.dashboardIntro}>
-          <AppText variant="title">{t('company.dashboard.title')}</AppText>
-          <AppText variant="body" color={colors.textSecondary}>
-            {t('company.dashboard.subtitle')}
-          </AppText>
+          <View style={styles.heroMain}>
+            <View style={styles.dashboardIntro}>
+              <AppText variant="title" color={colors.textOnDark}>
+                {t('company.dashboard.title')}
+              </AppText>
+              <AppText variant="body" color={colors.onHeroMuted}>
+                {t('company.dashboard.subtitle')}
+              </AppText>
+            </View>
+
+            <Button
+              label={t('company.home.requestWaiter')}
+              icon={<Icon name="plus" size={18} color={colors.onPrimary} />}
+              style={styles.dashboardCta}
+              onPress={() => navigation.navigate('NewRequestStepOne')}
+            />
+          </View>
         </View>
 
         <View style={styles.statsGrid}>
-          <View style={styles.statsRow}>
-            <StatCard
-              value={String(dashboard.activeCount)}
-              label={t('company.dashboard.activeServices')}
-            />
-            <StatCard
-              value={`${dashboard.slotsFilled}/${dashboard.totalSlots}`}
-              label={t('company.dashboard.confirmedProviders')}
-            />
-          </View>
-          <View style={styles.statsRow}>
-            <StatCard
-              value={formatCurrency(dashboard.expectedTotal)}
-              label={t('company.dashboard.expectedTotal')}
-            />
-            <StatCard
-              value={String(dashboard.openSlots)}
-              label={t('company.dashboard.openSlots')}
-            />
-          </View>
+          <MetricCard
+            value={String(dashboard.activeCount)}
+            label={t('company.dashboard.activeServices')}
+            tone="dark"
+          />
+          <MetricCard
+            value={`${dashboard.slotsFilled}/${dashboard.totalSlots}`}
+            label={t('company.dashboard.confirmedProviders')}
+            tone="light"
+          />
+          <MetricCard
+            value={String(dashboard.openSlots)}
+            label={t('company.dashboard.openSlots')}
+            tone="light"
+          />
+          <MetricCard
+            value={formatCurrency(dashboard.expectedTotal)}
+            label={t('company.dashboard.expectedTotal')}
+            tone="gold"
+          />
         </View>
 
         {nextService ? (
-          <Card
-            style={styles.nextCard}
-            onPress={() =>
-              navigation.navigate('CompanyServiceDetail', { jobPostId: nextService.id })
-            }>
-            <View style={styles.cardHeader}>
-              <View style={styles.cardTitle}>
-                <AppText variant="captionStrong" color={colors.primaryPressed}>
-                  {t('company.dashboard.nextService')}
-                </AppText>
-                <AppText variant="subtitle">{nextService.title}</AppText>
+          <View style={styles.nextSection}>
+            <AppText variant="subtitle">{t('company.dashboard.nextService')}</AppText>
+            <Card
+              style={styles.nextCard}
+              onPress={() =>
+                navigation.navigate('CompanyServiceDetail', { jobPostId: nextService.id })
+              }>
+              <View style={styles.cardHeader}>
+                <View style={styles.cardTitle}>
+                  <AppText variant="subtitle" color={colors.textOnDark}>
+                    {nextService.title}
+                  </AppText>
+                  <AppText variant="caption" color={colors.onHeroMuted}>
+                    {`${formatShortDate(nextService.shiftStart)} · ${formatTimeRange(
+                      nextService.shiftStart,
+                      nextService.shiftEnd,
+                    )}`}
+                  </AppText>
+                </View>
+                <Badge tone="gold" label={nextService.status} />
               </View>
-              <Badge tone="gold" label={nextService.status} />
-            </View>
 
-            <InfoRow
-              icon="calendar"
-              text={`${formatShortDate(nextService.shiftStart)} · ${formatTimeRange(
-                nextService.shiftStart,
-                nextService.shiftEnd,
-              )}`}
-            />
-            <InfoRow
-              icon="pin"
-              text={[nextService.address.street, nextService.address.number]
-                .filter(Boolean)
-                .join(', ')}
-            />
-            <InfoRow
-              icon="users"
-              text={t('company.dashboard.serviceSlots', {
-                filled: nextService.slotsFilled,
-                total: nextService.slots,
-              })}
-            />
-          </Card>
+              <View style={styles.nextDivider} />
+
+              <InfoRow
+                icon="pin"
+                text={[nextService.address.street, nextService.address.number]
+                  .filter(Boolean)
+                  .join(', ')}
+              />
+              <InfoRow
+                icon="users"
+                text={t('company.dashboard.serviceSlots', {
+                  filled: nextService.slotsFilled,
+                  total: nextService.slots,
+                })}
+              />
+            </Card>
+          </View>
         ) : null}
 
         <View style={styles.sectionHeader}>
@@ -126,12 +137,14 @@ export function CompanyHomeScreen() {
               style={styles.recentCard}
               onPress={() => navigation.navigate('CompanyServiceDetail', { jobPostId: service.id })}>
               <View style={styles.recentText}>
-                <AppText variant="bodyStrong">{service.title}</AppText>
+                <AppText variant="bodyStrong" color={colors.textPrimary}>
+                  {service.title}
+                </AppText>
                 <AppText variant="caption" color={colors.textMuted}>
                   {`${formatShortDate(service.shiftStart)} · ${formatCurrency(service.payAmount)}`}
                 </AppText>
               </View>
-              <Icon name="chevronRight" size={20} color={colors.textMuted} />
+              <Icon name="chevronRight" size={20} color={colors.primaryPressed} />
             </Card>
           ))}
         </View>
@@ -159,6 +172,7 @@ export function CompanyHomeScreen() {
           <View style={styles.actions}>
             <Button
               label={t('company.home.requestWaiter')}
+              icon={<Icon name="plus" size={18} color={colors.onPrimary} />}
               onPress={() => navigation.navigate('NewRequestStepOne')}
             />
             <Button
@@ -214,9 +228,42 @@ function InfoRow({ icon, text }: InfoRowProps) {
 
   return (
     <View style={styles.infoRow}>
-      <Icon name={icon} size={18} color={colors.textMuted} />
-      <AppText variant="body" color={colors.textSecondary} style={styles.infoText}>
+      <Icon name={icon} size={18} color={colors.primary} />
+      <AppText variant="body" color={colors.onHeroMuted} style={styles.infoText}>
         {text}
+      </AppText>
+    </View>
+  );
+}
+
+interface MetricCardProps {
+  value: string;
+  label: string;
+  wide?: boolean;
+  tone?: 'dark' | 'light' | 'gold';
+}
+
+function MetricCard({ value, label, wide = false, tone = 'light' }: MetricCardProps) {
+  const isDark = tone === 'dark';
+  const isGold = tone === 'gold';
+
+  return (
+    <View
+      style={[
+        styles.metricCard,
+        isDark ? styles.metricCardDark : null,
+        isGold ? styles.metricCardGold : null,
+        wide ? styles.metricCardWide : null,
+      ]}>
+      <AppText
+        variant="title"
+        color={isDark ? colors.primary : isGold ? colors.heroBackground : colors.primaryPressed}>
+        {value}
+      </AppText>
+      <AppText
+        variant="caption"
+        color={isDark ? colors.onHeroMuted : isGold ? colors.heroBackground : colors.textMuted}>
+        {label}
       </AppText>
     </View>
   );
@@ -236,18 +283,57 @@ const styles = StyleSheet.create({
   dashboardScroll: {
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.xxl,
-    gap: spacing.lg,
+    gap: spacing.xl,
   },
   dashboardHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+  },
+  dashboardHero: {
+    backgroundColor: colors.heroBackground,
+    borderRadius: 8,
+    padding: spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    gap: spacing.xl,
+  },
+  heroMain: { gap: spacing.lg },
+  dashboardIntro: { gap: spacing.xs },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.md,
   },
-  dashboardIntro: { gap: spacing.xs },
-  statsGrid: { gap: spacing.md },
-  statsRow: { flexDirection: 'row', gap: spacing.md },
-  nextCard: { gap: spacing.md },
+  dashboardCta: {
+    alignSelf: 'stretch',
+  },
+  metricCard: {
+    width: '47%',
+    flexGrow: 1,
+    minHeight: 112,
+    justifyContent: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.surface,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+  },
+  metricCardDark: {
+    backgroundColor: colors.heroBackground,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  metricCardGold: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
+  },
+  metricCardWide: { width: '100%' },
+  nextSection: { gap: spacing.md },
+  nextCard: {
+    gap: spacing.lg,
+    backgroundColor: colors.heroBackground,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  nextDivider: { height: 1, backgroundColor: 'rgba(255, 255, 255, 0.12)' },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -269,6 +355,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
   },
   recentText: { flex: 1, gap: spacing.xs },
 });

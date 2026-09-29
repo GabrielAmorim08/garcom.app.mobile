@@ -18,6 +18,7 @@ export type RootStackParamList = {
   SignIn: undefined;
   SignUp: { role?: 'Waiter' | 'CompanyOwner' } | undefined;
   EmailVerification: undefined;
+  ProfileDetails: undefined;
 
   CompanyTabs: NavigatorScreenParams<CompanyTabParamList>;
   NewRequestStepOne: undefined;

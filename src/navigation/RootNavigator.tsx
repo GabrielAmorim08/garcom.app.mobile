@@ -10,6 +10,7 @@ import { NewRequestStepTwoScreen } from '../screens/company/NewRequestStepTwoScr
 import { RequestSentScreen } from '../screens/company/RequestSentScreen';
 import { CompanyServiceDetailScreen } from '../screens/company/CompanyServiceDetailScreen';
 import { EmailVerificationScreen } from '../screens/shared/EmailVerificationScreen';
+import { ProfileDetailsScreen } from '../screens/shared/ProfileDetailsScreen';
 import { SignInScreen } from '../screens/shared/SignInScreen';
 import { SignUpScreen } from '../screens/shared/SignUpScreen';
 import { WelcomeScreen } from '../screens/shared/WelcomeScreen';
@@ -70,6 +71,7 @@ export function RootNavigator() {
         ) : mode === 'company' ? (
           <>
             <Stack.Screen name="CompanyTabs" component={CompanyTabs} />
+            <Stack.Screen name="ProfileDetails" component={ProfileDetailsScreen} />
             <Stack.Screen name="NewRequestStepOne" component={NewRequestStepOneScreen} />
             <Stack.Screen name="NewRequestStepTwo" component={NewRequestStepTwoScreen} />
             <Stack.Screen name="NewRequestStepThree" component={NewRequestStepThreeScreen} />
@@ -83,6 +85,7 @@ export function RootNavigator() {
         ) : (
           <>
             <Stack.Screen name="WaiterTabs" component={WaiterTabs} />
+            <Stack.Screen name="ProfileDetails" component={ProfileDetailsScreen} />
             <Stack.Screen name="ServiceDetail" component={ServiceDetailScreen} />
             <Stack.Screen
               name="ServiceConfirmed"
