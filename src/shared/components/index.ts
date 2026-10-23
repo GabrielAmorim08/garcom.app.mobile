@@ -19,3 +19,4 @@ export { StepProgress } from './StepProgress';
 export { Stepper } from './Stepper';
 export { SuccessSeal } from './SuccessSeal';
 export { TextArea } from './TextArea';
+export { TextField } from './TextField';

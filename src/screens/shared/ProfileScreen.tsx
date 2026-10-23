@@ -78,6 +78,17 @@ export function ProfileScreen() {
             subtitle={t('profile.registrationDataHint')}
             onPress={() => navigation.navigate('ProfileDetails')}
           />
+          {mode === 'waiter' ? (
+            <ProfileOption
+              title={t('waiter.profileEdit.title')}
+              subtitle={
+                profile?.canReceivePayouts
+                  ? t('waiter.profileEdit.pixTitle')
+                  : t('waiter.profileEdit.pixMissing')
+              }
+              onPress={() => navigation.navigate('WaiterProfileEdit')}
+            />
+          ) : null}
           <ProfileOption
             title={mode === 'company' ? t('auth.iAmAWaiter') : t('auth.iAmACompany')}
             subtitle={t('profile.switchModeHint')}

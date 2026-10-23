@@ -4,7 +4,7 @@ import { mockApi } from '../../mocks/mockApi';
 import { apiConfig } from '../../shared/api/config';
 import { queryKeys } from '../../shared/api/queryClient';
 import { tokenStorage } from '../../shared/api/tokenStorage';
-import type { PagedResult } from '../../shared/types/common';
+import type { GeoPoint, PagedResult } from '../../shared/types/common';
 import { jobPostService } from './jobPostService';
 import type {
   CreateJobPostRequest,
@@ -22,10 +22,11 @@ export function useNearbyJobPosts(query: NearbyQuery) {
   });
 }
 
-export function useJobPost(id: string) {
+export function useJobPost(id: string, origin?: GeoPoint) {
   return useQuery<NearbyJobPost | JobPost>({
     queryKey: queryKeys.jobPosts.detail(id),
-    queryFn: async () => ((await shouldUseApi()) ? jobPostService.getById(id) : mockApi.getJobPost(id)),
+    queryFn: async () =>
+      (await shouldUseApi()) ? jobPostService.getById(id, origin) : mockApi.getJobPost(id),
     enabled: Boolean(id),
   });
 }

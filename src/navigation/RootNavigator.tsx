@@ -14,9 +14,11 @@ import { ProfileDetailsScreen } from '../screens/shared/ProfileDetailsScreen';
 import { SignInScreen } from '../screens/shared/SignInScreen';
 import { SignUpScreen } from '../screens/shared/SignUpScreen';
 import { WelcomeScreen } from '../screens/shared/WelcomeScreen';
+import { AssignmentDetailScreen } from '../screens/waiter/AssignmentDetailScreen';
 import { MyServicesScreen } from '../screens/waiter/MyServicesScreen';
 import { ServiceConfirmedScreen } from '../screens/waiter/ServiceConfirmedScreen';
 import { ServiceDetailScreen } from '../screens/waiter/ServiceDetailScreen';
+import { WaiterProfileEditScreen } from '../screens/waiter/WaiterProfileEditScreen';
 import { colors } from '../theme';
 import { CompanyTabs } from './CompanyTabs';
 import type { RootStackParamList } from './types';
@@ -93,6 +95,8 @@ export function RootNavigator() {
               options={{ gestureEnabled: false }}
             />
             <Stack.Screen name="MyServices" component={MyServicesScreen} />
+            <Stack.Screen name="AssignmentDetail" component={AssignmentDetailScreen} />
+            <Stack.Screen name="WaiterProfileEdit" component={WaiterProfileEditScreen} />
           </>
         )}
       </Stack.Navigator>

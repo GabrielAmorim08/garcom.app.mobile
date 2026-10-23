@@ -30,6 +30,15 @@ export function maskCnpj(value: string): string {
     .replace(/(\d{4})(\d)/, '$1-$2');
 }
 
+export function maskCpf(value: string): string {
+  const digits = onlyDigits(value).slice(0, 11);
+
+  return digits
+    .replace(/^(\d{3})(\d)/, '$1.$2')
+    .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d)/, '.$1-$2');
+}
+
 export function maskVerificationCode(value: string): string {
   return onlyDigits(value).slice(0, 6);
 }

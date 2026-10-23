@@ -5,6 +5,7 @@ export type JobAssignmentStatus =
   | 'Confirmed'
   | 'CheckedIn'
   | 'CheckedOut'
+  | 'Disputed'
   | 'NoShow'
   | 'Cancelled'
   | 'Completed';
@@ -20,6 +21,11 @@ export interface JobAssignment {
   completedAt: IsoDateTime | null;
   /** Amount the waiter receives for this assignment. */
   payAmount: number;
+  /** How far from the venue the waiter was, measured by the server. */
+  checkInDistanceMeters: number | null;
+  checkOutDistanceMeters: number | null;
+  /** Until when the company may contest the check-out. */
+  contestWindowEndsAt: IsoDateTime | null;
 }
 
 /** Assignment plus its post, which is what every list and detail screen needs. */

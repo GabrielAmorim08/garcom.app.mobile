@@ -3,9 +3,12 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { mockApi } from '../../mocks/mockApi';
 import { apiConfig } from '../../shared/api/config';
 import { queryClient, queryKeys } from '../../shared/api/queryClient';
+import { shouldUseApi } from '../../shared/api/shouldUseApi';
 import { tokenStorage } from '../../shared/api/tokenStorage';
 import { userService } from './userService';
-import type { User, WaiterProfile } from './types';
+import type { UpdateWaiterProfileRequest, User, WaiterProfile } from './types';
+
+const waiterProfileKey = ['waiterProfile'] as const;
 
 export function useCurrentUser() {
   return useQuery<User>({
@@ -19,9 +22,27 @@ export function useCurrentUser() {
 
 export function useWaiterProfile() {
   return useQuery<WaiterProfile>({
-    queryKey: ['waiterProfile'],
-    queryFn: () =>
-      apiConfig.useMocks ? mockApi.getWaiterProfile() : userService.getWaiterProfile(),
+    queryKey: waiterProfileKey,
+    queryFn: async () =>
+      (await shouldUseApi()) ? userService.getWaiterProfile() : mockApi.getWaiterProfile(),
+  });
+}
+
+export function useUpdateWaiterProfile() {
+  return useMutation<WaiterProfile, Error, UpdateWaiterProfileRequest>({
+    mutationFn: payload => userService.updateWaiterProfile(payload),
+    onSuccess: profile => {
+      queryClient.setQueryData(waiterProfileKey, profile);
+    },
+  });
+}
+
+export function useSetAvailability() {
+  return useMutation<WaiterProfile, Error, boolean>({
+    mutationFn: isAvailable => userService.setAvailability(isAvailable),
+    onSuccess: profile => {
+      queryClient.setQueryData(waiterProfileKey, profile);
+    },
   });
 }
 

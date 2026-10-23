@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +26,7 @@ import {
 } from '../../shared/utils/format';
 import { colors, spacing } from '../../theme';
 import type { RootStackParamList } from '../../navigation/types';
+import { getErrorMessage } from '../../shared/api/errorMessage';
 
 export function ServiceDetailScreen() {
   const { t } = useTranslation();
@@ -33,8 +34,9 @@ export function ServiceDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'ServiceDetail'>>();
   const { location } = useCurrentLocation();
 
-  const { data, isLoading } = useJobPost(params.jobPostId);
+  const { data, isLoading } = useJobPost(params.jobPostId, location);
   const { mutateAsync: apply, isPending } = useApplyToJobPost();
+  const [applyError, setApplyError] = useState<string | null>(null);
 
   const jobPost = data as NearbyJobPost | undefined;
 
@@ -43,13 +45,20 @@ export function ServiceDetailScreen() {
       return;
     }
 
-    await apply({
-      jobPostId: jobPost.id,
-      latitude: location.latitude,
-      longitude: location.longitude,
-    });
+    setApplyError(null);
 
-    navigation.navigate('ServiceConfirmed', { jobPostId: jobPost.id });
+    try {
+      await apply({
+        jobPostId: jobPost.id,
+        latitude: location.latitude,
+        longitude: location.longitude,
+      });
+    } catch (error) {
+      setApplyError(getErrorMessage(error, t));
+      return;
+    }
+
+    navigation.navigate('MyServices', { tab: 'applications' });
   }
 
   if (isLoading || !jobPost) {
@@ -74,6 +83,11 @@ export function ServiceDetailScreen() {
       scrollable
       footer={
         <View style={styles.footer}>
+          {applyError ? (
+            <AppText variant="caption" color={colors.danger} align="center">
+              {applyError}
+            </AppText>
+          ) : null}
           <Button
             label={jobPost.hasApplied ? t('waiter.detail.alreadyApplied') : t('waiter.detail.apply')}
             disabled={jobPost.hasApplied}
@@ -88,12 +102,14 @@ export function ServiceDetailScreen() {
       <ScreenHeader
         onBack={navigation.goBack}
         right={
-          <Badge
-            tone="gold"
-            label={t('common.distanceFromYou', {
-              value: formatDistanceKm(jobPost.distanceMeters),
-            })}
-          />
+          typeof jobPost.distanceMeters === 'number' ? (
+            <Badge
+              tone="gold"
+              label={t('common.distanceFromYou', {
+                value: formatDistanceKm(jobPost.distanceMeters),
+              })}
+            />
+          ) : undefined
         }
       />
 

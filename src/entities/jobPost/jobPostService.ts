@@ -1,5 +1,5 @@
 import { httpClient } from '../../shared/api/httpClient';
-import type { PagedResult, PageRequest } from '../../shared/types/common';
+import type { GeoPoint, PagedResult, PageRequest } from '../../shared/types/common';
 import type {
   CreateJobPostRequest,
   JobPost,
@@ -17,8 +17,14 @@ export const jobPostService = {
     return data;
   },
 
-  async getById(id: string): Promise<JobPost> {
-    const { data } = await httpClient.get<JobPost>(`/job-posts/${id}`);
+  /**
+   * With an origin the server also returns the distance and whether the signed-in
+   * waiter already applied, and prices the post from the waiter's side.
+   */
+  async getById(id: string, origin?: GeoPoint): Promise<JobPost | NearbyJobPost> {
+    const { data } = await httpClient.get<JobPost | NearbyJobPost>(`/job-posts/${id}`, {
+      params: origin,
+    });
     return data;
   },
 

@@ -35,6 +35,11 @@ export const mockWaiterProfile: WaiterProfile = {
   isAvailable: true,
   searchRadiusMeters: 10_000,
   completedServices: 12,
+  homeAddress: { city: 'São Paulo', state: 'SP', country: 'BR' },
+  homeLocation: null,
+  pixKey: null,
+  pixKeyType: null,
+  canReceivePayouts: false,
 };
 
 export const mockNearbyJobPosts: NearbyJobPost[] = [
@@ -176,6 +181,9 @@ function toAssignment(post: NearbyJobPost, status: JobAssignmentWithPost['status
     checkOutAt: null,
     completedAt: null,
     payAmount: post.payAmount,
+    checkInDistanceMeters: null,
+    checkOutDistanceMeters: null,
+    contestWindowEndsAt: null,
     jobPost: post,
   };
 }

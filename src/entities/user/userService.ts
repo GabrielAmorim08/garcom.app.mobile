@@ -1,5 +1,5 @@
 import { httpClient } from '../../shared/api/httpClient';
-import type { User, WaiterProfile } from './types';
+import type { UpdateWaiterProfileRequest, User, WaiterProfile } from './types';
 
 /** Everything the app knows how to ask about users and waiter profiles. */
 export const userService = {
@@ -18,12 +18,15 @@ export const userService = {
     return data;
   },
 
-  async updateWaiterProfile(payload: Partial<WaiterProfile>): Promise<WaiterProfile> {
+  async updateWaiterProfile(payload: UpdateWaiterProfileRequest): Promise<WaiterProfile> {
     const { data } = await httpClient.put<WaiterProfile>('/waiter-profiles/me', payload);
     return data;
   },
 
-  async setAvailability(isAvailable: boolean): Promise<void> {
-    await httpClient.patch('/waiter-profiles/me/availability', { isAvailable });
+  async setAvailability(isAvailable: boolean): Promise<WaiterProfile> {
+    const { data } = await httpClient.patch<WaiterProfile>('/waiter-profiles/me/availability', {
+      isAvailable,
+    });
+    return data;
   },
 };

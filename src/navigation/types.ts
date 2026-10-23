@@ -30,7 +30,9 @@ export type RootStackParamList = {
   WaiterTabs: NavigatorScreenParams<WaiterTabParamList>;
   ServiceDetail: { jobPostId: string };
   ServiceConfirmed: { jobPostId: string };
-  MyServices: undefined;
+  MyServices: { tab?: 'upcoming' | 'applications' | 'history' } | undefined;
+  AssignmentDetail: { assignmentId: string };
+  WaiterProfileEdit: undefined;
 };
 
 /** Makes useNavigation() typed everywhere without passing generics at each call site. */
