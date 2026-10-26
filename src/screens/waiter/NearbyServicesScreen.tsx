@@ -24,7 +24,7 @@ type ViewMode = 'map' | 'list';
 export function NearbyServicesScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
-  const { location } = useCurrentLocation();
+  const { location } = useCurrentLocation({ autoRequest: true });
 
   const [viewMode, setViewMode] = useState<ViewMode>('list');
 
@@ -42,12 +42,6 @@ export function NearbyServicesScreen() {
       <View style={styles.header}>
         <View style={styles.titleBlock}>
           <AppText variant="subtitle">{t('waiter.nearby.title')}</AppText>
-          <View style={styles.cityRow}>
-            <Icon name="pin" size={14} color={colors.textMuted} />
-            <AppText variant="caption" color={colors.textMuted}>
-              São Paulo - SP
-            </AppText>
-          </View>
         </View>
 
         <Pressable
@@ -124,7 +118,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   titleBlock: { flex: 1, gap: 2 },
-  cityRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',

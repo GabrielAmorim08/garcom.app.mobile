@@ -32,7 +32,7 @@ export function ServiceDetailScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const { params } = useRoute<RouteProp<RootStackParamList, 'ServiceDetail'>>();
-  const { location } = useCurrentLocation();
+  const { location } = useCurrentLocation({ autoRequest: true });
 
   const { data, isLoading } = useJobPost(params.jobPostId, location);
   const { mutateAsync: apply, isPending } = useApplyToJobPost();

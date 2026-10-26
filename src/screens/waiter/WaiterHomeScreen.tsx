@@ -25,7 +25,7 @@ type ViewMode = 'map' | 'list';
 export function WaiterHomeScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
-  const { location } = useCurrentLocation();
+  const { location } = useCurrentLocation({ autoRequest: true });
 
   const [viewMode, setViewMode] = useState<ViewMode>('map');
 
