@@ -6,16 +6,17 @@ import { ProfileScreen } from '../screens/shared/ProfileScreen';
 import { MessagesScreen } from '../screens/shared/MessagesScreen';
 import { NearbyServicesScreen } from '../screens/waiter/NearbyServicesScreen';
 import { WaiterHomeScreen } from '../screens/waiter/WaiterHomeScreen';
-import { tabBarStyle, tabScreenOptions } from './TabBar';
+import { tabScreenOptions, useTabBarOptions } from './TabBar';
 import type { WaiterTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<WaiterTabParamList>();
 
 export function WaiterTabs() {
   const { t } = useTranslation();
+  const tabBarOptions = useTabBarOptions();
 
   return (
-    <Tab.Navigator screenOptions={tabBarStyle}>
+    <Tab.Navigator screenOptions={tabBarOptions}>
       <Tab.Screen
         name="WaiterHome"
         component={WaiterHomeScreen}

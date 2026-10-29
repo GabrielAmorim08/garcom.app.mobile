@@ -6,8 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { useMyJobPosts } from '../../entities/jobPost/useJobPosts';
 import type { JobPost } from '../../entities/jobPost/types';
 import { AppText, Badge, Button, Card, Icon, Screen } from '../../shared/components';
+import { useTabBarClearance } from '../../shared/hooks/useTabBarClearance';
 import { HeroBackdrop } from '../../shared/components/HeroBackdrop';
-import { Wordmark } from '../../shared/components/Wordmark';
+import { AppHeader } from '../../navigation/AppHeader';
 import {
   formatCurrency,
   formatShortDate,
@@ -22,6 +23,7 @@ import { colors, spacing } from '../../theme';
 export function CompanyHomeScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
+  const tabBarClearance = useTabBarClearance();
   const { data, isLoading } = useMyJobPosts();
   const services = data?.items ?? [];
 
@@ -33,7 +35,7 @@ export function CompanyHomeScreen() {
       <Screen scrollable background={colors.background} contentStyle={styles.dashboardScroll}>
         <View style={styles.dashboardHero}>
           <View style={styles.dashboardHeader}>
-            <Wordmark tone="dark" size={22} />
+            <AppHeader />
           </View>
 
           <View style={styles.heroMain}>
@@ -153,11 +155,11 @@ export function CompanyHomeScreen() {
   }
 
   return (
-    <Screen background={colors.heroBackground} edges={['top']}>
+    <Screen background={colors.heroBackground} edges={['top']} bleedUnderTabBar>
       <HeroBackdrop>
-        <View style={styles.content}>
+        <View style={[styles.content, { paddingBottom: spacing.xxl + tabBarClearance }]}>
           <View style={styles.brandRow}>
-            <Wordmark tone="dark" size={22} />
+            <AppHeader />
           </View>
 
           <View style={styles.heroCopy}>
@@ -277,7 +279,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     paddingBottom: spacing.xxl,
   },
-  brandRow: { alignItems: 'center' },
+  brandRow: { alignSelf: 'stretch' },
   heroCopy: { gap: spacing.md, marginBottom: spacing.xxl },
   actions: { gap: spacing.md },
   dashboardScroll: {
@@ -286,7 +288,7 @@ const styles = StyleSheet.create({
     gap: spacing.xl,
   },
   dashboardHeader: {
-    alignItems: 'center',
+    alignSelf: 'stretch',
   },
   dashboardHero: {
     backgroundColor: colors.heroBackground,

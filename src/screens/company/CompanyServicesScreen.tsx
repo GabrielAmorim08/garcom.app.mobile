@@ -11,11 +11,11 @@ import {
   Card,
   EmptyState,
   Icon,
-  Screen,
-  ScreenHeader,
   SegmentedControl,
   type SegmentOption,
 } from '../../shared/components';
+import { TabScreen } from '../../navigation/TabScreen';
+import { useTabBarClearance } from '../../shared/hooks/useTabBarClearance';
 import {
   formatCurrency,
   formatShortDate,
@@ -29,6 +29,7 @@ type ServiceFilter = 'all' | 'open' | 'filled' | 'closed';
 export function CompanyServicesScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
+  const tabBarClearance = useTabBarClearance();
   const [filter, setFilter] = useState<ServiceFilter>('all');
 
   const { data, isLoading, refetch, isRefetching } = useMyJobPosts();
@@ -48,13 +49,11 @@ export function CompanyServicesScreen() {
   ];
 
   return (
-    <Screen>
-      <ScreenHeader title={t('company.home.myServices')} />
-
+    <TabScreen title={t('company.home.myServices')}>
       <FlatList
         data={filteredItems}
         keyExtractor={item => item.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: spacing.xxl + tabBarClearance }]}
         onRefresh={refetch}
         refreshing={isRefetching}
         ListHeaderComponent={
@@ -129,7 +128,7 @@ export function CompanyServicesScreen() {
           </View>
         }
       />
-    </Screen>
+    </TabScreen>
   );
 }
 
@@ -319,7 +318,7 @@ function providerKindKey(kind: ProviderKind) {
 const styles = StyleSheet.create({
   list: {
     paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.xxl,
+    paddingTop: spacing.xl,
     gap: spacing.md,
   },
   headerContent: {

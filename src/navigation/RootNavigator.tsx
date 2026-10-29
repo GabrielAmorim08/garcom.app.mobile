@@ -1,5 +1,4 @@
-import React from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { DefaultTheme, NavigationContainer, Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -13,18 +12,25 @@ import { EmailVerificationScreen } from '../screens/shared/EmailVerificationScre
 import { ProfileDetailsScreen } from '../screens/shared/ProfileDetailsScreen';
 import { SignInScreen } from '../screens/shared/SignInScreen';
 import { SignUpScreen } from '../screens/shared/SignUpScreen';
+import { SplashScreen } from '../screens/shared/SplashScreen';
 import { WelcomeScreen } from '../screens/shared/WelcomeScreen';
 import { AssignmentDetailScreen } from '../screens/waiter/AssignmentDetailScreen';
 import { MyServicesScreen } from '../screens/waiter/MyServicesScreen';
 import { ServiceConfirmedScreen } from '../screens/waiter/ServiceConfirmedScreen';
 import { ServiceDetailScreen } from '../screens/waiter/ServiceDetailScreen';
 import { WaiterProfileEditScreen } from '../screens/waiter/WaiterProfileEditScreen';
+import { splashAnimationEnabled } from '../shared/appInfo';
+import { LocationRequiredDialog } from '../shared/components';
+import { useLocationAccess } from '../shared/hooks/useLocationAccess';
 import { colors } from '../theme';
 import { CompanyTabs } from './CompanyTabs';
 import type { RootStackParamList } from './types';
 import { WaiterTabs } from './WaiterTabs';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+/** The opening screen leaves when its animation ends; this only guards against it never reporting. */
+const SPLASH_MAX_DURATION_MS = 6000;
 
 const navigationTheme: Theme = {
   ...DefaultTheme,
@@ -38,6 +44,11 @@ const navigationTheme: Theme = {
   },
 };
 
+function LocationGate() {
+  const { block, openSettings } = useLocationAccess();
+  return <LocationRequiredDialog block={block} onOpenSettings={() => void openSettings()} />;
+}
+
 export function RootNavigator() {
   const mode = useAuthStore(state => state.mode);
   const user = useAuthStore(state => state.user);
@@ -45,16 +56,22 @@ export function RootNavigator() {
   const pendingVerificationEmail = useAuthStore(state => state.pendingVerificationEmail);
   const hasCompletedFirstLogin = useAuthStore(state => state.hasCompletedFirstLogin);
 
-  if (isHydrating) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator color={colors.primary} />
-      </View>
-    );
+  const [splashTimeElapsed, setSplashTimeElapsed] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSplashTimeElapsed(true), SPLASH_MAX_DURATION_MS);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isHydrating || (splashAnimationEnabled && !splashTimeElapsed)) {
+    return <SplashScreen onFinished={() => setSplashTimeElapsed(true)} />;
   }
+
+  const needsLocation = user !== null && !pendingVerificationEmail;
 
   return (
     <NavigationContainer theme={navigationTheme}>
+      {needsLocation ? <LocationGate /> : null}
       {/*
         Headers are off across the stack: every screen draws its own, because the
         design puts the title, the back arrow and the step bar in one block.
@@ -103,12 +120,3 @@ export function RootNavigator() {
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.background,
-  },
-});

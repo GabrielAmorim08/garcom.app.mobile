@@ -1,57 +1,113 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import Svg, { Circle, Line, Rect } from 'react-native-svg';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Camera, Map, ViewAnnotation } from '@maplibre/maplibre-react-native';
 
 import { colors, radius } from '../../theme';
 import type { GeoPoint } from '../types/common';
 import { Icon } from './Icon';
 
+export interface MapMarker {
+  id: string;
+  location: GeoPoint;
+}
+
 interface MapPreviewProps {
+  /** Where the map is centred, shown with the gold pin. */
   location: GeoPoint | null;
   height?: number;
-  /** Extra pins for the nearby map: the other open services. */
-  markers?: GeoPoint[];
+  /** Other places on the map: the open services around the location. */
+  markers?: MapMarker[];
+  onMarkerPress?: (id: string) => void;
+  /** Lets the user pan and zoom. Off for the small previews that sit inside a scroll. */
+  interactive?: boolean;
+  zoom?: number;
 }
 
 /**
- * Stand-in for the real map.
- *
- * react-native-maps needs a Google Maps key and native configuration on both
- * platforms, so the whole app is kept free of that dependency until the key
- * exists: swapping this one file for a MapView is the entire migration.
+ * OpenStreetMap raster tiles, which need no key. The public tile servers are meant
+ * for light use, so production should point `tiles` at its own or a paid provider.
  */
-export function MapPreview({ location, height = 140, markers = [] }: MapPreviewProps) {
+const MAP_STYLE = {
+  version: 8 as const,
+  sources: {
+    osm: {
+      type: 'raster' as const,
+      tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      maxzoom: 19,
+      attribution: '© OpenStreetMap contributors',
+    },
+  },
+  layers: [{ id: 'osm', type: 'raster' as const, source: 'osm' }],
+};
+
+const DEFAULT_ZOOM = 14;
+
+/** Where the map opens before any position is known: all of Brazil, not the open ocean. */
+const BRAZIL_CENTER: [number, number] = [-52, -14.5];
+const BRAZIL_ZOOM = 3.2;
+const CAMERA_MOVE_MS = 600;
+
+export function MapPreview({
+  location,
+  height = 140,
+  markers = [],
+  onMarkerPress,
+  interactive = false,
+  zoom = DEFAULT_ZOOM,
+}: MapPreviewProps) {
   return (
     <View
       style={[styles.container, { height }]}
-      accessibilityLabel="prévia do mapa"
+      accessibilityLabel="mapa"
       accessibilityRole="image">
-      <Svg width="100%" height="100%">
-        <Rect x={0} y={0} width="100%" height="100%" fill={colors.surfaceAlt} />
-
-        {/* Stylised street grid, so the block reads as a map and not as a loading box. */}
-        <Line x1="0%" y1="32%" x2="100%" y2="26%" stroke={colors.border} strokeWidth={6} />
-        <Line x1="0%" y1="72%" x2="100%" y2="78%" stroke={colors.border} strokeWidth={4} />
-        <Line x1="24%" y1="0%" x2="30%" y2="100%" stroke={colors.border} strokeWidth={5} />
-        <Line x1="70%" y1="0%" x2="64%" y2="100%" stroke={colors.border} strokeWidth={3} />
-
-        {markers.map((_, index) => (
-          <Circle
-            key={index}
-            cx={`${20 + index * 18}%`}
-            cy={`${35 + (index % 3) * 18}%`}
-            r={6}
-            fill={colors.info}
-            opacity={0.75}
+      <Map
+        style={styles.map}
+        mapStyle={MAP_STYLE}
+        dragPan={interactive}
+        touchZoom={interactive}
+        doubleTapZoom={interactive}
+        touchRotate={false}
+        touchPitch={false}
+        compass={false}
+        logo={false}
+        attribution>
+        {location ? (
+          <Camera
+            center={[location.longitude, location.latitude]}
+            zoom={zoom}
+            duration={CAMERA_MOVE_MS}
           />
-        ))}
-      </Svg>
+        ) : (
+          <Camera center={BRAZIL_CENTER} zoom={BRAZIL_ZOOM} />
+        )}
 
-      {location ? (
-        <View style={styles.pin}>
-          <Icon name="pin" size={28} color={colors.primary} filled />
-        </View>
-      ) : null}
+        {markers.map(marker => (
+          <ViewAnnotation
+            key={marker.id}
+            id={`marker-${marker.id}`}
+            lngLat={[marker.location.longitude, marker.location.latitude]}>
+            <Pressable
+              onPress={() => onMarkerPress?.(marker.id)}
+              hitSlop={8}
+              accessibilityRole="button"
+              style={styles.marker}>
+              <View style={styles.markerDot} />
+            </Pressable>
+          </ViewAnnotation>
+        ))}
+
+        {location ? (
+          <ViewAnnotation
+            id="focus-pin"
+            anchor="bottom"
+            lngLat={[location.longitude, location.latitude]}>
+            <View pointerEvents="none">
+              <Icon name="pin" size={32} color={colors.primary} filled />
+            </View>
+          </ViewAnnotation>
+        ) : null}
+      </Map>
     </View>
   );
 }
@@ -62,13 +118,19 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: colors.surfaceAlt,
   },
-  pin: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
+  map: { flex: 1 },
+  marker: {
+    width: 28,
+    height: 28,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  markerDot: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: colors.info,
+    borderWidth: 2,
+    borderColor: colors.surface,
   },
 });

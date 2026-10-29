@@ -12,11 +12,11 @@ import {
   ListSeparator,
   Icon,
   MapPreview,
-  Screen,
   SegmentedControl,
 } from '../../shared/components';
+import { TabScreen } from '../../navigation/TabScreen';
 import { useCurrentLocation } from '../../shared/hooks/useCurrentLocation';
-import type { GeoPoint } from '../../shared/types/common';
+import { useTabBarClearance } from '../../shared/hooks/useTabBarClearance';
 import { colors, radius, spacing } from '../../theme';
 
 type ViewMode = 'map' | 'list';
@@ -24,6 +24,7 @@ type ViewMode = 'map' | 'list';
 export function NearbyServicesScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
+  const tabBarClearance = useTabBarClearance();
   const { location } = useCurrentLocation({ autoRequest: true });
 
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -38,10 +39,17 @@ export function NearbyServicesScreen() {
   const items = data?.items ?? [];
 
   return (
-    <Screen>
-      <View style={styles.header}>
-        <View style={styles.titleBlock}>
-          <AppText variant="subtitle">{t('waiter.nearby.title')}</AppText>
+    <TabScreen title={t('waiter.nearby.title')}>
+      <View style={styles.switcher}>
+        <View style={styles.switcherControl}>
+          <SegmentedControl<ViewMode>
+            value={viewMode}
+            onChange={setViewMode}
+            options={[
+              { value: 'map', label: t('common.map') },
+              { value: 'list', label: t('common.list') },
+            ]}
+          />
         </View>
 
         <Pressable
@@ -55,32 +63,26 @@ export function NearbyServicesScreen() {
         </Pressable>
       </View>
 
-      <View style={styles.switcher}>
-        <SegmentedControl<ViewMode>
-          value={viewMode}
-          onChange={setViewMode}
-          options={[
-            { value: 'map', label: t('common.map') },
-            { value: 'list', label: t('common.list') },
-          ]}
-        />
-      </View>
-
       {viewMode === 'map' ? (
         <View style={styles.mapWrapper}>
           <MapPreview
             location={location}
-            height={320}
-            markers={items
-              .map(item => item.location)
-              .filter((point): point is GeoPoint => point !== null)}
+            height={360}
+            interactive
+            markers={items.flatMap(item =>
+              item.location ? [{ id: item.id, location: item.location }] : [],
+            )}
+            onMarkerPress={jobPostId => navigation.navigate('ServiceDetail', { jobPostId })}
           />
         </View>
       ) : (
         <FlatList
           data={items}
           keyExtractor={item => item.id}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={[
+            styles.list,
+            { paddingBottom: spacing.xxl + tabBarClearance },
+          ]}
           onRefresh={refetch}
           refreshing={isRefetching}
           ItemSeparatorComponent={ListSeparator}
@@ -104,20 +106,12 @@ export function NearbyServicesScreen() {
           }
         />
       )}
-    </Screen>
+    </TabScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.md,
-    gap: spacing.md,
-  },
-  titleBlock: { flex: 1, gap: 2 },
+  switcherControl: { flex: 1 },
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -129,8 +123,14 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     backgroundColor: colors.surface,
   },
-  switcher: { paddingHorizontal: spacing.xl, paddingVertical: spacing.lg },
+  switcher: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
+  },
   mapWrapper: { paddingHorizontal: spacing.xl },
-  list: { paddingHorizontal: spacing.xl, paddingBottom: spacing.xxl },
+  list: { paddingHorizontal: spacing.xl },
   loading: { paddingVertical: spacing.huge },
 });

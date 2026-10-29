@@ -11,6 +11,7 @@ import { tokenStorage } from './tokenStorage';
 interface ErrorBody {
   message?: string;
   error?: string;
+  detail?: string;
   errors?: Array<{ field?: string; message?: string }>;
 }
 
@@ -99,6 +100,8 @@ httpClient.interceptors.response.use(
       .filter(e => e.field && e.message)
       .map(e => ({ field: e.field!, message: e.message! }));
 
-    throw ApiError.fromStatus(status, data?.message ?? data?.error ?? error.message, fieldErrors);
+    const serverMessage = data?.message ?? data?.error ?? undefined;
+
+    throw ApiError.fromStatus(status, serverMessage ?? error.message, fieldErrors, serverMessage);
   },
 );

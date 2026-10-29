@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { appVersion } from '../../shared/appInfo';
 import type { DeviceInfoRequest } from './types';
 
 const DEVICE_ID_KEY = '@serveup/device-id';
@@ -21,6 +22,6 @@ export async function getDeviceInfo(): Promise<DeviceInfoRequest> {
     deviceId: await getDeviceId(),
     platform: Platform.OS === 'ios' ? 'Ios' : 'Android',
     deviceModel: Platform.OS,
-    appVersion: '0.0.1',
+    appVersion,
   };
 }

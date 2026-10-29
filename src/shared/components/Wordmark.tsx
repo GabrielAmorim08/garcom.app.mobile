@@ -27,7 +27,7 @@ export function Wordmark({ tone = 'light', size = 28 }: WordmarkProps) {
   );
 }
 
-function BowTie({ width, color }: { width: number; color: string }) {
+export function BowTie({ width, color }: { width: number; color: string }) {
   const height = width * 0.42;
 
   return (

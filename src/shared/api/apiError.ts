@@ -23,12 +23,19 @@ export class ApiError extends Error {
     message: string,
     public readonly status?: number,
     public readonly fieldErrors: FieldError[] = [],
+    /** Text the API wrote for the user, when it sent one. */
+    public readonly serverMessage?: string,
   ) {
     super(message);
     this.name = 'ApiError';
   }
 
-  static fromStatus(status: number, message: string, fieldErrors: FieldError[] = []): ApiError {
+  static fromStatus(
+    status: number,
+    message: string,
+    fieldErrors: FieldError[] = [],
+    serverMessage?: string,
+  ): ApiError {
     const kind: ApiErrorKind =
       status === 401 ? 'unauthorized'
       : status === 403 ? 'forbidden'
@@ -38,7 +45,7 @@ export class ApiError extends Error {
       : status >= 500 ? 'server'
       : 'unknown';
 
-    return new ApiError(kind, message, status, fieldErrors);
+    return new ApiError(kind, message, status, fieldErrors, serverMessage);
   }
 
   /** i18n key for a user-facing message. */
@@ -48,8 +55,12 @@ export class ApiError extends Error {
         return 'errors.network';
       case 'unauthorized':
         return 'errors.unauthorized';
+      case 'forbidden':
+        return 'errors.forbidden';
       case 'notFound':
         return 'errors.notFound';
+      case 'server':
+        return 'errors.server';
       default:
         return 'errors.generic';
     }

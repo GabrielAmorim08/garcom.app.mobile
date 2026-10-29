@@ -1,20 +1,21 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
 import { useAuthStore } from '../../entities/auth/authStore';
+import { biometricLogin } from '../../entities/auth/biometricLogin';
+import { useBiometricLogin } from '../../entities/auth/useBiometricLogin';
 import { useCurrentUser, useWaiterProfile } from '../../entities/user/useUser';
 import {
   AppText,
   Avatar,
   Button,
-  Card,
   Icon,
-  Screen,
-  ScreenHeader,
   StatCard,
 } from '../../shared/components';
+import { TabScreen } from '../../navigation/TabScreen';
+import { useTabBarClearance } from '../../shared/hooks/useTabBarClearance';
 import { changeLanguage } from '../../i18n';
 import { formatRating } from '../../shared/utils/format';
 import { colors, spacing } from '../../theme';
@@ -23,31 +24,40 @@ export function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const navigation = useNavigation();
 
+  const tabBarClearance = useTabBarClearance();
+  const biometric = useBiometricLogin();
   const mode = useAuthStore(state => state.mode);
-  const setMode = useAuthStore(state => state.setMode);
   const signOut = useAuthStore(state => state.signOut);
 
   const { data: user } = useCurrentUser();
   const { data: profile } = useWaiterProfile();
 
+  function confirmDisableBiometric() {
+    Alert.alert(t('biometric.disableTitle'), t('biometric.disableMessage'), [
+      { text: t('biometric.cancel'), style: 'cancel' },
+      {
+        text: t('biometric.disableConfirm'),
+        style: 'destructive',
+        onPress: () => {
+          void biometricLogin
+            .disable()
+            .then(() => biometricLogin.forgetPromptDeclined())
+            .then(() => biometric.refresh());
+        },
+      },
+    ]);
+  }
+
   function toggleLanguage() {
     void changeLanguage(i18n.language === 'pt-BR' ? 'en' : 'pt-BR');
   }
 
-  function switchMode() {
-    const next = mode === 'company' ? 'waiter' : 'company';
-    setMode(next);
-    navigation.reset({
-      index: 0,
-      routes: [{ name: next === 'company' ? 'CompanyTabs' : 'WaiterTabs' }],
-    });
-  }
-
   return (
-    <Screen scrollable>
-      <ScreenHeader title={t('tabs.profile')} />
-
-      <View style={styles.content}>
+    <TabScreen title={t('tabs.profile')}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: spacing.xxl + tabBarClearance }]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}>
         <View style={styles.identity}>
           <Avatar name={user?.fullName ?? 'ServeUp'} uri={user?.profilePhotoPath} size={64} />
           <View style={styles.identityTexts}>
@@ -89,24 +99,19 @@ export function ProfileScreen() {
               onPress={() => navigation.navigate('WaiterProfileEdit')}
             />
           ) : null}
-          <ProfileOption
-            title={mode === 'company' ? t('auth.iAmAWaiter') : t('auth.iAmACompany')}
-            subtitle={t('profile.switchModeHint')}
-            onPress={switchMode}
-          />
+          {biometric.enabled ? (
+            <ProfileOption
+              title={t('biometric.profileTitle')}
+              subtitle={t('biometric.profileEnabled')}
+              onPress={confirmDisableBiometric}
+            />
+          ) : null}
           <ProfileOption
             title={t('profile.language')}
             subtitle={i18n.language === 'pt-BR' ? 'English' : 'Português'}
             onPress={toggleLanguage}
           />
         </View>
-
-        <Card style={styles.supportCard}>
-          <AppText variant="bodyStrong">{t('profile.accountStatus')}</AppText>
-          <AppText variant="caption" color={colors.textMuted}>
-            {user?.status ?? '-'}
-          </AppText>
-        </Card>
 
         <View style={styles.signOutArea}>
           <Button
@@ -115,8 +120,8 @@ export function ProfileScreen() {
             onPress={() => void signOut()}
           />
         </View>
-      </View>
-    </Screen>
+      </ScrollView>
+    </TabScreen>
   );
 }
 
@@ -144,7 +149,7 @@ function ProfileOption({ title, subtitle, onPress }: ProfileOptionProps) {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: spacing.xl, gap: spacing.xl, paddingBottom: spacing.xxl },
+  content: { paddingHorizontal: spacing.xl, paddingTop: spacing.xl, gap: spacing.xl },
   identity: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
   identityTexts: { flex: 1, gap: 2 },
   stats: { flexDirection: 'row', gap: spacing.md },
@@ -163,6 +168,5 @@ const styles = StyleSheet.create({
   },
   optionPressed: { backgroundColor: colors.surfaceAlt },
   optionTexts: { flex: 1, gap: spacing.xs },
-  supportCard: { gap: spacing.xs },
   signOutArea: { marginTop: spacing.xl },
 });

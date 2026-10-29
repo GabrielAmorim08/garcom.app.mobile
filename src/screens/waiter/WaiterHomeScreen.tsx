@@ -6,25 +6,19 @@ import { useTranslation } from 'react-i18next';
 import { JobPostCard } from '../../entities/jobPost/components/JobPostCard';
 import { useNearbyJobPosts } from '../../entities/jobPost/useJobPosts';
 import { useCurrentUser, useWaiterProfile } from '../../entities/user/useUser';
-import {
-  AppText,
-  Avatar,
-  MapPreview,
-  Screen,
-  SegmentedControl,
-  StatCard,
-} from '../../shared/components';
-import { Wordmark } from '../../shared/components/Wordmark';
+import { MapPreview, SegmentedControl, StatCard } from '../../shared/components';
 import { useCurrentLocation } from '../../shared/hooks/useCurrentLocation';
-import type { GeoPoint } from '../../shared/types/common';
+import { useTabBarClearance } from '../../shared/hooks/useTabBarClearance';
 import { firstName, formatRating } from '../../shared/utils/format';
-import { colors, spacing } from '../../theme';
+import { spacing } from '../../theme';
+import { TabScreen } from '../../navigation/TabScreen';
 
 type ViewMode = 'map' | 'list';
 
 export function WaiterHomeScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
+  const tabBarClearance = useTabBarClearance();
   const { location } = useCurrentLocation({ autoRequest: true });
 
   const [viewMode, setViewMode] = useState<ViewMode>('map');
@@ -38,27 +32,17 @@ export function WaiterHomeScreen() {
   });
 
   const closest = nearby?.items[0];
-  const markers = (nearby?.items ?? [])
-    .map(item => item.location)
-    .filter((point): point is GeoPoint => point !== null);
+  const markers = (nearby?.items ?? []).flatMap(item =>
+    item.location ? [{ id: item.id, location: item.location }] : [],
+  );
 
   return (
-    <Screen>
-      <View style={styles.topBar}>
-        <Wordmark size={20} />
-        <Avatar name={user?.fullName ?? 'ServeUp'} uri={user?.profilePhotoPath} size={32} />
-      </View>
-
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.greeting}>
-          <AppText variant="title">
-            {t('waiter.home.greeting', { name: firstName(user?.fullName ?? '') })}
-          </AppText>
-          <AppText variant="caption" color={colors.textMuted}>
-            {t('waiter.home.subtitle')}
-          </AppText>
-        </View>
-
+    <TabScreen
+      title={t('waiter.home.greeting', { name: firstName(user?.fullName ?? '') })}
+      subtitle={t('waiter.home.subtitle')}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: spacing.xxl + tabBarClearance }]}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.stats}>
           <StatCard
             value={String(profile?.completedServices ?? 0)}
@@ -82,7 +66,12 @@ export function WaiterHomeScreen() {
 
         {viewMode === 'map' ? (
           <View style={styles.mapBlock}>
-            <MapPreview location={location} height={200} markers={markers} />
+            <MapPreview
+              location={location}
+              height={200}
+              markers={markers}
+              onMarkerPress={jobPostId => navigation.navigate('ServiceDetail', { jobPostId })}
+            />
             {closest ? (
               <JobPostCard
                 jobPost={closest}
@@ -104,20 +93,12 @@ export function WaiterHomeScreen() {
           </View>
         )}
       </ScrollView>
-    </Screen>
+    </TabScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
-  },
-  content: { paddingHorizontal: spacing.xl, paddingBottom: spacing.xxl, gap: spacing.lg },
-  greeting: { gap: 2 },
+  content: { paddingHorizontal: spacing.xl, paddingTop: spacing.xl, gap: spacing.lg },
   stats: { flexDirection: 'row', gap: spacing.md },
   mapBlock: { gap: spacing.md },
   listBlock: { gap: spacing.md },

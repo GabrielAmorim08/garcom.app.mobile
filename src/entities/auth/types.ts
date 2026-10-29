@@ -2,7 +2,7 @@ import type { User } from '../user/types';
 import type { Address } from '../../shared/types/common';
 
 export interface SignInRequest {
-  email: string;
+  document: string;
   password: string;
   device: DeviceInfoRequest;
 }
@@ -11,7 +11,11 @@ export interface SignUpRequest {
   fullName: string;
   email: string;
   phone: string;
+  /** CPF of the provider. A company owner signs in with the company CNPJ instead. */
+  document?: string;
   password: string;
+  /** Proof that the phone received and confirmed its SMS code. */
+  phoneVerificationId: string;
   role: 'Waiter' | 'CompanyOwner';
   device: DeviceInfoRequest;
   company?: CompanySignUpRequest;
@@ -40,6 +44,15 @@ export interface CompanySignUpRequest {
   companyEmail: string;
   companyPhone: string;
   address: Address;
+}
+
+export interface SendPhoneCodeResponse {
+  expiresAt: string;
+  resendAvailableAt: string;
+}
+
+export interface VerifyPhoneCodeResponse {
+  verificationId: string;
 }
 
 export interface VerifyEmailRequest {

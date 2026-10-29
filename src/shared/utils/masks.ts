@@ -39,6 +39,11 @@ export function maskCpf(value: string): string {
     .replace(/\.(\d{3})(\d)/, '.$1-$2');
 }
 
+/** One field for both logins: up to 11 digits reads as a CPF, anything longer as a CNPJ. */
+export function maskDocument(value: string): string {
+  return onlyDigits(value).length > 11 ? maskCnpj(value) : maskCpf(value);
+}
+
 export function maskVerificationCode(value: string): string {
   return onlyDigits(value).slice(0, 6);
 }

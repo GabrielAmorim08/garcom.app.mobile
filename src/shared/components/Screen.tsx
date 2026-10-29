@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StyleProp,
   StyleSheet,
@@ -10,6 +9,8 @@ import {
 } from 'react-native';
 import { Edge, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useKeyboardVisible } from '../hooks/useKeyboardVisible';
+import { useTabBarClearance } from '../hooks/useTabBarClearance';
 import { colors, spacing } from '../../theme';
 
 interface ScreenProps {
@@ -21,6 +22,11 @@ interface ScreenProps {
   edges?: Edge[];
   background?: string;
   contentStyle?: StyleProp<ViewStyle>;
+  /**
+   * Lets the content run underneath the floating tab bar instead of stopping above
+   * it. The screen then reserves the room itself, through useTabBarClearance.
+   */
+  bleedUnderTabBar?: boolean;
 }
 
 export function Screen({
@@ -30,28 +36,43 @@ export function Screen({
   edges = ['top'],
   background = colors.background,
   contentStyle,
+  bleedUnderTabBar = false,
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
+  const keyboardVisible = useKeyboardVisible();
+  // The keyboard already covers the system navigation area, so counting it again would leave a gap.
+  const footerInset = keyboardVisible ? 0 : insets.bottom;
+  const tabBarClearance = useTabBarClearance();
+
+  const scrollPaddingBottom =
+    ((StyleSheet.flatten(contentStyle)?.paddingBottom as number | undefined) ?? spacing.xxl) +
+    tabBarClearance;
+
   const body = scrollable ? (
     <ScrollView
       style={styles.flex}
-      contentContainerStyle={[styles.scrollContent, contentStyle]}
+      contentContainerStyle={[styles.scrollContent, contentStyle, { paddingBottom: scrollPaddingBottom }]}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}>
       {children}
     </ScrollView>
   ) : (
-    <View style={[styles.flex, contentStyle]}>{children}</View>
+    <View
+      style={[
+        styles.flex,
+        contentStyle,
+        bleedUnderTabBar ? null : { marginBottom: tabBarClearance },
+      ]}>
+      {children}
+    </View>
   );
 
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: background }]} edges={edges}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.flex} behavior="padding">
         {body}
         {footer ? (
-          <View style={[styles.footer, { paddingBottom: spacing.lg + insets.bottom }]}>
+          <View style={[styles.footer, { paddingBottom: spacing.lg + footerInset }]}>
             {footer}
           </View>
         ) : null}

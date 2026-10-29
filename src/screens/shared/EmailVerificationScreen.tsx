@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { useAuthStore } from '../../entities/auth/authStore';
-import { ApiError } from '../../shared/api/apiError';
-import { AppText, Button, Screen } from '../../shared/components';
-import { maskVerificationCode } from '../../shared/utils/masks';
-import { colors, radius, spacing, typography } from '../../theme';
+import { getErrorMessage } from '../../shared/api/errorMessage';
+import { AppText, Button, CodeInput, Icon, Screen } from '../../shared/components';
+import { colors, radius, spacing } from '../../theme';
+
+const CODE_LENGTH = 6;
+const RESEND_COOLDOWN_SECONDS = 60;
 
 export function EmailVerificationScreen() {
   const { t } = useTranslation();
@@ -17,11 +19,21 @@ export function EmailVerificationScreen() {
   const isVerifyingEmail = useAuthStore(state => state.isVerifyingEmail);
 
   const [code, setCode] = useState('');
+  const [resendSeconds, setResendSeconds] = useState(RESEND_COOLDOWN_SECONDS);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (resendSeconds <= 0) {
+      return undefined;
+    }
+
+    const timer = setTimeout(() => setResendSeconds(seconds => seconds - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendSeconds]);
+
   async function handleVerify() {
-    if (code.length !== 6) {
+    if (code.length !== CODE_LENGTH) {
       setError(t('auth.emailVerificationCodeInvalid'));
       return;
     }
@@ -31,7 +43,7 @@ export function EmailVerificationScreen() {
     try {
       await verifyEmail(code);
     } catch (caught) {
-      setError(caught instanceof ApiError ? caught.message : t('errors.generic'));
+      setError(getErrorMessage(caught, t));
     }
   }
 
@@ -39,9 +51,11 @@ export function EmailVerificationScreen() {
     setError(null);
     try {
       await resendEmailVerification();
+      setCode('');
+      setResendSeconds(RESEND_COOLDOWN_SECONDS);
       setMessage(t('auth.emailVerificationSent'));
     } catch (caught) {
-      setError(caught instanceof ApiError ? caught.message : t('errors.generic'));
+      setError(getErrorMessage(caught, t));
     }
   }
 
@@ -52,26 +66,29 @@ export function EmailVerificationScreen() {
           {t('auth.emailVerificationTitle')}
         </AppText>
         <AppText variant="body" color={colors.textSecondary} align="center">
-          {t('auth.emailVerificationSubtitle', { email })}
+          {t('auth.emailVerificationSentTo')}
+        </AppText>
+
+        <View style={styles.emailPill} accessibilityLabel={email ?? undefined}>
+          <Icon name="message" size={18} color={colors.primaryPressed} />
+          <AppText variant="bodyStrong" color={colors.primaryPressed} style={styles.emailText}>
+            {email}
+          </AppText>
+        </View>
+
+        <AppText variant="body" color={colors.textSecondary} align="center">
+          {t('auth.emailVerificationFinish')}
         </AppText>
       </View>
 
       <View style={styles.form}>
-        <View style={styles.field}>
-          <AppText variant="captionStrong" color={colors.textSecondary}>
-            {t('auth.emailVerificationCode')}
-          </AppText>
-          <TextInput
-            value={code}
-            onChangeText={value => setCode(maskVerificationCode(value))}
-            keyboardType="number-pad"
-            textContentType="oneTimeCode"
-            maxLength={6}
-            placeholder="000000"
-            placeholderTextColor={colors.textMuted}
-            style={[styles.input, styles.codeInput]}
-          />
-        </View>
+        <CodeInput
+          label={t('auth.emailVerificationCode')}
+          value={code}
+          onChange={setCode}
+          length={CODE_LENGTH}
+          error={error !== null}
+        />
 
         {message ? (
           <View style={styles.notice}>
@@ -95,9 +112,13 @@ export function EmailVerificationScreen() {
           loading={isVerifyingEmail}
         />
 
-        <Pressable onPress={handleResend} style={styles.link}>
-          <AppText variant="bodyStrong" color={colors.primary}>
-            {t('auth.emailVerificationResend')}
+        <Pressable onPress={handleResend} disabled={resendSeconds > 0} style={styles.link}>
+          <AppText
+            variant="bodyStrong"
+            color={resendSeconds > 0 ? colors.textMuted : colors.primary}>
+            {resendSeconds > 0
+              ? t('signUp.resendIn', { seconds: resendSeconds })
+              : t('auth.emailVerificationResend')}
           </AppText>
         </Pressable>
 
@@ -118,27 +139,22 @@ const styles = StyleSheet.create({
     gap: spacing.xxxl,
   },
   header: {
+    alignItems: 'center',
     gap: spacing.md,
   },
+  emailPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    maxWidth: '100%',
+    borderRadius: radius.pill,
+    backgroundColor: colors.primarySoft,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  emailText: { flexShrink: 1 },
   form: {
     gap: spacing.lg,
-  },
-  field: {
-    gap: spacing.sm,
-  },
-  input: {
-    minHeight: 52,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
-    paddingHorizontal: spacing.lg,
-    color: colors.textPrimary,
-    ...typography.body,
-  },
-  codeInput: {
-    textAlign: 'center',
-    ...typography.title,
   },
   notice: {
     borderRadius: radius.md,

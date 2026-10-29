@@ -5,16 +5,17 @@ import { useTranslation } from 'react-i18next';
 import { CompanyHomeScreen } from '../screens/company/CompanyHomeScreen';
 import { CompanyServicesScreen } from '../screens/company/CompanyServicesScreen';
 import { ProfileScreen } from '../screens/shared/ProfileScreen';
-import { tabBarStyle, tabScreenOptions } from './TabBar';
+import { tabScreenOptions, useTabBarOptions } from './TabBar';
 import type { CompanyTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<CompanyTabParamList>();
 
 export function CompanyTabs() {
   const { t } = useTranslation();
+  const tabBarOptions = useTabBarOptions();
 
   return (
-    <Tab.Navigator screenOptions={tabBarStyle}>
+    <Tab.Navigator screenOptions={tabBarOptions}>
       <Tab.Screen
         name="CompanyHome"
         component={CompanyHomeScreen}
