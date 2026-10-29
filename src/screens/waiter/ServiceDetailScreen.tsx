@@ -34,7 +34,7 @@ export function ServiceDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'ServiceDetail'>>();
   const { location } = useCurrentLocation({ autoRequest: true });
 
-  const { data, isLoading } = useJobPost(params.jobPostId, location);
+  const { data, isLoading, error } = useJobPost(params.jobPostId, location);
   const { mutateAsync: apply, isPending } = useApplyToJobPost();
   const [applyError, setApplyError] = useState<string | null>(null);
 
@@ -50,11 +50,11 @@ export function ServiceDetailScreen() {
     try {
       await apply({
         jobPostId: jobPost.id,
-        latitude: location.latitude,
-        longitude: location.longitude,
+        latitude: location?.latitude,
+        longitude: location?.longitude,
       });
-    } catch (error) {
-      setApplyError(getErrorMessage(error, t));
+    } catch (failure) {
+      setApplyError(getErrorMessage(failure, t));
       return;
     }
 
@@ -66,7 +66,7 @@ export function ServiceDetailScreen() {
       <Screen>
         <ScreenHeader onBack={navigation.goBack} />
         <AppText variant="caption" align="center" style={styles.loading}>
-          {t('common.loading')}
+          {error ? getErrorMessage(error, t) : t('common.loading')}
         </AppText>
       </Screen>
     );

@@ -31,8 +31,13 @@ import {
 import { colors, spacing } from '../../theme';
 import type { JobPostStatus } from '../../entities/jobPost/types';
 import type { JobApplicationStatus } from '../../entities/jobApplication/types';
+import { getErrorMessage } from '../../shared/api/errorMessage';
+import { useState } from 'react';
 
-const jobPostStatusTranslationKey: Record<JobPostStatus, keyof typeof statusTranslationShape> = {
+type JobStatusKey = 'draft' | 'published' | 'filled' | 'cancelled' | 'completed';
+type ApplicationStatusKey = 'pending' | 'accepted' | 'rejected' | 'withdrawn' | 'cancelled';
+
+const jobPostStatusTranslationKey: Record<JobPostStatus, JobStatusKey> = {
   Draft: 'draft',
   Published: 'published',
   Filled: 'filled',
@@ -40,10 +45,7 @@ const jobPostStatusTranslationKey: Record<JobPostStatus, keyof typeof statusTran
   Completed: 'completed',
 };
 
-const applicationStatusTranslationKey: Record<
-  JobApplicationStatus,
-  keyof typeof applicationStatusTranslationShape
-> = {
+const applicationStatusTranslationKey: Record<JobApplicationStatus, ApplicationStatusKey> = {
   Pending: 'pending',
   Accepted: 'accepted',
   Rejected: 'rejected',
@@ -51,39 +53,37 @@ const applicationStatusTranslationKey: Record<
   Cancelled: 'cancelled',
 };
 
-const statusTranslationShape = {
-  draft: true,
-  published: true,
-  filled: true,
-  cancelled: true,
-  completed: true,
-};
-
-const applicationStatusTranslationShape = {
-  pending: true,
-  accepted: true,
-  rejected: true,
-  withdrawn: true,
-  cancelled: true,
-};
-
 export function CompanyServiceDetailScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const { params } = useRoute<RouteProp<RootStackParamList, 'CompanyServiceDetail'>>();
 
-  const { data: jobPost, isLoading: isLoadingJobPost } = useJobPost(params.jobPostId);
-  const { data: applicants, isLoading: isLoadingApplicants, refetch, isRefetching } =
+  const { data: jobPost, isLoading: isLoadingJobPost, error: jobPostError } = useJobPost(params.jobPostId);
+  const { data: applicants, isLoading: isLoadingApplicants, error: applicantsError, refetch, isRefetching } =
     useJobApplicants(params.jobPostId);
   const { mutateAsync: accept, isPending: isAccepting } = useAcceptJobApplication(params.jobPostId);
   const { mutateAsync: reject, isPending: isRejecting } = useRejectJobApplication(params.jobPostId);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  async function respond(applicationId: string, action: 'accept' | 'reject') {
+    setActionError(null);
+    try {
+      if (action === 'accept') {
+        await accept(applicationId);
+      } else {
+        await reject(applicationId);
+      }
+    } catch (error) {
+      setActionError(getErrorMessage(error, t));
+    }
+  }
 
   if (isLoadingJobPost || !jobPost) {
     return (
       <Screen>
         <ScreenHeader onBack={navigation.goBack} />
         <AppText variant="caption" align="center" style={styles.loading}>
-          {t('common.loading')}
+          {jobPostError ? getErrorMessage(jobPostError, t) : t('common.loading')}
         </AppText>
       </Screen>
     );
@@ -144,14 +144,20 @@ export function CompanyServiceDetailScreen() {
             </Card>
 
             <AppText variant="subtitle">{t('company.serviceDetail.applicants')}</AppText>
+            {actionError || applicantsError ? (
+              <AppText variant="caption" color={colors.danger}>
+                {actionError ?? getErrorMessage(applicantsError, t)}
+              </AppText>
+            ) : null}
           </View>
         }
         renderItem={({ item }) => (
           <ApplicantCard
             applicant={item}
-            onAccept={() => accept(item.applicationId)}
-            onReject={() => reject(item.applicationId)}
+            onAccept={() => respond(item.applicationId, 'accept')}
+            onReject={() => respond(item.applicationId, 'reject')}
             loading={isAccepting || isRejecting}
+            canAccept={jobPost.status === 'Published' && new Date(jobPost.shiftEnd).getTime() > Date.now()}
           />
         )}
         ListEmptyComponent={
@@ -177,9 +183,10 @@ interface ApplicantCardProps {
   onAccept: () => void;
   onReject: () => void;
   loading: boolean;
+  canAccept: boolean;
 }
 
-function ApplicantCard({ applicant, onAccept, onReject, loading }: ApplicantCardProps) {
+function ApplicantCard({ applicant, onAccept, onReject, loading, canAccept }: ApplicantCardProps) {
   const { t } = useTranslation();
   const isPending = applicant.status === 'Pending';
   const statusKey = applicationStatusTranslationKey[applicant.status];
@@ -222,6 +229,7 @@ function ApplicantCard({ applicant, onAccept, onReject, loading }: ApplicantCard
             size="md"
             onPress={onAccept}
             loading={loading}
+            disabled={!canAccept || loading}
           />
         </View>
       ) : null}

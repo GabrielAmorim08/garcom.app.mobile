@@ -16,6 +16,7 @@ import {
   TextArea,
 } from '../../shared/components';
 import { formatCurrency } from '../../shared/utils/format';
+import { getErrorMessage } from '../../shared/api/errorMessage';
 import { colors, radius, spacing, typography } from '../../theme';
 
 export function NewRequestStepThreeScreen() {
@@ -40,6 +41,7 @@ export function NewRequestStepThreeScreen() {
   const { data: estimate, isLoading: isEstimating } = useJobPostEstimate(estimateInput);
   const { mutateAsync: createJobPost, isPending } = useCreateJobPost();
   const [payAmountText, setPayAmountText] = useState(payAmount ? toCurrencyInput(payAmount) : '');
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const title = providerKind
     ? t(`serviceRequest.step1.providers.${providerKindKey(providerKind)}.label` as never)
@@ -60,29 +62,37 @@ export function NewRequestStepThreeScreen() {
   }
 
   async function submit() {
+    setSubmitError(null);
     const payload = toRequest(title);
     if (!payload) {
       return;
     }
 
-    const created = await createJobPost(payload);
-    reset();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'CompanyTabs' }, { name: 'RequestSent', params: { jobPostId: created.id } }],
-    });
+    try {
+      const created = await createJobPost(payload);
+      reset();
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'CompanyTabs' }, { name: 'RequestSent', params: { jobPostId: created.id } }],
+      });
+    } catch (error) {
+      setSubmitError(getErrorMessage(error, t));
+    }
   }
 
   return (
     <Screen
       scrollable
       footer={
-        <Button
-          label={t('serviceRequest.step3.submit')}
-          loading={isPending}
-          disabled={!estimateInput || !payAmount || payAmount <= 0}
-          onPress={submit}
-        />
+        <View style={styles.submitFooter}>
+          {submitError ? <AppText variant="caption" color={colors.danger}>{submitError}</AppText> : null}
+          <Button
+            label={t('serviceRequest.step3.submit')}
+            loading={isPending}
+            disabled={!estimateInput || !payAmount || payAmount <= 0}
+            onPress={submit}
+          />
+        </View>
       }>
       <ScreenHeader title={t('serviceRequest.newRequest')} onBack={navigation.goBack} />
       <StepProgress current={3} total={3} />
@@ -181,6 +191,7 @@ function providerKindKey(kind: string): string {
 }
 
 const styles = StyleSheet.create({
+  submitFooter: { gap: spacing.sm },
   content: { paddingHorizontal: spacing.xl, gap: spacing.lg },
   quantityBlock: {
     flexDirection: 'row',

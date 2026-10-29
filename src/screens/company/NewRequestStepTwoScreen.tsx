@@ -154,12 +154,13 @@ export function NewRequestStepTwoScreen() {
   function chooseMode(mode: AddressMode) {
     setAddressMode(mode);
     if (mode === 'location') {
-      void applyCurrentLocation();
+      applyCurrentLocation();
     }
   }
 
   function updateAddress(patch: Partial<typeof address>) {
-    setAddress({ ...address, ...patch, country: 'BR' }, location);
+    const venueChanged = 'postalCode' in patch || 'street' in patch || 'number' in patch || 'city' in patch || 'state' in patch;
+    setAddress({ ...address, ...patch, country: 'BR' }, venueChanged ? null : location);
   }
 
   async function searchPostalCode() {
@@ -195,7 +196,7 @@ export function NewRequestStepTwoScreen() {
         // replaces an earlier one (the GPS reading, for instance) instead of keeping it.
         data.latitude != null && data.longitude != null
           ? { latitude: data.latitude, longitude: data.longitude }
-          : location,
+          : null,
       );
     } catch {
       setCepError(t('serviceRequest.step2.postalCodeLookupFailed'));
@@ -296,7 +297,7 @@ export function NewRequestStepTwoScreen() {
                   label={t('serviceRequest.step2.refreshLocation')}
                   variant="ghost"
                   size="md"
-                  onPress={() => void applyCurrentLocation()}
+                  onPress={applyCurrentLocation}
                 />
               )}
               {locationMessage ? (

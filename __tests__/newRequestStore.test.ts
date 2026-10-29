@@ -10,7 +10,7 @@ describe('newRequestStore', () => {
   });
 
   function at(hour: number, minute = 0): Date {
-    const date = new Date(2026, 3, 12, hour, minute, 0, 0);
+    const date = new Date(2099, 3, 12, hour, minute, 0, 0);
     return date;
   }
 
@@ -45,7 +45,7 @@ describe('newRequestStore', () => {
   it('uses the explicit end date when the shift crosses midnight', () => {
     const store = useNewRequestStore.getState();
     store.setStartDate(at(0));
-    store.setEndDate(new Date(2026, 3, 13, 0, 0, 0, 0));
+    store.setEndDate(new Date(2099, 3, 13, 0, 0, 0, 0));
     store.setStartTime(at(18));
     store.setEndTime(at(0));
 
@@ -106,5 +106,30 @@ describe('newRequestStore', () => {
     store.setNotes('   ');
 
     expect(useNewRequestStore.getState().toRequest('Outro')!.description).toBeNull();
+  });
+
+  it('rejects a manual address without a complete CEP', () => {
+    const store = useNewRequestStore.getState();
+    store.setProviderKind('Waiter');
+    store.setStartDate(at(0));
+    store.setStartTime(at(12));
+    store.setEndTime(at(18));
+    store.setAddress({ street: 'Rua Exemplo', postalCode: '12345' }, null);
+    store.setPayAmount(150);
+
+    expect(store.isStepTwoValid()).toBe(false);
+    expect(store.toRequest('Evento')).toBeNull();
+
+    store.setAddress({ street: 'Rua Exemplo', postalCode: '83823-152' }, null);
+    expect(store.isStepTwoValid()).toBe(true);
+  });
+
+  it('moves the end date forward when the start date changes', () => {
+    const store = useNewRequestStore.getState();
+    store.setStartDate(at(0));
+    store.setEndDate(new Date(2099, 3, 13));
+    store.setStartDate(new Date(2099, 3, 14));
+
+    expect(useNewRequestStore.getState().endDate?.getDate()).toBe(14);
   });
 });

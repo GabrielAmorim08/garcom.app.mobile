@@ -51,7 +51,7 @@ export function AssignmentDetailScreen() {
   const navigation = useNavigation();
   const { params } = useRoute<RouteProp<RootStackParamList, 'AssignmentDetail'>>();
 
-  const { data: assignment, isLoading } = useJobAssignment(params.assignmentId);
+  const { data: assignment, isLoading, error: assignmentError } = useJobAssignment(params.assignmentId);
   const { request: requestLocation, isLocating } = useCurrentLocation();
   const checkIn = useCheckIn();
   const checkOut = useCheckOut();
@@ -79,7 +79,7 @@ export function AssignmentDetailScreen() {
       <Screen>
         <ScreenHeader onBack={navigation.goBack} />
         <AppText variant="caption" align="center" style={styles.loading}>
-          {t('common.loading')}
+          {assignmentError ? getErrorMessage(assignmentError, t) : t('common.loading')}
         </AppText>
       </Screen>
     );

@@ -55,7 +55,10 @@ export const useNewRequestStore = create<NewRequestState>((set, get) => ({
   ...emptyDraft,
 
   setProviderKind: providerKind => set({ providerKind }),
-  setStartDate: startDate => set(state => ({ startDate, endDate: state.endDate ?? startDate })),
+  setStartDate: startDate => set(state => ({
+    startDate,
+    endDate: !state.endDate || state.endDate < startDate ? startDate : state.endDate,
+  })),
   setEndDate: endDate => set({ endDate }),
   setStartTime: startTime => set({ startTime }),
   setEndTime: endTime => set({ endTime }),
@@ -87,7 +90,8 @@ export const useNewRequestStore = create<NewRequestState>((set, get) => ({
     return (
       range !== null &&
       new Date(range.shiftEnd).getTime() > new Date(range.shiftStart).getTime() &&
-      (location !== null || Boolean(address.postalCode || address.street))
+      new Date(range.shiftStart).getTime() >= Date.now() &&
+      (location !== null || (address.postalCode ?? '').replace(/\D/g, '').length === 8)
     );
   },
 
@@ -98,10 +102,10 @@ export const useNewRequestStore = create<NewRequestState>((set, get) => ({
     if (
       !state.providerKind ||
       !range ||
-      new Date(range.shiftEnd).getTime() <= new Date(range.shiftStart).getTime() ||
+      !state.isStepTwoValid() ||
       !state.payAmount ||
       state.payAmount <= 0 ||
-      (state.location === null && !state.address.postalCode && !state.address.street)
+      state.slots < 1
     ) {
       return null;
     }
