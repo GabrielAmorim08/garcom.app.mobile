@@ -3,7 +3,7 @@ import type { TranslationSchema } from './pt-BR';
 /** English mirror of the pt-BR schema. The type keeps both files in sync. */
 export const en: TranslationSchema = {
   common: {
-    appName: 'ServeUp',
+    appName: 'TaxaUp',
     tagline: 'People who serve good experiences',
     continue: 'Continue',
     back: 'Back',
@@ -60,7 +60,7 @@ export const en: TranslationSchema = {
     prompt: 'Confirm your identity to sign in',
     cancel: 'Cancel',
     enableTitle: 'Sign in with {{method}}?',
-    enableMessage: 'Next time you can open ServeUp without typing your password.',
+    enableMessage: 'Next time you can open TaxaUp without typing your password.',
     enableConfirm: 'Turn on',
     enableLater: 'Not now',
     credentialsOutdated: 'Your password changed. Sign in with it to turn biometrics on again.',
@@ -78,7 +78,7 @@ export const en: TranslationSchema = {
   },
 
   signUp: {
-    profileTitle: 'How will you use ServeUp?',
+    profileTitle: 'How will you use TaxaUp?',
     profileSubtitle: 'Pick your profile so we can start the sign-up.',
     providerLabel: "I'm a provider",
     providerHint: 'Waiter, grill cook, bartender and other roles',
@@ -121,7 +121,7 @@ export const en: TranslationSchema = {
   location: {
     requiredTitle: 'Turn on location',
     permissionDenied:
-      'ServeUp needs your location to show nearby services. Change the app location settings and allow access.',
+      'TaxaUp needs your location to show nearby services. Change the app location settings and allow access.',
     servicesOff:
       'Your device location is turned off. Change the location settings and turn it on to continue.',
     openSettings: 'Open settings',
@@ -150,7 +150,7 @@ export const en: TranslationSchema = {
     hasAccount: 'I already have an account',
     noAccount: 'Create an account',
     signUpTitle: 'Create your account',
-    signUpSubtitle: 'Choose your profile and start using ServeUp.',
+    signUpSubtitle: 'Choose your profile and start using TaxaUp.',
     companySectionTitle: 'Company details',
     companySectionSubtitle: 'This information will be used to publish jobs and receive applicants.',
     companyLegalName: 'Legal name',
@@ -187,6 +187,7 @@ export const en: TranslationSchema = {
       heroTitle: 'Professionals for your event',
       heroSubtitle: 'Request in a few steps and count on qualified professionals.',
       requestWaiter: 'Request provider',
+      requestWaiterHint: 'Publish a new opening in a few steps',
       myServices: 'My services',
     },
     dashboard: {

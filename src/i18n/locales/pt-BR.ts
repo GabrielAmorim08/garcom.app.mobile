@@ -4,7 +4,7 @@
  */
 export const ptBR = {
   common: {
-    appName: 'ServeUp',
+    appName: 'TaxaUp',
     tagline: 'Pessoas que servem boas experiências',
     continue: 'Continuar',
     back: 'Voltar',
@@ -61,7 +61,7 @@ export const ptBR = {
     prompt: 'Confirme sua identidade para entrar',
     cancel: 'Cancelar',
     enableTitle: 'Entrar com {{method}}?',
-    enableMessage: 'Na próxima vez você entra no ServeUp sem digitar a senha.',
+    enableMessage: 'Na próxima vez você entra no TaxaUp sem digitar a senha.',
     enableConfirm: 'Ativar',
     enableLater: 'Agora não',
     credentialsOutdated: 'Sua senha mudou. Entre com a senha para ativar a biometria de novo.',
@@ -79,7 +79,7 @@ export const ptBR = {
   },
 
   signUp: {
-    profileTitle: 'Como você vai usar o ServeUp?',
+    profileTitle: 'Como você vai usar o TaxaUp?',
     profileSubtitle: 'Escolha o seu perfil para começarmos o cadastro.',
     providerLabel: 'Sou prestador',
     providerHint: 'Garçom, chapeiro, barman e outras funções',
@@ -122,7 +122,7 @@ export const ptBR = {
   location: {
     requiredTitle: 'Ative a localização',
     permissionDenied:
-      'O ServeUp precisa da sua localização para mostrar serviços próximos. Altere as configurações de localização do aplicativo e permita o acesso.',
+      'O TaxaUp precisa da sua localização para mostrar serviços próximos. Altere as configurações de localização do aplicativo e permita o acesso.',
     servicesOff:
       'A localização do aparelho está desligada. Altere as configurações de localização e ative para continuar.',
     openSettings: 'Abrir configurações',
@@ -151,7 +151,7 @@ export const ptBR = {
     hasAccount: 'Já tenho conta',
     noAccount: 'Criar uma conta',
     signUpTitle: 'Crie sua conta',
-    signUpSubtitle: 'Escolha seu perfil e comece a usar o ServeUp.',
+    signUpSubtitle: 'Escolha seu perfil e comece a usar o TaxaUp.',
     companySectionTitle: 'Dados da empresa',
     companySectionSubtitle: 'Essas informações serão usadas para publicar vagas e receber candidatos.',
     companyLegalName: 'Razão social',
@@ -188,6 +188,7 @@ export const ptBR = {
       heroTitle: 'Profissionais para o seu evento',
       heroSubtitle: 'Solicite em poucos passos e conte com profissionais qualificados.',
       requestWaiter: 'Solicitar prestador',
+      requestWaiterHint: 'Publique uma nova vaga em poucos passos',
       myServices: 'Meus serviços',
     },
     dashboard: {

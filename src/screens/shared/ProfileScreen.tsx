@@ -59,7 +59,7 @@ export function ProfileScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <View style={styles.identity}>
-          <Avatar name={user?.fullName ?? 'ServeUp'} uri={user?.profilePhotoPath} size={64} />
+          <Avatar name={user?.fullName ?? 'TaxaUp'} uri={user?.profilePhotoPath} size={64} />
           <View style={styles.identityTexts}>
             <AppText variant="subtitle">{user?.fullName ?? '-'}</AppText>
             <AppText variant="caption" color={colors.textMuted}>

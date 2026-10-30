@@ -5,7 +5,7 @@ import { colors, spacing } from '../../theme';
 import { AppText } from './AppText';
 import { BowTie } from './Wordmark';
 
-const WORD = 'ServeUp';
+const WORD = 'TaxaUp';
 const FONT_SIZE = 44;
 const BOW_WIDTH = FONT_SIZE * 1.4;
 const BOW_HEIGHT = BOW_WIDTH * 0.42;

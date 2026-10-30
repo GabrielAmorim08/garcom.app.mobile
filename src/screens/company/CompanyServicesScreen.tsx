@@ -33,7 +33,7 @@ export function CompanyServicesScreen() {
   const [filter, setFilter] = useState<ServiceFilter>('all');
 
   const { data, isLoading, refetch, isRefetching } = useMyJobPosts();
-  const items = data?.items ?? [];
+  const items = useMemo(() => data?.items ?? [], [data?.items]);
 
   const summary = useMemo(() => buildSummary(items), [items]);
   const filteredItems = useMemo(
@@ -58,40 +58,27 @@ export function CompanyServicesScreen() {
         refreshing={isRefetching}
         ListHeaderComponent={
           <View style={styles.headerContent}>
-            <Card style={styles.summaryCard}>
-              <View style={styles.summaryTitleRow}>
-                <View style={styles.summaryIcon}>
-                  <Icon name="users" size={22} color={colors.primary} />
-                </View>
-                <View style={styles.summaryTitle}>
-                  <AppText variant="subtitle" color={colors.textOnDark}>
-                    {t('company.services.summaryTitle')}
-                  </AppText>
-                  <AppText variant="caption" color={colors.onHeroMuted}>
-                    {t('company.services.summarySubtitle', { count: summary.total })}
-                  </AppText>
-                </View>
-              </View>
-
-              <View style={styles.summaryGrid}>
+            <View style={styles.summaryGrid}>
                 <SummaryItem
                   value={String(summary.open)}
                   label={t('company.services.openServices')}
                 />
+                <View style={styles.summaryDivider} />
                 <SummaryItem
                   value={String(summary.filled)}
                   label={t('company.services.filledServices')}
                 />
+                <View style={styles.summaryDivider} />
                 <SummaryItem
                   value={String(summary.openSlots)}
                   label={t('company.services.openSlots')}
                 />
-              </View>
-            </Card>
+            </View>
 
             <Button
               label={t('company.home.requestWaiter')}
               icon={<Icon name="plus" size={18} color={colors.onPrimary} />}
+              size="md"
               onPress={() => navigation.navigate('NewRequestStepOne')}
             />
 
@@ -220,10 +207,10 @@ interface SummaryItemProps {
 function SummaryItem({ value, label }: SummaryItemProps) {
   return (
     <View style={styles.summaryItem}>
-      <AppText variant="title" color={colors.primary}>
+      <AppText variant="title" color={colors.primaryPressed}>
         {value}
       </AppText>
-      <AppText variant="caption" color={colors.onHeroMuted}>
+      <AppText variant="caption" color={colors.textMuted}>
         {label}
       </AppText>
     </View>
@@ -325,33 +312,21 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     marginBottom: spacing.md,
   },
-  summaryCard: {
-    backgroundColor: colors.heroBackground,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    gap: spacing.lg,
-  },
-  summaryTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  summaryIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(176, 141, 87, 0.16)',
-  },
-  summaryTitle: { flex: 1, gap: 2 },
   summaryGrid: {
     flexDirection: 'row',
-    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.md,
   },
   summaryItem: {
     flex: 1,
     gap: 2,
+    alignItems: 'center',
+    paddingHorizontal: spacing.sm,
   },
+  summaryDivider: { width: StyleSheet.hairlineWidth, backgroundColor: colors.border },
   serviceCard: {
     gap: spacing.md,
   },

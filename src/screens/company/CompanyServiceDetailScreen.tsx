@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -154,6 +154,7 @@ export function CompanyServiceDetailScreen() {
         renderItem={({ item }) => (
           <ApplicantCard
             applicant={item}
+            onPress={() => navigation.navigate('CandidateProfile', { applicant: item })}
             onAccept={() => respond(item.applicationId, 'accept')}
             onReject={() => respond(item.applicationId, 'reject')}
             loading={isAccepting || isRejecting}
@@ -180,19 +181,21 @@ export function CompanyServiceDetailScreen() {
 
 interface ApplicantCardProps {
   applicant: JobApplicant;
+  onPress: () => void;
   onAccept: () => void;
   onReject: () => void;
   loading: boolean;
   canAccept: boolean;
 }
 
-function ApplicantCard({ applicant, onAccept, onReject, loading, canAccept }: ApplicantCardProps) {
+function ApplicantCard({ applicant, onPress, onAccept, onReject, loading, canAccept }: ApplicantCardProps) {
   const { t } = useTranslation();
   const isPending = applicant.status === 'Pending';
   const statusKey = applicationStatusTranslationKey[applicant.status];
 
   return (
     <Card style={styles.applicant}>
+      <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`Ver perfil de ${applicant.fullName}`}>
       <View style={styles.applicantHeader}>
         <Avatar name={applicant.fullName} uri={applicant.profilePhotoPath} size={48} />
         <View style={styles.applicantText}>
@@ -208,6 +211,11 @@ function ApplicantCard({ applicant, onAccept, onReject, loading, canAccept }: Ap
           label={t(`company.serviceDetail.applicationStatus.${statusKey}`)}
         />
       </View>
+
+      <AppText variant="caption" color={colors.primary} style={styles.viewProfile}>
+        Ver perfil completo
+      </AppText>
+      </Pressable>
 
       {applicant.message ? (
         <AppText variant="body" color={colors.textSecondary}>
@@ -247,6 +255,7 @@ const styles = StyleSheet.create({
   applicant: { gap: spacing.md },
   applicantHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   applicantText: { flex: 1, gap: spacing.xs },
+  viewProfile: { marginTop: spacing.sm },
   actions: { flexDirection: 'row', gap: spacing.md },
   loading: { paddingVertical: spacing.huge },
 });

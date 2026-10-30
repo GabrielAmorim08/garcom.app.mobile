@@ -1,4 +1,5 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { JobApplicant } from '../entities/jobApplication/types';
 
 export type CompanyTabParamList = {
   CompanyHome: undefined;
@@ -26,6 +27,7 @@ export type RootStackParamList = {
   NewRequestStepThree: undefined;
   RequestSent: { jobPostId: string };
   CompanyServiceDetail: { jobPostId: string };
+  CandidateProfile: { applicant: JobApplicant };
 
   WaiterTabs: NavigatorScreenParams<WaiterTabParamList>;
   ServiceDetail: { jobPostId: string };

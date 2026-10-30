@@ -18,9 +18,9 @@ export function Wordmark({ tone = 'light', size = 28 }: WordmarkProps) {
   const color = tone === 'dark' ? colors.textOnDark : colors.textPrimary;
 
   return (
-    <View style={styles.container} accessibilityRole="header" accessibilityLabel="ServeUp">
+    <View style={styles.container} accessibilityRole="header" accessibilityLabel="TaxaUp">
       <AppText variant="title" color={color} style={{ fontSize: size, lineHeight: size * 1.15 }}>
-        ServeUp
+        TaxaUp
       </AppText>
       <BowTie width={size * 1.4} color={colors.primary} />
     </View>

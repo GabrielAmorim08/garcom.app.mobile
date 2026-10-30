@@ -36,7 +36,7 @@ export function AppHeader() {
         hitSlop={hitSlop}
         accessibilityRole="button"
         accessibilityLabel={t('tabs.profile')}>
-        <Avatar name={user?.fullName ?? 'ServeUp'} uri={user?.profilePhotoPath} size={32} />
+        <Avatar name={user?.fullName ?? 'TaxaUp'} uri={user?.profilePhotoPath} size={32} />
       </Pressable>
     </View>
   );

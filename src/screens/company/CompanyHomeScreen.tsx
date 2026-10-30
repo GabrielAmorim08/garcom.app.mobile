@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StatusBar, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -32,7 +32,8 @@ export function CompanyHomeScreen() {
     const nextService = dashboard.nextService;
 
     return (
-      <Screen scrollable background={colors.background} contentStyle={styles.dashboardScroll}>
+      <Screen scrollable background={colors.heroBackground} contentStyle={styles.dashboardScroll}>
+        <StatusBar barStyle="light-content" />
         <View style={styles.dashboardHero}>
           <View style={styles.dashboardHeader}>
             <AppHeader />
@@ -48,15 +49,28 @@ export function CompanyHomeScreen() {
               </AppText>
             </View>
 
-            <Button
-              label={t('company.home.requestWaiter')}
-              icon={<Icon name="plus" size={18} color={colors.onPrimary} />}
-              style={styles.dashboardCta}
+            <Pressable
               onPress={() => navigation.navigate('NewRequestStepOne')}
-            />
+              accessibilityRole="button"
+              accessibilityLabel={t('company.home.requestWaiter')}
+              style={({ pressed }) => [styles.dashboardCta, pressed && styles.dashboardCtaPressed]}>
+              <View style={styles.dashboardCtaIcon}>
+                <Icon name="plus" size={22} color={colors.heroBackground} />
+              </View>
+              <View style={styles.dashboardCtaCopy}>
+                <AppText variant="bodyStrong" color={colors.onPrimary}>
+                  {t('company.home.requestWaiter')}
+                </AppText>
+                <AppText variant="caption" color="rgba(255, 255, 255, 0.78)">
+                  {t('company.home.requestWaiterHint')}
+                </AppText>
+              </View>
+              <Icon name="chevronRight" size={22} color={colors.onPrimary} />
+            </Pressable>
           </View>
         </View>
 
+        <View style={[styles.dashboardSheet, { paddingBottom: spacing.xxl + tabBarClearance }]}>
         <View style={styles.statsGrid}>
           <MetricCard
             value={String(dashboard.activeCount)}
@@ -100,7 +114,7 @@ export function CompanyHomeScreen() {
                     )}`}
                   </AppText>
                 </View>
-                <Badge tone="gold" label={nextService.status} />
+                <Badge tone="gold" label={t(jobPostStatusKey(nextService.status))} />
               </View>
 
               <View style={styles.nextDivider} />
@@ -150,6 +164,7 @@ export function CompanyHomeScreen() {
             </Card>
           ))}
         </View>
+        </View>
       </Screen>
     );
   }
@@ -187,6 +202,18 @@ export function CompanyHomeScreen() {
       </HeroBackdrop>
     </Screen>
   );
+}
+
+function jobPostStatusKey(status: JobPost['status']) {
+  const keys: Record<JobPost['status'], 'draft' | 'published' | 'filled' | 'cancelled' | 'completed'> = {
+    Draft: 'draft',
+    Published: 'published',
+    Filled: 'filled',
+    Cancelled: 'cancelled',
+    Completed: 'completed',
+  };
+
+  return `serviceRequest.status.${keys[status]}` as const;
 }
 
 function buildDashboard(services: JobPost[]) {
@@ -283,19 +310,28 @@ const styles = StyleSheet.create({
   heroCopy: { gap: spacing.md, marginBottom: spacing.xxl },
   actions: { gap: spacing.md },
   dashboardScroll: {
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.xxl,
-    gap: spacing.xl,
+    paddingBottom: 0,
+    gap: 0,
   },
   dashboardHeader: {
     alignSelf: 'stretch',
   },
   dashboardHero: {
     backgroundColor: colors.heroBackground,
-    borderRadius: 8,
-    padding: spacing.xl,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.xxl,
+    borderBottomLeftRadius: spacing.xl,
+    borderBottomRightRadius: spacing.xl,
+    gap: spacing.xl,
+  },
+  dashboardSheet: {
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    marginTop: 0,
+    paddingTop: spacing.xxl,
+    paddingHorizontal: spacing.xl,
     gap: spacing.xl,
   },
   heroMain: { gap: spacing.lg },
@@ -306,28 +342,41 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   dashboardCta: {
-    alignSelf: 'stretch',
+    minHeight: 76,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.primary,
+    borderRadius: 16,
+    paddingHorizontal: spacing.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.16)',
   },
+  dashboardCtaPressed: { backgroundColor: colors.primaryPressed },
+  dashboardCtaIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.onPrimary,
+  },
+  dashboardCtaCopy: { flex: 1, gap: 2 },
   metricCard: {
     width: '47%',
     flexGrow: 1,
-    minHeight: 112,
+    minHeight: 96,
     justifyContent: 'center',
     gap: spacing.xs,
-    backgroundColor: colors.surface,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: 12,
     padding: spacing.lg,
-  },
-  metricCardDark: {
-    backgroundColor: colors.heroBackground,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   metricCardGold: {
     backgroundColor: colors.primarySoft,
     borderColor: colors.primary,
   },
+  metricCardDark: { backgroundColor: colors.heroBackground },
   metricCardWide: { width: '100%' },
   nextSection: { gap: spacing.md },
   nextCard: {
