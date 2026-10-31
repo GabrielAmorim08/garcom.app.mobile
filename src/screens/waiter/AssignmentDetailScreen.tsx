@@ -110,6 +110,7 @@ export function AssignmentDetailScreen() {
               <>
                 <Button
                   label={t('waiter.assignmentDetail.checkIn')}
+                  variant="success"
                   loading={isBusy}
                   onPress={() => registerPoint(checkIn)}
                 />
@@ -120,6 +121,7 @@ export function AssignmentDetailScreen() {
             ) : (
               <Button
                 label={t('waiter.assignmentDetail.checkOut')}
+                variant="success"
                 loading={isBusy}
                 onPress={() => registerPoint(checkOut)}
               />

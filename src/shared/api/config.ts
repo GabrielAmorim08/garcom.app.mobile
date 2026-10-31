@@ -8,7 +8,7 @@ import { apiUrlOverride } from './apiUrlOverride';
  */
 const DEV_HOST = Platform.select({ android: '10.0.2.2', default: 'localhost' });
 
-const defaultBaseUrl = __DEV__ ? `http://${DEV_HOST}:5181` : 'https://api.serveup.app';
+const defaultBaseUrl = __DEV__ ? `http://${DEV_HOST}:5182` : 'https://api.serveup.app';
 
 export const apiConfig = {
   baseUrl: (apiUrlOverride ?? defaultBaseUrl).replace(/\/+$/, ''),

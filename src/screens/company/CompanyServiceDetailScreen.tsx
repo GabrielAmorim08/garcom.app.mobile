@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -9,7 +9,7 @@ import {
   useRejectJobApplication,
 } from '../../entities/jobApplication/useJobApplications';
 import type { JobApplicant } from '../../entities/jobApplication/types';
-import { useJobPost } from '../../entities/jobPost/useJobPosts';
+import { useJobPost, useUpdateJobPostStatus } from '../../entities/jobPost/useJobPosts';
 import type { RootStackParamList } from '../../navigation/types';
 import {
   AppText,
@@ -63,6 +63,7 @@ export function CompanyServiceDetailScreen() {
     useJobApplicants(params.jobPostId);
   const { mutateAsync: accept, isPending: isAccepting } = useAcceptJobApplication(params.jobPostId);
   const { mutateAsync: reject, isPending: isRejecting } = useRejectJobApplication(params.jobPostId);
+  const { mutateAsync: updateStatus, isPending: isUpdatingStatus } = useUpdateJobPostStatus();
   const [actionError, setActionError] = useState<string | null>(null);
 
   async function respond(applicationId: string, action: 'accept' | 'reject') {
@@ -76,6 +77,19 @@ export function CompanyServiceDetailScreen() {
     } catch (error) {
       setActionError(getErrorMessage(error, t));
     }
+  }
+
+  function confirmStatus(action: 'cancel' | 'complete') {
+    Alert.alert(
+      action === 'cancel' ? 'Cancelar serviço?' : 'Encerrar serviço?',
+      action === 'cancel'
+        ? 'Os candidatos serão avisados e a vaga será encerrada.'
+        : 'O serviço será marcado como concluído. Em seguida, você poderá avaliar os profissionais.',
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: action === 'cancel' ? 'Cancelar serviço' : 'Encerrar', style: action === 'cancel' ? 'destructive' : 'default', onPress: () => void updateStatus({ id: params.jobPostId, action }).catch(error => setActionError(getErrorMessage(error, t))) },
+      ],
+    );
   }
 
   if (isLoadingJobPost || !jobPost) {
@@ -110,7 +124,9 @@ export function CompanyServiceDetailScreen() {
           <View style={styles.headerContent}>
             <Card style={styles.summary}>
               <View style={styles.summaryHeader}>
-                <AppText variant="title">{jobPost.title}</AppText>
+                <AppText variant="title" numberOfLines={2} ellipsizeMode="tail" style={styles.summaryTitle}>
+                  {jobPost.title}
+                </AppText>
                 <Badge tone="gold" label={t(`serviceRequest.status.${statusKey}`)} />
               </View>
 
@@ -143,6 +159,16 @@ export function CompanyServiceDetailScreen() {
               </View>
             </Card>
 
+            {jobPost.status === 'Published' || jobPost.status === 'Filled' ? (
+              <View style={styles.lifecycleActions}>
+                {new Date(jobPost.shiftEnd).getTime() <= Date.now() ? (
+                  <Button label="Encerrar serviço" loading={isUpdatingStatus} onPress={() => confirmStatus('complete')} />
+                ) : (
+                  <Button label="Cancelar serviço" variant="danger" loading={isUpdatingStatus} onPress={() => confirmStatus('cancel')} />
+                )}
+              </View>
+            ) : null}
+
             <AppText variant="subtitle">{t('company.serviceDetail.applicants')}</AppText>
             {actionError || applicantsError ? (
               <AppText variant="caption" color={colors.danger}>
@@ -154,7 +180,7 @@ export function CompanyServiceDetailScreen() {
         renderItem={({ item }) => (
           <ApplicantCard
             applicant={item}
-            onPress={() => navigation.navigate('CandidateProfile', { applicant: item })}
+            onPress={() => navigation.navigate('CandidateProfile', { jobPostId: params.jobPostId, applicant: item })}
             onAccept={() => respond(item.applicationId, 'accept')}
             onReject={() => respond(item.applicationId, 'reject')}
             loading={isAccepting || isRejecting}
@@ -249,8 +275,10 @@ const styles = StyleSheet.create({
   list: { paddingHorizontal: spacing.xl, paddingBottom: spacing.xxl, gap: spacing.md },
   headerContent: { gap: spacing.lg, paddingBottom: spacing.md },
   summary: { gap: spacing.md },
-  summaryHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
+  summaryHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
+  summaryTitle: { flex: 1, minWidth: 0, flexShrink: 1 },
   metrics: { flexDirection: 'row', gap: spacing.md },
+  lifecycleActions: { gap: spacing.sm },
   metric: { flex: 1, gap: spacing.xs },
   applicant: { gap: spacing.md },
   applicantHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },

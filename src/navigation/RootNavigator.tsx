@@ -9,6 +9,7 @@ import { NewRequestStepTwoScreen } from '../screens/company/NewRequestStepTwoScr
 import { RequestSentScreen } from '../screens/company/RequestSentScreen';
 import { CompanyServiceDetailScreen } from '../screens/company/CompanyServiceDetailScreen';
 import { CandidateProfileScreen } from '../screens/company/CandidateProfileScreen';
+import { ChatConversationScreen } from '../screens/shared/ChatConversationScreen';
 import { EmailVerificationScreen } from '../screens/shared/EmailVerificationScreen';
 import { ProfileDetailsScreen } from '../screens/shared/ProfileDetailsScreen';
 import { SignInScreen } from '../screens/shared/SignInScreen';
@@ -16,6 +17,7 @@ import { SignUpScreen } from '../screens/shared/SignUpScreen';
 import { SplashScreen } from '../screens/shared/SplashScreen';
 import { WelcomeScreen } from '../screens/shared/WelcomeScreen';
 import { AssignmentDetailScreen } from '../screens/waiter/AssignmentDetailScreen';
+import { EarningsDashboardScreen } from '../screens/waiter/EarningsDashboardScreen';
 import { MyServicesScreen } from '../screens/waiter/MyServicesScreen';
 import { ServiceConfirmedScreen } from '../screens/waiter/ServiceConfirmedScreen';
 import { ServiceDetailScreen } from '../screens/waiter/ServiceDetailScreen';
@@ -97,6 +99,7 @@ export function RootNavigator() {
             <Stack.Screen name="NewRequestStepThree" component={NewRequestStepThreeScreen} />
             <Stack.Screen name="CompanyServiceDetail" component={CompanyServiceDetailScreen} />
             <Stack.Screen name="CandidateProfile" component={CandidateProfileScreen} />
+            <Stack.Screen name="ChatConversation" component={ChatConversationScreen} />
             <Stack.Screen
               name="RequestSent"
               component={RequestSentScreen}
@@ -114,8 +117,10 @@ export function RootNavigator() {
               options={{ gestureEnabled: false }}
             />
             <Stack.Screen name="MyServices" component={MyServicesScreen} />
+            <Stack.Screen name="EarningsDashboard" component={EarningsDashboardScreen} />
             <Stack.Screen name="AssignmentDetail" component={AssignmentDetailScreen} />
             <Stack.Screen name="WaiterProfileEdit" component={WaiterProfileEditScreen} />
+            <Stack.Screen name="ChatConversation" component={ChatConversationScreen} />
           </>
         )}
       </Stack.Navigator>

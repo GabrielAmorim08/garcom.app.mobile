@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { mockApi } from '../../mocks/mockApi';
 import { queryKeys } from '../../shared/api/queryClient';
@@ -40,6 +40,18 @@ export function useMonthEarnings(month: string = toMonthKey()) {
     queryFn: async () =>
       (await shouldUseApi()) ? jobAssignmentService.getEarnings(month) : mockApi.getEarnings(month),
   });
+}
+
+export function useEarningsTimeline(months: string[]) {
+  const queries = useQueries({
+    queries: months.map(month => ({
+      queryKey: queryKeys.jobAssignments.earnings(month),
+      queryFn: async () =>
+        (await shouldUseApi()) ? jobAssignmentService.getEarnings(month) : mockApi.getEarnings(month),
+    })),
+  });
+
+  return months.map((month, index) => ({ month, data: queries[index]?.data }));
 }
 
 interface CheckPointInput {

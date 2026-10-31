@@ -36,6 +36,7 @@ export const queryKeys = {
 
   jobApplications: {
     byWaiter: ['jobApplications', 'waiter'] as const,
+    historyByWaiter: ['jobApplications', 'waiter', 'history'] as const,
     byJobPost: (jobPostId: string) => ['jobApplications', 'jobPost', jobPostId] as const,
   },
 
@@ -44,5 +45,10 @@ export const queryKeys = {
     history: ['jobAssignments', 'history'] as const,
     earnings: (month: string) => ['jobAssignments', 'earnings', month] as const,
     detail: (id: string) => ['jobAssignments', 'detail', id] as const,
+  },
+
+  chat: {
+    inbox: ['chat', 'inbox'] as const,
+    messages: (conversationId: string) => ['chat', 'messages', conversationId] as const,
   },
 } as const;

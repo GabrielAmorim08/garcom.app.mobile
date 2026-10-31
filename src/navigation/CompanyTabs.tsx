@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { CompanyHomeScreen } from '../screens/company/CompanyHomeScreen';
 import { CompanyServicesScreen } from '../screens/company/CompanyServicesScreen';
 import { ProfileScreen } from '../screens/shared/ProfileScreen';
+import { MessagesScreen } from '../screens/shared/MessagesScreen';
 import { tabScreenOptions, useTabBarOptions } from './TabBar';
 import type { CompanyTabParamList } from './types';
 
@@ -25,6 +26,11 @@ export function CompanyTabs() {
         name="CompanyServices"
         component={CompanyServicesScreen}
         options={tabScreenOptions('note', t('tabs.services'))}
+      />
+      <Tab.Screen
+        name="Messages"
+        component={MessagesScreen}
+        options={tabScreenOptions('message', t('tabs.messages'))}
       />
       <Tab.Screen
         name="CompanyProfile"

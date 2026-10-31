@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -16,6 +16,7 @@ import {
 } from '../../shared/components';
 import { TabScreen } from '../../navigation/TabScreen';
 import { useTabBarClearance } from '../../shared/hooks/useTabBarClearance';
+import { toMonthKey } from '../../shared/utils/date';
 import {
   formatCurrency,
   formatShortDate,
@@ -24,28 +25,41 @@ import {
 import { colors, spacing } from '../../theme';
 import { useMyJobPosts } from '../../entities/jobPost/useJobPosts';
 
-type ServiceFilter = 'all' | 'open' | 'filled' | 'closed';
+type ServiceFilter = 'upcoming' | 'previous' | 'cancelled';
+
+function moveMonth(month: string, amount: number): string {
+  const [year, monthNumber] = month.split('-').map(Number);
+  const date = new Date(year, monthNumber - 1 + amount, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function historyMonthLabel(month: string, locale: string): string {
+  const [year, monthNumber] = month.split('-').map(Number);
+  const label = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' })
+    .format(new Date(year, monthNumber - 1, 1));
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
 
 export function CompanyServicesScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigation = useNavigation();
   const tabBarClearance = useTabBarClearance();
-  const [filter, setFilter] = useState<ServiceFilter>('all');
+  const [filter, setFilter] = useState<ServiceFilter>('upcoming');
+  const [historyMonth, setHistoryMonth] = useState(toMonthKey);
 
   const { data, isLoading, refetch, isRefetching } = useMyJobPosts();
   const items = useMemo(() => data?.items ?? [], [data?.items]);
 
   const summary = useMemo(() => buildSummary(items), [items]);
   const filteredItems = useMemo(
-    () => items.filter(item => matchesFilter(item, filter)),
-    [filter, items],
+    () => items.filter(item => matchesFilter(item, filter, historyMonth)),
+    [filter, historyMonth, items],
   );
 
   const filterOptions: SegmentOption<ServiceFilter>[] = [
-    { value: 'all', label: t('company.services.filters.all') },
-    { value: 'open', label: t('company.services.filters.open') },
-    { value: 'filled', label: t('company.services.filters.filled') },
-    { value: 'closed', label: t('company.services.filters.closed') },
+    { value: 'upcoming', label: t('company.services.filters.upcoming') },
+    { value: 'previous', label: t('company.services.filters.previous') },
+    { value: 'cancelled', label: t('company.services.filters.cancelled') },
   ];
 
   return (
@@ -83,6 +97,30 @@ export function CompanyServicesScreen() {
             />
 
             <SegmentedControl options={filterOptions} value={filter} onChange={setFilter} />
+
+            {filter === 'previous' ? (
+              <View style={styles.historyMonthPicker}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('company.services.previousMonth')}
+                  onPress={() => setHistoryMonth(month => moveMonth(month, -1))}
+                  style={styles.historyMonthButton}>
+                  <Icon name="chevronLeft" size={18} color={colors.textPrimary} />
+                </Pressable>
+                <AppText variant="bodyStrong">{historyMonthLabel(historyMonth, i18n.language)}</AppText>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('company.services.nextMonth')}
+                  disabled={historyMonth >= toMonthKey()}
+                  onPress={() => setHistoryMonth(month => moveMonth(month, 1))}
+                  style={[
+                    styles.historyMonthButton,
+                    historyMonth >= toMonthKey() && styles.historyMonthButtonDisabled,
+                  ]}>
+                  <Icon name="chevronRight" size={18} color={colors.textPrimary} />
+                </Pressable>
+              </View>
+            ) : null}
           </View>
         }
         renderItem={({ item }) => (
@@ -129,10 +167,11 @@ function CompanyServiceCard({ jobPost, onPress }: CompanyServiceCardProps) {
   const openSlots = Math.max(jobPost.slots - jobPost.slotsFilled, 0);
   const fillPercent = jobPost.slots > 0 ? Math.min(jobPost.slotsFilled / jobPost.slots, 1) : 0;
   const isFilled = openSlots === 0 || jobPost.status === 'Filled';
-  const isClosed = ['Cancelled', 'Completed'].includes(jobPost.status);
+  const isExpired = new Date(jobPost.shiftEnd).getTime() <= Date.now();
+  const isClosed = isExpired || ['Cancelled', 'Completed'].includes(jobPost.status);
   const addressLine = [jobPost.address.street, jobPost.address.number].filter(Boolean).join(', ');
   const providerLabel = t(providerKindKey(jobPost.providerKind));
-  const statusLabel = t(statusKey(jobPost.status));
+  const statusLabel = isExpired ? 'Expirada' : t(statusKey(jobPost.status));
 
   return (
     <Card onPress={onPress} style={styles.serviceCard}>
@@ -148,7 +187,9 @@ function CompanyServiceCard({ jobPost, onPress }: CompanyServiceCardProps) {
         <Badge
           tone={isClosed ? 'neutral' : isFilled ? 'success' : 'gold'}
           label={
-            isClosed
+            isExpired
+              ? 'Expirada'
+              : isClosed
               ? statusLabel
               : isFilled
                 ? t('company.services.filledBadge')
@@ -175,6 +216,15 @@ function CompanyServiceCard({ jobPost, onPress }: CompanyServiceCardProps) {
           </AppText>
         </View>
       </View>
+
+      {jobPost.pendingApplicationsCount > 0 ? (
+        <View style={styles.applicantsNotice}>
+          <Icon name="users" size={16} color={colors.primaryPressed} />
+          <AppText variant="captionStrong" color={colors.primaryPressed}>
+            {t('company.services.pendingApplicants', { count: jobPost.pendingApplicationsCount })}
+          </AppText>
+        </View>
+      ) : null}
 
       <View style={styles.metaGrid}>
         <MetaItem
@@ -242,7 +292,8 @@ function buildSummary(items: JobPost[]) {
   return items.reduce(
     (summary, item) => {
       const openSlots = Math.max(item.slots - item.slotsFilled, 0);
-      const isClosed = ['Cancelled', 'Completed'].includes(item.status);
+      const isClosed = new Date(item.shiftEnd).getTime() <= Date.now()
+        || ['Cancelled', 'Completed'].includes(item.status);
       const isFilled = !isClosed && (openSlots === 0 || item.status === 'Filled');
 
       return {
@@ -256,24 +307,15 @@ function buildSummary(items: JobPost[]) {
   );
 }
 
-function matchesFilter(item: JobPost, filter: ServiceFilter) {
-  const openSlots = Math.max(item.slots - item.slotsFilled, 0);
-  const isClosed = ['Cancelled', 'Completed'].includes(item.status);
-  const isFilled = !isClosed && (openSlots === 0 || item.status === 'Filled');
+function matchesFilter(item: JobPost, filter: ServiceFilter, historyMonth: string) {
+  if (filter === 'cancelled') return item.status === 'Cancelled';
 
-  if (filter === 'open') {
-    return !isClosed && !isFilled;
+  const isPast = new Date(item.shiftEnd).getTime() <= Date.now();
+  if (filter === 'previous') {
+    return isPast && item.status !== 'Cancelled' && item.shiftEnd.startsWith(historyMonth);
   }
 
-  if (filter === 'filled') {
-    return isFilled;
-  }
-
-  if (filter === 'closed') {
-    return isClosed;
-  }
-
-  return true;
+  return !isPast && item.status !== 'Cancelled';
 }
 
 function statusKey(status: JobPostStatus) {
@@ -327,6 +369,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
   },
   summaryDivider: { width: StyleSheet.hairlineWidth, backgroundColor: colors.border },
+  historyMonthPicker: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: 12,
+  },
+  historyMonthButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primarySoft,
+  },
+  historyMonthButtonDisabled: { opacity: 0.35 },
   serviceCard: {
     gap: spacing.md,
   },
@@ -361,6 +421,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: spacing.md,
   },
+  applicantsNotice: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   metaGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

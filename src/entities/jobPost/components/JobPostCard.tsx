@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { AppText, Card } from '../../../shared/components';
+import { AppText, Avatar, Card } from '../../../shared/components';
 import { colors, spacing } from '../../../theme';
 import {
   formatCurrency,
@@ -17,7 +17,7 @@ interface JobPostCardProps {
   onPress: () => void;
 }
 
-/** Row in the waiter's nearby list: distance on the left, details, pay, headcount. */
+/** Summary card in the waiter's nearby list. */
 export function JobPostCard({ jobPost, onPress }: JobPostCardProps) {
   const { t } = useTranslation();
   const distanceMeters = 'distanceMeters' in jobPost ? jobPost.distanceMeters : null;
@@ -27,16 +27,32 @@ export function JobPostCard({ jobPost, onPress }: JobPostCardProps) {
     .join(', ');
 
   return (
-    <Card onPress={onPress} style={styles.card}>
-      <View style={styles.row}>
-        {distanceMeters !== null ? (
-          <AppText variant="captionStrong" color={colors.primaryPressed} style={styles.distance}>
-            {t('common.distanceKm', { value: formatDistanceKm(distanceMeters) })}
+    <Card onPress={onPress} style={styles.card} flush>
+      <View style={styles.companyHero}>
+        <Avatar name={jobPost.companyName} uri={jobPost.companyLogoPath} size={36} />
+        <View style={styles.companyTexts}>
+          <AppText variant="captionStrong" color={colors.textOnDark} numberOfLines={1}>
+            {jobPost.companyName}
           </AppText>
-        ) : null}
-
+          <AppText variant="caption" color={colors.onHeroMuted}>
+            Vaga #{jobPost.referenceCode}
+          </AppText>
+        </View>
+      </View>
+      <View style={styles.row}>
         <View style={styles.details}>
-          <AppText variant="bodyStrong">{jobPost.title}</AppText>
+          <View style={styles.titleRow}>
+            <AppText variant="bodyStrong" numberOfLines={1} style={styles.title}>
+              {jobPost.title}
+            </AppText>
+            {distanceMeters !== null ? (
+              <View style={styles.distanceBadge}>
+                <AppText variant="captionStrong" color={colors.primaryPressed}>
+                  {t('common.distanceKm', { value: formatDistanceKm(distanceMeters) })}
+                </AppText>
+              </View>
+            ) : null}
+          </View>
 
           {addressLine ? (
             <AppText variant="caption" color={colors.textMuted} numberOfLines={1}>
@@ -66,10 +82,19 @@ export function JobPostCard({ jobPost, onPress }: JobPostCardProps) {
 }
 
 const styles = StyleSheet.create({
-  card: { paddingVertical: spacing.lg },
-  row: { flexDirection: 'row', gap: spacing.lg },
-  distance: { width: 48, paddingTop: 2 },
+  card: {},
+  companyHero: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.heroBackground, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
+  companyTexts: { flex: 1, gap: spacing.xxs },
+  row: { paddingHorizontal: spacing.lg, paddingVertical: spacing.lg },
   details: { flex: 1, gap: 2 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  title: { flex: 1 },
+  distanceBadge: {
+    backgroundColor: colors.primarySoft,
+    borderRadius: 999,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',

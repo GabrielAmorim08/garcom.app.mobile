@@ -12,6 +12,13 @@ export function useMyApplications() {
   });
 }
 
+export function useApplicationHistory() {
+  return useQuery<PagedResult<JobApplicationWithPost>>({
+    queryKey: queryKeys.jobApplications.historyByWaiter,
+    queryFn: () => jobApplicationService.getMine({ history: true }),
+  });
+}
+
 export function useWithdrawApplication() {
   const queryClient = useQueryClient();
 

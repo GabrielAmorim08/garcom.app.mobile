@@ -26,9 +26,16 @@ interface ApplicationRowProps {
   onPress: () => void;
   onWithdraw: () => void;
   isWithdrawing: boolean;
+  allowWithdraw?: boolean;
 }
 
-export function ApplicationRow({ application, onPress, onWithdraw, isWithdrawing }: ApplicationRowProps) {
+export function ApplicationRow({
+  application,
+  onPress,
+  onWithdraw,
+  isWithdrawing,
+  allowWithdraw = true,
+}: ApplicationRowProps) {
   const { t } = useTranslation();
   const { jobPost } = application;
 
@@ -51,7 +58,7 @@ export function ApplicationRow({ application, onPress, onWithdraw, isWithdrawing
         {formatCurrency(jobPost.payAmount)}
       </AppText>
 
-      {application.status === 'Pending' ? (
+      {allowWithdraw && application.status === 'Pending' ? (
         <Button
           label={t('waiter.application.withdraw')}
           variant="ghost"

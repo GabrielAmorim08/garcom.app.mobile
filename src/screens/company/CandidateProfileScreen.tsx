@@ -1,10 +1,11 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
 import type { RootStackParamList } from '../../navigation/types';
-import { AppText, Avatar, Card, Icon, Screen, ScreenHeader } from '../../shared/components';
+import { AppText, Avatar, Button, Card, Icon, Screen, ScreenHeader } from '../../shared/components';
+import { useOpenChatConversation } from '../../entities/chat/useChat';
 import { formatRating } from '../../shared/utils/format';
 import { colors, radius, spacing } from '../../theme';
 
@@ -12,8 +13,22 @@ export function CandidateProfileScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const { params } = useRoute<RouteProp<RootStackParamList, 'CandidateProfile'>>();
-  const { applicant } = params;
+  const { applicant, jobPostId } = params;
   const hasRatings = applicant.ratingsCount > 0;
+  const { mutateAsync: openConversation, isPending: isOpeningConversation } = useOpenChatConversation();
+
+  async function startConversation() {
+    try {
+      const conversation = await openConversation({ jobPostId, waiterUserId: applicant.waiterUserId });
+      navigation.navigate('ChatConversation', {
+        conversationId: conversation.id,
+        title: applicant.fullName,
+        context: `Vaga #${conversation.jobReferenceCode} · ${conversation.jobTitle}`,
+      });
+    } catch {
+      Alert.alert('Não foi possível iniciar a conversa', 'Tente novamente em instantes.');
+    }
+  }
 
   return (
     <Screen>
@@ -57,6 +72,12 @@ export function CandidateProfileScreen() {
               : 'Este profissional ainda não recebeu avaliações na plataforma.'}
           </AppText>
         </Card>
+        <Button
+          label="Enviar mensagem"
+          icon={<Icon name="message" size={19} color={colors.onPrimary} />}
+          loading={isOpeningConversation}
+          onPress={() => { startConversation(); }}
+        />
       </ScrollView>
     </Screen>
   );

@@ -4,6 +4,7 @@ import type { JobApplicant } from '../entities/jobApplication/types';
 export type CompanyTabParamList = {
   CompanyHome: undefined;
   CompanyServices: undefined;
+  Messages: undefined;
   CompanyProfile: undefined;
 };
 
@@ -27,12 +28,14 @@ export type RootStackParamList = {
   NewRequestStepThree: undefined;
   RequestSent: { jobPostId: string };
   CompanyServiceDetail: { jobPostId: string };
-  CandidateProfile: { applicant: JobApplicant };
+  CandidateProfile: { jobPostId: string; applicant: JobApplicant };
+  ChatConversation: { conversationId: string; title: string; context: string };
 
   WaiterTabs: NavigatorScreenParams<WaiterTabParamList>;
   ServiceDetail: { jobPostId: string };
   ServiceConfirmed: { jobPostId: string };
   MyServices: { tab?: 'upcoming' | 'applications' | 'history' } | undefined;
+  EarningsDashboard: undefined;
   AssignmentDetail: { assignmentId: string };
   WaiterProfileEdit: undefined;
 };

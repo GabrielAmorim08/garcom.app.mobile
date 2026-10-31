@@ -11,7 +11,7 @@ import {
 import { colors, radius, spacing, typography } from '../../theme';
 import { AppText } from './AppText';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'dark';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'dark' | 'success' | 'danger';
 type ButtonSize = 'md' | 'lg';
 
 interface ButtonProps {
@@ -110,5 +110,15 @@ const variantStyles: Record<
     container: { backgroundColor: colors.heroBackground },
     pressed: { backgroundColor: colors.textSecondary },
     label: { color: colors.textOnDark },
+  },
+  success: {
+    container: { backgroundColor: colors.success },
+    pressed: { backgroundColor: colors.primaryPressed },
+    label: { color: colors.onPrimary },
+  },
+  danger: {
+    container: { backgroundColor: colors.danger },
+    pressed: { backgroundColor: '#8E1B16' },
+    label: { color: colors.onPrimary },
   },
 };

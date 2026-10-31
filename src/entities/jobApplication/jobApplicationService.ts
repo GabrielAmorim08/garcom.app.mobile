@@ -7,6 +7,8 @@ import type {
   JobApplicationWithPost,
 } from './types';
 
+type MyApplicationsQuery = PageRequest & { history?: boolean };
+
 export const jobApplicationService = {
   async apply(payload: ApplyRequest): Promise<JobApplication> {
     const { data } = await httpClient.post<JobApplication>('/job-applications', payload);
@@ -17,7 +19,7 @@ export const jobApplicationService = {
     await httpClient.post(`/job-applications/${applicationId}/withdraw`);
   },
 
-  async getMine(params?: PageRequest): Promise<PagedResult<JobApplicationWithPost>> {
+  async getMine(params?: MyApplicationsQuery): Promise<PagedResult<JobApplicationWithPost>> {
     const { data } = await httpClient.get<PagedResult<JobApplicationWithPost>>(
       '/job-applications/mine',
       { params },

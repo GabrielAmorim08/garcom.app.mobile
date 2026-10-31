@@ -50,6 +50,17 @@ export function useCreateJobPost() {
   });
 }
 
+export function useUpdateJobPostStatus() {
+  const queryClient = useQueryClient();
+  return useMutation<void, Error, { id: string; action: 'cancel' | 'complete' }>({
+    mutationFn: ({ id, action }) => action === 'cancel' ? jobPostService.cancel(id, '') : jobPostService.complete(id),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.jobPosts.detail(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.jobPosts.all });
+    },
+  });
+}
+
 type EstimateInput = Pick<
   CreateJobPostRequest,
   'serviceKind' | 'providerKind' | 'shiftStart' | 'shiftEnd' | 'slots'

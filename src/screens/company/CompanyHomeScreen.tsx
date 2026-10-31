@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StatusBar, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StatusBar, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -32,13 +32,12 @@ export function CompanyHomeScreen() {
     const nextService = dashboard.nextService;
 
     return (
-      <Screen scrollable background={colors.heroBackground} contentStyle={styles.dashboardScroll}>
+      <Screen background={colors.heroBackground} bleedUnderTabBar>
         <StatusBar barStyle="light-content" />
         <View style={styles.dashboardHero}>
           <View style={styles.dashboardHeader}>
             <AppHeader />
           </View>
-
           <View style={styles.heroMain}>
             <View style={styles.dashboardIntro}>
               <AppText variant="title" color={colors.textOnDark}>
@@ -70,6 +69,10 @@ export function CompanyHomeScreen() {
           </View>
         </View>
 
+        <ScrollView
+          style={styles.dashboardBody}
+          contentContainerStyle={styles.dashboardScroll}
+          showsVerticalScrollIndicator={false}>
         <View style={[styles.dashboardSheet, { paddingBottom: spacing.xxl + tabBarClearance }]}>
         <View style={styles.statsGrid}>
           <MetricCard
@@ -165,6 +168,7 @@ export function CompanyHomeScreen() {
           ))}
         </View>
         </View>
+        </ScrollView>
       </Screen>
     );
   }
@@ -219,7 +223,8 @@ function jobPostStatusKey(status: JobPost['status']) {
 function buildDashboard(services: JobPost[]) {
   const now = Date.now();
   const activeServices = services.filter(service =>
-    ['Published', 'Filled'].includes(service.status),
+    ['Published', 'Filled'].includes(service.status)
+      && new Date(service.shiftEnd).getTime() > now,
   );
   const upcomingServices = activeServices
     .filter(service => new Date(service.shiftEnd).getTime() >= now)
@@ -310,22 +315,25 @@ const styles = StyleSheet.create({
   heroCopy: { gap: spacing.md, marginBottom: spacing.xxl },
   actions: { gap: spacing.md },
   dashboardScroll: {
+    flexGrow: 1,
     paddingBottom: 0,
     gap: 0,
   },
+  dashboardBody: { flex: 1 },
   dashboardHeader: {
     alignSelf: 'stretch',
   },
   dashboardHero: {
     backgroundColor: colors.heroBackground,
     paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xl,
+    paddingTop: spacing.md,
     paddingBottom: spacing.xxl,
     borderBottomLeftRadius: spacing.xl,
     borderBottomRightRadius: spacing.xl,
     gap: spacing.xl,
   },
   dashboardSheet: {
+    flexGrow: 1,
     backgroundColor: colors.background,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -342,21 +350,21 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   dashboardCta: {
-    minHeight: 76,
+    minHeight: 64,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     backgroundColor: colors.primary,
     borderRadius: 16,
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.16)',
   },
   dashboardCtaPressed: { backgroundColor: colors.primaryPressed },
   dashboardCtaIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.onPrimary,

@@ -1,4 +1,5 @@
 import type { Address, GeoPoint, IsoDateTime } from '../../shared/types/common';
+import type { JobApplicationStatus } from '../jobApplication/types';
 
 export type JobPostStatus = 'Draft' | 'Published' | 'Filled' | 'Cancelled' | 'Completed';
 
@@ -18,8 +19,10 @@ export type ProviderKind =
 
 export interface JobPost {
   id: string;
+  referenceCode: string;
   companyId: string;
   companyName: string;
+  companyLogoPath: string | null;
   establishmentId: string | null;
   establishmentName: string | null;
 
@@ -33,6 +36,7 @@ export interface JobPost {
 
   slots: number;
   slotsFilled: number;
+  pendingApplicationsCount: number;
 
   payAmount: number;
   payType: PayType;
@@ -51,6 +55,8 @@ export interface NearbyJobPost extends JobPost {
   distanceMeters: number;
   /** True when the signed-in waiter already applied, so the CTA can change. */
   hasApplied: boolean;
+  /** Present on the detail endpoint when the signed-in waiter has applied. */
+  applicationStatus?: JobApplicationStatus | null;
 }
 
 export interface CreateJobPostRequest {

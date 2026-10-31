@@ -51,4 +51,8 @@ export const jobPostService = {
   async cancel(id: string, reason: string): Promise<void> {
     await httpClient.post(`/job-posts/${id}/cancel`, { reason });
   },
+
+  async complete(id: string): Promise<void> {
+    await httpClient.post(`/job-posts/${id}/complete`);
+  },
 };

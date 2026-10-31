@@ -39,7 +39,7 @@ export function ScreenHeader({ title, onBack, right, tone = 'light' }: ScreenHea
         <View style={styles.title} />
       )}
 
-      <View style={[styles.side, styles.right]}>{right}</View>
+      <View style={[styles.side, right ? styles.rightWithContent : styles.right]}>{right}</View>
     </View>
   );
 }
@@ -53,5 +53,6 @@ const styles = StyleSheet.create({
   },
   side: { width: 40, justifyContent: 'center' },
   right: { alignItems: 'flex-end' },
+  rightWithContent: { width: 'auto', minWidth: 40, alignItems: 'flex-end' },
   title: { flex: 1 },
 });

@@ -28,7 +28,8 @@ export type IconName =
   | 'star'
   | 'users'
   | 'note'
-  | 'party';
+  | 'party'
+  | 'chart';
 
 interface IconProps {
   name: IconName;
@@ -168,6 +169,13 @@ function renderPaths(name: IconName, p: PathProps, color: string, filled: boolea
         <>
           <Path d="M4 20 9 8l7 7Z" {...p} />
           <Path d="M14 4v2M18.5 5.5 17 7M20 10h-2" {...p} />
+        </>
+      );
+    case 'chart':
+      return (
+        <>
+          <Path d="M4 20h16" {...p} />
+          <Path d="M7 17v-4M12 17V7M17 17v-7" {...p} strokeWidth={2.2} />
         </>
       );
     default:
