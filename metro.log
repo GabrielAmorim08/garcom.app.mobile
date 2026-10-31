@@ -226,3 +226,39 @@ None of these files exist:
     at async Graph.traverseDependencies (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\Graph.js:50:19)
  WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
  WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 0% (0/1)
+ BUNDLE  ./index.js 
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 0% (0/1)
+ BUNDLE  ./index.js 
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ ERROR  Error: Unable to resolve module ../screens/company/CompanyServicesScreen from C:\ProjetosExt\garcom.app\garcom.app.mobile\src\navigation\CompanyTabs.tsx: 
+
+None of these files exist:
+  * src\screens\company\CompanyServicesScreen(.android.js|.native.js|.js|.android.jsx|.native.jsx|.jsx|.android.json|.native.json|.json|.android.ts|.native.ts|.ts|.android.tsx|.native.tsx|.tsx)
+  * src\screens\company\CompanyServicesScreen
+  4 |
+  5 | import { CompanyHomeScreen } from '../screens/company/CompanyHomeScreen';
+> 6 | import { CompanyServicesScreen } from '../screens/company/CompanyServicesScreen';
+    |                                        ^
+  7 | import { ProfileScreen } from '../screens/shared/ProfileScreen';
+  8 | import { tabBarStyle, tabScreenOptions } from './TabBar';
+  9 | import type { CompanyTabParamList } from './types';
+    at ModuleResolver.resolveDependency (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\node-haste\DependencyGraph\ModuleResolution.js:143:15)
+    at DependencyGraph.resolveDependency (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\node-haste\DependencyGraph.js:263:43)
+    at C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\lib\transformHelpers.js:165:21
+    at resolveDependencies (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\buildSubgraph.js:43:25)
+    at visit (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\buildSubgraph.js:81:30)
+    at async Promise.all (index 0)
+    at async buildSubgraph (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\buildSubgraph.js:105:3)
+    at async Graph._buildDelta (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\Graph.js:163:22)
+    at async Graph.traverseDependencies (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\Graph.js:50:19)
+    at async DeltaCalculator._getChangedDependencies (C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\metro\src\DeltaBundler\DeltaCalculator.js:200:42)
+ BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 0% (0/1)
+ WARN  Attempted to import the module "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native\src\private\featureflags\ReactNativeFeatureFlags" which is not listed in the "exports" of "C:\ProjetosExt\garcom.app\garcom.app.mobile\node_modules\react-native" under the requested subpath "./src/private/featureflags/ReactNativeFeatureFlags". Falling back to file-based resolution. Consider updating the call site or asking the package maintainer(s) to expose this API.
+ BUNDLE  ./index.js 
+ ERROR  [timeout] connection terminated with Device for app='com.serveup' on device='sdk_gphone64_x86_64 - 13 - API 33' after not responding for 60 seconds.
