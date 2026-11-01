@@ -181,6 +181,11 @@ export const ptBR = {
     companyData: 'Dados da empresa',
     companyAddress: 'Endereço da empresa',
     saved: 'Dados salvos com sucesso.',
+    changePhoto: 'Alterar foto',
+    changeCompanyLogo: 'Alterar logo da empresa',
+    photoUpdated: 'Foto atualizada com sucesso.',
+    photoError: 'Não foi possível atualizar a foto. Tente novamente.',
+    photoHint: 'JPG, PNG ou WEBP de até 5 MB',
   },
 
   company: {

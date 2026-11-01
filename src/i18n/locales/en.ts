@@ -180,6 +180,11 @@ export const en: TranslationSchema = {
     companyData: 'Company data',
     companyAddress: 'Company address',
     saved: 'Data saved successfully.',
+    changePhoto: 'Change photo',
+    changeCompanyLogo: 'Change company logo',
+    photoUpdated: 'Photo updated successfully.',
+    photoError: 'We could not update the photo. Please try again.',
+    photoHint: 'JPG, PNG or WEBP up to 5 MB',
   },
 
   company: {

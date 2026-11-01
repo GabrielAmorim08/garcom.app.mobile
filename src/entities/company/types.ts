@@ -10,7 +10,7 @@ export interface Company {
   taxId: string;
   email: string;
   phone: string;
-  logoUrl: string | null;
+  logoPath: string | null;
   status: CompanyStatus;
   averageRating: number;
   ratingsCount: number;

@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
 import { useAuthStore } from '../entities/auth/authStore';
+import { useMyCompany } from '../entities/company/useCompany';
 import { useCurrentUser } from '../entities/user/useUser';
 import { Avatar } from '../shared/components';
 import { Wordmark } from '../shared/components/Wordmark';
@@ -19,6 +20,9 @@ export function AppHeader() {
   const navigation = useNavigation();
   const mode = useAuthStore(state => state.mode);
   const { data: user } = useCurrentUser();
+  const { data: company } = useMyCompany(mode === 'company');
+  const avatarName = mode === 'company' ? company?.tradeName ?? user?.fullName ?? 'TaxaUp' : user?.fullName ?? 'TaxaUp';
+  const avatarUri = mode === 'company' ? company?.logoPath ?? user?.profilePhotoPath : user?.profilePhotoPath;
 
   function openProfile() {
     if (mode === 'company') {
@@ -36,7 +40,7 @@ export function AppHeader() {
         hitSlop={hitSlop}
         accessibilityRole="button"
         accessibilityLabel={t('tabs.profile')}>
-        <Avatar name={user?.fullName ?? 'TaxaUp'} uri={user?.profilePhotoPath} size={32} />
+        <Avatar name={avatarName} uri={avatarUri} size={32} />
       </Pressable>
     </View>
   );

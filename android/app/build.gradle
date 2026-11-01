@@ -72,6 +72,12 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+def uploadStoreFile = System.getenv('TAXAUP_UPLOAD_STORE_FILE')
+def uploadStorePassword = System.getenv('TAXAUP_UPLOAD_STORE_PASSWORD')
+def uploadKeyAlias = System.getenv('TAXAUP_UPLOAD_KEY_ALIAS')
+def uploadKeyPassword = System.getenv('TAXAUP_UPLOAD_KEY_PASSWORD')
+def hasUploadSigning = [uploadStoreFile, uploadStorePassword, uploadKeyAlias, uploadKeyPassword].every { it }
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -79,7 +85,7 @@ android {
 
     namespace "com.serveup"
     defaultConfig {
-        applicationId "com.serveup"
+        applicationId "com.taxaup.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -92,15 +98,24 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (hasUploadSigning) {
+                storeFile file(uploadStoreFile)
+                storePassword uploadStorePassword
+                keyAlias uploadKeyAlias
+                keyPassword uploadKeyPassword
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            if (!hasUploadSigning) {
+                throw new GradleException('Release signing is not configured. Set the TAXAUP_UPLOAD_* environment variables.')
+            }
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
