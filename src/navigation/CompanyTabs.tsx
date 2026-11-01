@@ -6,6 +6,7 @@ import { CompanyHomeScreen } from '../screens/company/CompanyHomeScreen';
 import { CompanyServicesScreen } from '../screens/company/CompanyServicesScreen';
 import { ProfileScreen } from '../screens/shared/ProfileScreen';
 import { MessagesScreen } from '../screens/shared/MessagesScreen';
+import { useUnreadMessagesCount } from '../entities/chat/useChat';
 import { tabScreenOptions, useTabBarOptions } from './TabBar';
 import type { CompanyTabParamList } from './types';
 
@@ -14,6 +15,7 @@ const Tab = createBottomTabNavigator<CompanyTabParamList>();
 export function CompanyTabs() {
   const { t } = useTranslation();
   const tabBarOptions = useTabBarOptions();
+  const unreadMessages = useUnreadMessagesCount();
 
   return (
     <Tab.Navigator screenOptions={tabBarOptions}>
@@ -30,7 +32,7 @@ export function CompanyTabs() {
       <Tab.Screen
         name="Messages"
         component={MessagesScreen}
-        options={tabScreenOptions('message', t('tabs.messages'))}
+        options={tabScreenOptions('message', t('tabs.messages'), unreadMessages)}
       />
       <Tab.Screen
         name="CompanyProfile"

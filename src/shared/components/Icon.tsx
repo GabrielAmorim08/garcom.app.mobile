@@ -29,7 +29,8 @@ export type IconName =
   | 'users'
   | 'note'
   | 'party'
-  | 'chart';
+  | 'chart'
+  | 'bell';
 
 interface IconProps {
   name: IconName;
@@ -122,6 +123,13 @@ function renderPaths(name: IconName, p: PathProps, color: string, filled: boolea
         <>
           <Circle cx={11} cy={11} r={7} {...p} />
           <Path d="m16.2 16.2 4 4" {...p} />
+        </>
+      );
+    case 'bell':
+      return (
+        <>
+          <Path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15Z" {...p} />
+          <Path d="M10 21a2 2 0 0 0 4 0" {...p} />
         </>
       );
     case 'message':

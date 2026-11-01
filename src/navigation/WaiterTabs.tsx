@@ -6,6 +6,7 @@ import { ProfileScreen } from '../screens/shared/ProfileScreen';
 import { MessagesScreen } from '../screens/shared/MessagesScreen';
 import { NearbyServicesScreen } from '../screens/waiter/NearbyServicesScreen';
 import { WaiterHomeScreen } from '../screens/waiter/WaiterHomeScreen';
+import { useUnreadMessagesCount } from '../entities/chat/useChat';
 import { tabScreenOptions, useTabBarOptions } from './TabBar';
 import type { WaiterTabParamList } from './types';
 
@@ -14,6 +15,7 @@ const Tab = createBottomTabNavigator<WaiterTabParamList>();
 export function WaiterTabs() {
   const { t } = useTranslation();
   const tabBarOptions = useTabBarOptions();
+  const unreadMessages = useUnreadMessagesCount();
 
   return (
     <Tab.Navigator screenOptions={tabBarOptions}>
@@ -30,7 +32,7 @@ export function WaiterTabs() {
       <Tab.Screen
         name="Messages"
         component={MessagesScreen}
-        options={tabScreenOptions('message', t('tabs.messages'))}
+        options={tabScreenOptions('message', t('tabs.messages'), unreadMessages)}
       />
       <Tab.Screen
         name="WaiterProfile"

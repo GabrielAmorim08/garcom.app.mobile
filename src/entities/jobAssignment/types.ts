@@ -33,6 +33,20 @@ export interface JobAssignmentWithPost extends JobAssignment {
   jobPost: JobPost;
 }
 
+/** One provider booked on a service, as the company follows the shift. */
+export interface JobPostProvider {
+  assignmentId: string;
+  waiterUserId: string;
+  fullName: string;
+  profilePhotoPath: string | null;
+  status: JobAssignmentStatus;
+  checkInAt: IsoDateTime | null;
+  checkInDistanceMeters: number | null;
+  checkOutAt: IsoDateTime | null;
+  checkOutDistanceMeters: number | null;
+  contestWindowEndsAt: IsoDateTime | null;
+}
+
 export interface CheckInRequest {
   assignmentId: string;
   location: GeoPoint;

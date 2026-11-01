@@ -10,9 +10,15 @@ import { colors, radius, shadows, spacing, typography } from '../theme';
  * One place for the tab bar's look, so the company and waiter navigators cannot
  * drift apart.
  */
-export function tabScreenOptions(icon: IconName, label: string): BottomTabNavigationOptions {
+export function tabScreenOptions(
+  icon: IconName,
+  label: string,
+  badge?: number,
+): BottomTabNavigationOptions {
   return {
     title: label,
+    tabBarBadge: badge && badge > 0 ? (badge > 99 ? '99+' : badge) : undefined,
+    tabBarBadgeStyle: { backgroundColor: colors.danger, color: colors.textOnDark },
     tabBarIcon: ({ color, size }) => <Icon name={icon} size={size} color={color} />,
   };
 }

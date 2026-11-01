@@ -11,6 +11,8 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		BFD970F4EF8F4445B4B5A794 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AC258696EE764EDFAF290D6B /* BootSplash.storyboard */; };
+		2ECBE991C21B4550AB4095ED /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D48A15C6B53F475885451D4C /* Colors.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,8 @@
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ServeUp/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ServeUp/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		AC258696EE764EDFAF290D6B /* BootSplash.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = BootSplash.storyboard; path = ServeUp/BootSplash.storyboard; sourceTree = "<group>"; };
+		D48A15C6B53F475885451D4C /* Colors.xcassets */ = {isa = PBXFileReference; name = "Colors.xcassets"; path = "ServeUp/Colors.xcassets"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = folder.assetcatalog; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,6 +50,8 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+				AC258696EE764EDFAF290D6B /* BootSplash.storyboard */,
+				D48A15C6B53F475885451D4C /* Colors.xcassets */,
 			);
 			name = ServeUp;
 			sourceTree = "<group>";
@@ -159,6 +165,8 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				BFD970F4EF8F4445B4B5A794 /* BootSplash.storyboard in Resources */,
+				2ECBE991C21B4550AB4095ED /* Colors.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

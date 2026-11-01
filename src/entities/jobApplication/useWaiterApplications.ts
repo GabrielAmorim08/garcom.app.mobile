@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { queryKeys } from '../../shared/api/queryClient';
+import { LIVE_REFRESH_MS, queryKeys } from '../../shared/api/queryClient';
 import type { PagedResult } from '../../shared/types/common';
 import { jobApplicationService } from './jobApplicationService';
 import type { JobApplicationWithPost } from './types';
@@ -9,6 +9,7 @@ export function useMyApplications() {
   return useQuery<PagedResult<JobApplicationWithPost>>({
     queryKey: queryKeys.jobApplications.byWaiter,
     queryFn: () => jobApplicationService.getMine(),
+    refetchInterval: LIVE_REFRESH_MS,
   });
 }
 

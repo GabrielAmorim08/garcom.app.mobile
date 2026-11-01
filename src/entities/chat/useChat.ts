@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { queryKeys } from '../../shared/api/queryClient';
+import { LIVE_REFRESH_MS, queryKeys } from '../../shared/api/queryClient';
 import { chatService } from './chatService';
 import type { ChatConversation, ChatMessage, OpenConversationRequest } from './types';
 
@@ -8,7 +8,15 @@ export function useChatInbox() {
   return useQuery<ChatConversation[]>({
     queryKey: queryKeys.chat.inbox,
     queryFn: () => chatService.getInbox(),
+    refetchInterval: LIVE_REFRESH_MS,
   });
+}
+
+/** Unread messages across every conversation, for the badge on the Messages tab. */
+export function useUnreadMessagesCount(): number {
+  const { data } = useChatInbox();
+
+  return (data ?? []).reduce((total, conversation) => total + conversation.unreadCount, 0);
 }
 
 export function useChatMessages(conversationId: string) {

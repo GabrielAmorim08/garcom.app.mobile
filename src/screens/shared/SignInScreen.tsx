@@ -39,6 +39,7 @@ export function SignInScreen() {
         password: secret,
         device: await getDeviceInfo(),
       });
+      await biometricLogin.clearAutoPromptSuppression();
       return 'ok';
     } catch (caught) {
       const unauthorized = caught instanceof ApiError && caught.status === 401;
@@ -108,10 +109,16 @@ export function SignInScreen() {
 
   const biometricReady = biometric.loaded && biometric.enabled;
   useEffect(() => {
-    if (biometricReady && !autoPrompted.current) {
-      autoPrompted.current = true;
-      void handleBiometric();
+    if (!biometricReady || autoPrompted.current) {
+      return;
     }
+
+    autoPrompted.current = true;
+    void biometricLogin.isAutoPromptSuppressed().then(suppressed => {
+      if (!suppressed) {
+        void handleBiometric();
+      }
+    });
   }, [biometricReady, handleBiometric]);
 
   return (

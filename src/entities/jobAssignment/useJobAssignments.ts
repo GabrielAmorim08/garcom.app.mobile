@@ -1,7 +1,7 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { mockApi } from '../../mocks/mockApi';
-import { queryKeys } from '../../shared/api/queryClient';
+import { LIVE_REFRESH_MS, queryKeys } from '../../shared/api/queryClient';
 import { shouldUseApi } from '../../shared/api/shouldUseApi';
 import type { GeoPoint, PagedResult } from '../../shared/types/common';
 import { toMonthKey } from '../../shared/utils/date';
@@ -15,6 +15,7 @@ export function useUpcomingAssignments() {
       (await shouldUseApi())
         ? jobAssignmentService.getUpcoming()
         : mockApi.getUpcomingAssignments(),
+    refetchInterval: LIVE_REFRESH_MS,
   });
 }
 

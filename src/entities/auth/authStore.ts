@@ -6,6 +6,7 @@ import { userService } from '../user/userService';
 import type { User, UserRoleType } from '../user/types';
 import { authPreferences } from './authPreferences';
 import { authService } from './authService';
+import { biometricLogin } from './biometricLogin';
 import type { SignInRequest, SignUpRequest } from './types';
 
 /** Which side of the product the UI is showing. A user with both roles can switch. */
@@ -139,6 +140,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   async signOut() {
+    await biometricLogin.suppressAutoPrompt();
     await authService.signOut();
     queryClient.clear();
     set({ user: null, pendingVerificationEmail: null });

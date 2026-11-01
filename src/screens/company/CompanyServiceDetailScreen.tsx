@@ -9,7 +9,13 @@ import {
   useRejectJobApplication,
 } from '../../entities/jobApplication/useJobApplications';
 import type { JobApplicant } from '../../entities/jobApplication/types';
-import { useJobPost, useUpdateJobPostStatus } from '../../entities/jobPost/useJobPosts';
+import type { JobAssignmentStatus, JobPostProvider } from '../../entities/jobAssignment/types';
+import {
+  useJobPost,
+  useJobPostProviders,
+  useStartJobPost,
+  useUpdateJobPostStatus,
+} from '../../entities/jobPost/useJobPosts';
 import type { RootStackParamList } from '../../navigation/types';
 import {
   AppText,
@@ -24,8 +30,10 @@ import {
 } from '../../shared/components';
 import {
   formatCurrency,
+  formatDistanceKm,
   formatLongDate,
   formatRating,
+  formatTime,
   formatTimeRange,
 } from '../../shared/utils/format';
 import { colors, spacing } from '../../theme';
@@ -43,6 +51,36 @@ const jobPostStatusTranslationKey: Record<JobPostStatus, JobStatusKey> = {
   Filled: 'filled',
   Cancelled: 'cancelled',
   Completed: 'completed',
+};
+
+type ProviderStatusKey =
+  | 'confirmed'
+  | 'checkedIn'
+  | 'checkedOut'
+  | 'disputed'
+  | 'completed'
+  | 'noShow'
+  | 'cancelled';
+type BadgeTone = 'neutral' | 'gold' | 'success' | 'danger';
+
+const providerStatusTranslationKey: Record<JobAssignmentStatus, ProviderStatusKey> = {
+  Confirmed: 'confirmed',
+  CheckedIn: 'checkedIn',
+  CheckedOut: 'checkedOut',
+  Disputed: 'disputed',
+  Completed: 'completed',
+  NoShow: 'noShow',
+  Cancelled: 'cancelled',
+};
+
+const providerStatusTone: Record<JobAssignmentStatus, BadgeTone> = {
+  Confirmed: 'gold',
+  CheckedIn: 'success',
+  CheckedOut: 'success',
+  Disputed: 'danger',
+  Completed: 'neutral',
+  NoShow: 'danger',
+  Cancelled: 'neutral',
 };
 
 const applicationStatusTranslationKey: Record<JobApplicationStatus, ApplicationStatusKey> = {
@@ -63,6 +101,8 @@ export function CompanyServiceDetailScreen() {
     useJobApplicants(params.jobPostId);
   const { mutateAsync: accept, isPending: isAccepting } = useAcceptJobApplication(params.jobPostId);
   const { mutateAsync: reject, isPending: isRejecting } = useRejectJobApplication(params.jobPostId);
+  const { data: providers } = useJobPostProviders(params.jobPostId);
+  const { mutateAsync: startService, isPending: isStarting } = useStartJobPost(params.jobPostId);
   const { mutateAsync: updateStatus, isPending: isUpdatingStatus } = useUpdateJobPostStatus();
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -77,6 +117,19 @@ export function CompanyServiceDetailScreen() {
     } catch (error) {
       setActionError(getErrorMessage(error, t));
     }
+  }
+
+  function confirmStart() {
+    Alert.alert(t('company.serviceDetail.startTitle'), t('company.serviceDetail.startMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('company.serviceDetail.startConfirm'),
+        onPress: () => {
+          setActionError(null);
+          void startService().catch(error => setActionError(getErrorMessage(error, t)));
+        },
+      },
+    ]);
   }
 
   function confirmStatus(action: 'cancel' | 'complete') {
@@ -108,6 +161,11 @@ export function CompanyServiceDetailScreen() {
     .filter(Boolean)
     .join(', ');
   const statusKey = jobPostStatusTranslationKey[jobPost.status];
+  const isOpen = jobPost.status === 'Published' || jobPost.status === 'Filled';
+  const hasEnded = new Date(jobPost.shiftEnd).getTime() <= Date.now();
+  const isStarted = Boolean(jobPost.startedAt);
+  const canStart = isOpen && !hasEnded && !isStarted && jobPost.slotsFilled > 0;
+  const canCancel = isOpen && !hasEnded && !isStarted;
 
   return (
     <Screen>
@@ -159,12 +217,36 @@ export function CompanyServiceDetailScreen() {
               </View>
             </Card>
 
-            {jobPost.status === 'Published' || jobPost.status === 'Filled' ? (
+            {isOpen ? (
               <View style={styles.lifecycleActions}>
-                {new Date(jobPost.shiftEnd).getTime() <= Date.now() ? (
+                {isStarted && jobPost.startedAt ? (
+                  <AppText variant="caption" color={colors.textSecondary}>
+                    {t('company.serviceDetail.startedAt', { time: formatTime(jobPost.startedAt) })}
+                  </AppText>
+                ) : null}
+                {canStart ? (
+                  <Button label={t('company.serviceDetail.startService')} loading={isStarting} onPress={confirmStart} />
+                ) : null}
+                {hasEnded ? (
                   <Button label="Encerrar serviço" loading={isUpdatingStatus} onPress={() => confirmStatus('complete')} />
-                ) : (
+                ) : null}
+                {canCancel ? (
                   <Button label="Cancelar serviço" variant="danger" loading={isUpdatingStatus} onPress={() => confirmStatus('cancel')} />
+                ) : null}
+              </View>
+            ) : null}
+
+            {isOpen || (providers?.length ?? 0) > 0 ? (
+              <View style={styles.providers}>
+                <AppText variant="subtitle">{t('company.serviceDetail.providers')}</AppText>
+                {(providers ?? []).length === 0 ? (
+                  <AppText variant="caption" color={colors.textMuted}>
+                    {`${t('company.serviceDetail.providersEmpty')}. ${t('company.serviceDetail.providersEmptyHint')}`}
+                  </AppText>
+                ) : (
+                  (providers ?? []).map(provider => (
+                    <ProviderCard key={provider.assignmentId} provider={provider} />
+                  ))
                 )}
               </View>
             ) : null}
@@ -202,6 +284,59 @@ export function CompanyServiceDetailScreen() {
         }
       />
     </Screen>
+  );
+}
+
+function formatDistance(meters: number): string {
+  return meters < 1000 ? `${Math.round(meters)} m` : `${formatDistanceKm(meters)} km`;
+}
+
+function ProviderCard({ provider }: { provider: JobPostProvider }) {
+  const { t } = useTranslation();
+  const statusKey = providerStatusTranslationKey[provider.status];
+  const checkInLine = provider.checkInAt
+    ? [
+        t('company.serviceDetail.checkInAt', { time: formatTime(provider.checkInAt) }),
+        provider.checkInDistanceMeters !== null
+          ? t('company.serviceDetail.distanceFromVenue', {
+              distance: formatDistance(provider.checkInDistanceMeters),
+            })
+          : null,
+      ]
+        .filter(Boolean)
+        .join(' · ')
+    : null;
+
+  return (
+    <Card style={styles.provider}>
+      <View style={styles.applicantHeader}>
+        <Avatar name={provider.fullName} uri={provider.profilePhotoPath} size={40} />
+        <View style={styles.applicantText}>
+          <AppText variant="bodyStrong">{provider.fullName}</AppText>
+          {!provider.checkInAt && provider.status === 'Confirmed' ? (
+            <AppText variant="caption" color={colors.textMuted}>
+              {t('company.serviceDetail.awaitingCheckIn')}
+            </AppText>
+          ) : null}
+        </View>
+        <Badge
+          tone={providerStatusTone[provider.status]}
+          label={t(`company.serviceDetail.providerStatus.${statusKey}`)}
+        />
+      </View>
+
+      {checkInLine ? (
+        <AppText variant="caption" color={colors.textSecondary}>
+          {checkInLine}
+        </AppText>
+      ) : null}
+
+      {provider.checkOutAt ? (
+        <AppText variant="caption" color={colors.textSecondary}>
+          {t('company.serviceDetail.checkOutAt', { time: formatTime(provider.checkOutAt) })}
+        </AppText>
+      ) : null}
+    </Card>
   );
 }
 
@@ -279,6 +414,8 @@ const styles = StyleSheet.create({
   summaryTitle: { flex: 1, minWidth: 0, flexShrink: 1 },
   metrics: { flexDirection: 'row', gap: spacing.md },
   lifecycleActions: { gap: spacing.sm },
+  providers: { gap: spacing.md },
+  provider: { gap: spacing.sm },
   metric: { flex: 1, gap: spacing.xs },
   applicant: { gap: spacing.md },
   applicantHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },

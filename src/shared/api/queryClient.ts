@@ -1,6 +1,13 @@
-import { QueryClient } from '@tanstack/react-query';
+import { focusManager, QueryClient } from '@tanstack/react-query';
+import { AppState } from 'react-native';
 
 import { ApiError } from './apiError';
+
+/** Coming back to the app counts as focus, so stale lists refresh as soon as it is opened. */
+focusManager.setEventListener(handleFocus => {
+  const subscription = AppState.addEventListener('change', state => handleFocus(state === 'active'));
+  return () => subscription.remove();
+});
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,6 +25,12 @@ export const queryClient = new QueryClient({
   },
 });
 
+/**
+ * How often the lists on the home and "my services" screens refresh while open. Short
+ * enough that an accept or a check-in shows up on its own, long enough to stay light.
+ */
+export const LIVE_REFRESH_MS = 20_000;
+
 /** Query keys in one place, so invalidation never guesses a string. */
 export const queryKeys = {
   currentUser: ['currentUser'] as const,
@@ -32,6 +45,7 @@ export const queryKeys = {
       ['jobPosts', 'nearby', lat, lng, radius] as const,
     byCompany: (companyId: string) => ['jobPosts', 'company', companyId] as const,
     detail: (id: string) => ['jobPosts', 'detail', id] as const,
+    providers: (id: string) => ['jobPosts', 'providers', id] as const,
   },
 
   jobApplications: {
@@ -45,6 +59,12 @@ export const queryKeys = {
     history: ['jobAssignments', 'history'] as const,
     earnings: (month: string) => ['jobAssignments', 'earnings', month] as const,
     detail: (id: string) => ['jobAssignments', 'detail', id] as const,
+  },
+
+  notifications: {
+    all: ['notifications'] as const,
+    list: ['notifications', 'list'] as const,
+    unreadCount: ['notifications', 'unreadCount'] as const,
   },
 
   chat: {

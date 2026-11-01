@@ -48,6 +48,9 @@ export interface JobPost {
   location: GeoPoint | null;
 
   status: JobPostStatus;
+
+  /** Set when the company started the service early, which releases the providers' check-in. */
+  startedAt?: IsoDateTime | null;
 }
 
 /** A job post as it appears in the waiter's nearby list, with the computed distance. */

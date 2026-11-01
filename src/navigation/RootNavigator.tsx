@@ -11,6 +11,7 @@ import { CompanyServiceDetailScreen } from '../screens/company/CompanyServiceDet
 import { CandidateProfileScreen } from '../screens/company/CandidateProfileScreen';
 import { ChatConversationScreen } from '../screens/shared/ChatConversationScreen';
 import { EmailVerificationScreen } from '../screens/shared/EmailVerificationScreen';
+import { NotificationsScreen } from '../screens/shared/NotificationsScreen';
 import { ProfileDetailsScreen } from '../screens/shared/ProfileDetailsScreen';
 import { SignInScreen } from '../screens/shared/SignInScreen';
 import { SignUpScreen } from '../screens/shared/SignUpScreen';
@@ -94,6 +95,7 @@ export function RootNavigator() {
           <>
             <Stack.Screen name="CompanyTabs" component={CompanyTabs} />
             <Stack.Screen name="ProfileDetails" component={ProfileDetailsScreen} />
+            <Stack.Screen name="Notifications" component={NotificationsScreen} />
             <Stack.Screen name="NewRequestStepOne" component={NewRequestStepOneScreen} />
             <Stack.Screen name="NewRequestStepTwo" component={NewRequestStepTwoScreen} />
             <Stack.Screen name="NewRequestStepThree" component={NewRequestStepThreeScreen} />
@@ -110,6 +112,7 @@ export function RootNavigator() {
           <>
             <Stack.Screen name="WaiterTabs" component={WaiterTabs} />
             <Stack.Screen name="ProfileDetails" component={ProfileDetailsScreen} />
+            <Stack.Screen name="Notifications" component={NotificationsScreen} />
             <Stack.Screen name="ServiceDetail" component={ServiceDetailScreen} />
             <Stack.Screen
               name="ServiceConfirmed"

@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SERVICE = 'com.serveup.biometric-login';
 const PROMPT_DECLINED_KEY = '@serveup/biometric-prompt-declined';
+const AUTO_PROMPT_SUPPRESSED_KEY = '@serveup/biometric-auto-prompt-suppressed';
 
 export type BiometryKind = 'faceId' | 'fingerprint' | 'face' | 'generic';
 
@@ -86,6 +87,23 @@ export const biometricLogin = {
     } catch {
       // Nothing stored: already off.
     }
+  },
+
+  /**
+   * After the user signs out on purpose the sign-in screen must not scan and sign
+   * them straight back in. The button stays available; only the automatic scan is held
+   * back until the next sign-in.
+   */
+  async suppressAutoPrompt(): Promise<void> {
+    await AsyncStorage.setItem(AUTO_PROMPT_SUPPRESSED_KEY, '1');
+  },
+
+  async isAutoPromptSuppressed(): Promise<boolean> {
+    return (await AsyncStorage.getItem(AUTO_PROMPT_SUPPRESSED_KEY)) === '1';
+  },
+
+  async clearAutoPromptSuppression(): Promise<void> {
+    await AsyncStorage.removeItem(AUTO_PROMPT_SUPPRESSED_KEY);
   },
 
   async wasPromptDeclined(): Promise<boolean> {
