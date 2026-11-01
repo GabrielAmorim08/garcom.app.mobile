@@ -34,7 +34,6 @@ jobs:
       BUNDLE_ID: com.taxaup.app
       # Every upload needs a build number higher than the previous one.
       BUILD_NUMBER: ${{ github.run_number }}
-      KEY_PATH: ${{ runner.temp }}/AuthKey.p8
 
     steps:
       - uses: actions/checkout@v4
@@ -68,7 +67,10 @@ jobs:
       - name: Write App Store Connect API key
         env:
           APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
-        run: printf '%s' "$APP_STORE_CONNECT_PRIVATE_KEY" > "$KEY_PATH"
+        run: |
+          KEY_PATH="$RUNNER_TEMP/AuthKey.p8"
+          printf '%s' "$APP_STORE_CONNECT_PRIVATE_KEY" > "$KEY_PATH"
+          echo "KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
 
       - name: Archive
         env:
