@@ -40,6 +40,8 @@
 	<string>Usamos sua localização para mostrar serviços próximos e registrar o check-in no local do plantão.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Usamos o Face ID para você entrar no TaxaUp sem digitar a senha.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Usamos suas fotos para você escolher a imagem do seu perfil.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
