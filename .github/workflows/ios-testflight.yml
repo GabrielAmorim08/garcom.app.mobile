@@ -95,7 +95,16 @@ jobs:
       - name: Show archive errors
         if: failure()
         run: |
-          grep -nE "error:|fatal error:|Undefined symbols|ld: " -A6 "$RUNNER_TEMP/archive.log" | head -200 || true
+          LOG="$RUNNER_TEMP/archive.log"
+          echo "=== disk and memory ==="
+          df -h / /System/Volumes/Data 2>/dev/null | head -4
+          vm_stat | head -6
+          echo "=== lines with error-like text ==="
+          grep -nEi "error|fatal|undefined symbols|no space left|killed|segmentation|signal|crash|PLEASE submit" "$LOG" \
+            | grep -v "Explicit dependency" | grep -v "warning:" | head -80 || true
+          echo "=== 60 lines before the first failed command ==="
+          N=$(grep -n -m1 "failed with a nonzero exit code" "$LOG" | cut -d: -f1)
+          if [ -n "$N" ]; then sed -n "$((N>60 ? N-60 : 1)),$((N+3))p" "$LOG" | cut -c1-400; fi
 
       - name: Export and upload to TestFlight
         env:
