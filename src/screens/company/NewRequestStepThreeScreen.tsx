@@ -9,13 +9,14 @@ import {
   AppText,
   Button,
   Card,
+  ConfirmDialog,
   Screen,
   ScreenHeader,
   StepProgress,
   Stepper,
   TextArea,
 } from '../../shared/components';
-import { formatCurrency } from '../../shared/utils/format';
+import { formatCurrency, formatLongDate, formatTime, formatTimeRange } from '../../shared/utils/format';
 import { getErrorMessage } from '../../shared/api/errorMessage';
 import { colors, radius, spacing, typography } from '../../theme';
 
@@ -26,6 +27,7 @@ export function NewRequestStepThreeScreen() {
   const providerKind = useNewRequestStore(state => state.providerKind);
   const slots = useNewRequestStore(state => state.slots);
   const payAmount = useNewRequestStore(state => state.payAmount);
+  const address = useNewRequestStore(state => state.address);
   const notes = useNewRequestStore(state => state.notes);
   const setSlots = useNewRequestStore(state => state.setSlots);
   const setPayAmount = useNewRequestStore(state => state.setPayAmount);
@@ -44,6 +46,7 @@ export function NewRequestStepThreeScreen() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   // The suggested value is filled in once. Without this, clearing the field puts it back.
   const suggestionApplied = useRef(payAmount !== null);
+  const [confirming, setConfirming] = useState(false);
 
   const title = providerKind
     ? t(`serviceRequest.step1.providers.${providerKindKey(providerKind)}.label` as never)
@@ -65,7 +68,34 @@ export function NewRequestStepThreeScreen() {
     setPayAmount(parseCurrencyInput(value));
   }
 
+  function requestDetails() {
+    if (!range || !payAmount) {
+      return [];
+    }
+
+    const sameDay = new Date(range.shiftStart).toDateString() === new Date(range.shiftEnd).toDateString();
+    const when = sameDay
+      ? `${formatLongDate(range.shiftStart)} · ${formatTimeRange(range.shiftStart, range.shiftEnd)}`
+      : `${formatLongDate(range.shiftStart)} ${formatTime(range.shiftStart)} → ${formatLongDate(range.shiftEnd)} ${formatTime(range.shiftEnd)}`;
+    const where = [
+      [address.street, address.number].filter(Boolean).join(', '),
+      address.district,
+      [address.city, address.state].filter(Boolean).join(' - '),
+    ]
+      .filter(Boolean)
+      .join(' · ');
+
+    return [
+      { label: t('dialogs.request.service'), value: `${slots} × ${title}` },
+      { label: t('dialogs.request.when'), value: when },
+      { label: t('dialogs.request.where'), value: where },
+      { label: t('dialogs.request.payPerPerson'), value: formatCurrency(payAmount) },
+      { label: t('dialogs.request.total'), value: formatCurrency(payAmount * slots) },
+    ];
+  }
+
   async function submit() {
+    setConfirming(false);
     setSubmitError(null);
     const payload = toRequest(title);
     if (!payload) {
@@ -94,7 +124,7 @@ export function NewRequestStepThreeScreen() {
             label={t('serviceRequest.step3.submit')}
             loading={isPending}
             disabled={!estimateInput || !payAmount || payAmount <= 0}
-            onPress={submit}
+            onPress={() => setConfirming(true)}
           />
         </View>
       }>
@@ -161,6 +191,16 @@ export function NewRequestStepThreeScreen() {
           </AppText>
         </View>
       </View>
+
+      <ConfirmDialog
+        visible={confirming}
+        title={t('dialogs.request.title')}
+        message={t('dialogs.request.message')}
+        details={requestDetails()}
+        confirmLabel={t('dialogs.request.confirm')}
+        onConfirm={() => void submit()}
+        onCancel={() => setConfirming(false)}
+      />
     </Screen>
   );
 }

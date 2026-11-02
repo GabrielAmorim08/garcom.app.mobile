@@ -14,8 +14,10 @@ import {
   Badge,
   Button,
   Card,
+  ConfirmDialog,
   Icon,
   MapPreview,
+  NoticeDialog,
   Screen,
   ScreenHeader,
 } from '../../shared/components';
@@ -52,10 +54,14 @@ export function ServiceDetailScreen() {
   const { mutateAsync: openConversation, isPending: isOpeningConversation } = useOpenChatConversation();
   const userId = useAuthStore(state => state.user?.id);
   const [applyError, setApplyError] = useState<string | null>(null);
+  const [confirmingApply, setConfirmingApply] = useState(false);
+  const [applied, setApplied] = useState(false);
 
   const jobPost = data as NearbyJobPost | undefined;
 
   async function handleApply() {
+    setConfirmingApply(false);
+
     if (!jobPost) {
       return;
     }
@@ -73,6 +79,11 @@ export function ServiceDetailScreen() {
       return;
     }
 
+    setApplied(true);
+  }
+
+  function closeAppliedNotice() {
+    setApplied(false);
     navigation.navigate('MyServices', { tab: 'applications' });
   }
 
@@ -129,7 +140,7 @@ export function ServiceDetailScreen() {
             <Button
               label={t('waiter.detail.apply')}
               loading={isPending}
-              onPress={handleApply}
+              onPress={() => setConfirmingApply(true)}
             />
           )}
           <AppText variant="caption" color={colors.textMuted} align="center">
@@ -242,6 +253,29 @@ export function ServiceDetailScreen() {
           </View>
         </Card>
       </View>
+
+      <ConfirmDialog
+        visible={confirmingApply}
+        title={t('dialogs.apply.confirmTitle')}
+        message={t('dialogs.apply.confirmMessage')}
+        details={[
+          { label: t('dialogs.apply.service'), value: jobPost.title },
+          {
+            label: t('dialogs.apply.when'),
+            value: `${formatLongDate(jobPost.shiftStart)} · ${formatTimeRange(jobPost.shiftStart, jobPost.shiftEnd)}`,
+          },
+          { label: t('dialogs.apply.pay'), value: formatCurrency(jobPost.payAmount) },
+        ]}
+        confirmLabel={t('dialogs.apply.confirm')}
+        onConfirm={() => void handleApply()}
+        onCancel={() => setConfirmingApply(false)}
+      />
+      <NoticeDialog
+        visible={applied}
+        title={t('dialogs.apply.doneTitle')}
+        message={t('dialogs.apply.doneMessage')}
+        onClose={closeAppliedNotice}
+      />
     </Screen>
   );
 }

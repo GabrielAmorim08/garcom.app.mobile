@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
@@ -23,8 +23,10 @@ import {
   Badge,
   Button,
   Card,
+  ConfirmDialog,
   EmptyState,
   ListSeparator,
+  NoticeDialog,
   Screen,
   ScreenHeader,
 } from '../../shared/components';
@@ -105,44 +107,55 @@ export function CompanyServiceDetailScreen() {
   const { mutateAsync: startService, isPending: isStarting } = useStartJobPost(params.jobPostId);
   const { mutateAsync: updateStatus, isPending: isUpdatingStatus } = useUpdateJobPostStatus();
   const [actionError, setActionError] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<'start' | 'cancel' | 'complete' | null>(null);
+  const [pendingResponse, setPendingResponse] = useState<{
+    applicationId: string;
+    action: 'accept' | 'reject';
+    name: string;
+  } | null>(null);
+  const [notice, setNotice] = useState<{ title: string; message: string } | null>(null);
 
-  async function respond(applicationId: string, action: 'accept' | 'reject') {
+  async function respond() {
+    const response = pendingResponse;
+    setPendingResponse(null);
+    if (!response) {
+      return;
+    }
+
     setActionError(null);
     try {
-      if (action === 'accept') {
-        await accept(applicationId);
+      if (response.action === 'accept') {
+        await accept(response.applicationId);
+        setNotice({
+          title: t('dialogs.accept.doneTitle'),
+          message: t('dialogs.accept.doneMessage', { name: response.name }),
+        });
       } else {
-        await reject(applicationId);
+        await reject(response.applicationId);
       }
     } catch (error) {
       setActionError(getErrorMessage(error, t));
     }
   }
 
-  function confirmStart() {
-    Alert.alert(t('company.serviceDetail.startTitle'), t('company.serviceDetail.startMessage'), [
-      { text: t('common.cancel'), style: 'cancel' },
-      {
-        text: t('company.serviceDetail.startConfirm'),
-        onPress: () => {
-          setActionError(null);
-          void startService().catch(error => setActionError(getErrorMessage(error, t)));
-        },
-      },
-    ]);
-  }
+  async function runPendingAction() {
+    const action = pendingAction;
+    setPendingAction(null);
+    if (!action) {
+      return;
+    }
 
-  function confirmStatus(action: 'cancel' | 'complete') {
-    Alert.alert(
-      action === 'cancel' ? 'Cancelar serviço?' : 'Encerrar serviço?',
-      action === 'cancel'
-        ? 'Os candidatos serão avisados e a vaga será encerrada.'
-        : 'O serviço será marcado como concluído. Em seguida, você poderá avaliar os profissionais.',
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        { text: action === 'cancel' ? 'Cancelar serviço' : 'Encerrar', style: action === 'cancel' ? 'destructive' : 'default', onPress: () => void updateStatus({ id: params.jobPostId, action }).catch(error => setActionError(getErrorMessage(error, t))) },
-      ],
-    );
+    setActionError(null);
+    try {
+      if (action === 'start') {
+        await startService();
+        setNotice({ title: t('dialogs.start.doneTitle'), message: t('dialogs.start.doneMessage') });
+      } else {
+        await updateStatus({ id: params.jobPostId, action });
+      }
+    } catch (error) {
+      setActionError(getErrorMessage(error, t));
+    }
   }
 
   if (isLoadingJobPost || !jobPost) {
@@ -225,13 +238,13 @@ export function CompanyServiceDetailScreen() {
                   </AppText>
                 ) : null}
                 {canStart ? (
-                  <Button label={t('company.serviceDetail.startService')} loading={isStarting} onPress={confirmStart} />
+                  <Button label={t('company.serviceDetail.startService')} loading={isStarting} onPress={() => setPendingAction('start')} />
                 ) : null}
                 {hasEnded ? (
-                  <Button label="Encerrar serviço" loading={isUpdatingStatus} onPress={() => confirmStatus('complete')} />
+                  <Button label="Encerrar serviço" loading={isUpdatingStatus} onPress={() => setPendingAction('complete')} />
                 ) : null}
                 {canCancel ? (
-                  <Button label="Cancelar serviço" variant="danger" loading={isUpdatingStatus} onPress={() => confirmStatus('cancel')} />
+                  <Button label="Cancelar serviço" variant="danger" loading={isUpdatingStatus} onPress={() => setPendingAction('cancel')} />
                 ) : null}
               </View>
             ) : null}
@@ -263,8 +276,8 @@ export function CompanyServiceDetailScreen() {
           <ApplicantCard
             applicant={item}
             onPress={() => navigation.navigate('CandidateProfile', { jobPostId: params.jobPostId, applicant: item })}
-            onAccept={() => respond(item.applicationId, 'accept')}
-            onReject={() => respond(item.applicationId, 'reject')}
+            onAccept={() => setPendingResponse({ applicationId: item.applicationId, action: 'accept', name: item.fullName })}
+            onReject={() => setPendingResponse({ applicationId: item.applicationId, action: 'reject', name: item.fullName })}
             loading={isAccepting || isRejecting}
             canAccept={jobPost.status === 'Published' && new Date(jobPost.shiftEnd).getTime() > Date.now()}
           />
@@ -282,6 +295,54 @@ export function CompanyServiceDetailScreen() {
             />
           )
         }
+      />
+
+      <ConfirmDialog
+        visible={pendingAction !== null}
+        title={
+          pendingAction === 'start'
+            ? t('company.serviceDetail.startTitle')
+            : pendingAction === 'cancel'
+              ? t('dialogs.cancelService.title')
+              : t('dialogs.completeService.title')
+        }
+        message={
+          pendingAction === 'start'
+            ? t('company.serviceDetail.startMessage')
+            : pendingAction === 'cancel'
+              ? t('dialogs.cancelService.message')
+              : t('dialogs.completeService.message')
+        }
+        confirmLabel={
+          pendingAction === 'start'
+            ? t('company.serviceDetail.startConfirm')
+            : pendingAction === 'cancel'
+              ? t('dialogs.cancelService.confirm')
+              : t('dialogs.completeService.confirm')
+        }
+        destructive={pendingAction === 'cancel'}
+        onConfirm={() => void runPendingAction()}
+        onCancel={() => setPendingAction(null)}
+      />
+      <ConfirmDialog
+        visible={pendingResponse !== null}
+        title={t(
+          pendingResponse?.action === 'reject' ? 'dialogs.reject.confirmTitle' : 'dialogs.accept.confirmTitle',
+          { name: pendingResponse?.name ?? '' },
+        )}
+        message={t(
+          pendingResponse?.action === 'reject' ? 'dialogs.reject.confirmMessage' : 'dialogs.accept.confirmMessage',
+        )}
+        confirmLabel={t(pendingResponse?.action === 'reject' ? 'dialogs.reject.confirm' : 'dialogs.accept.confirm')}
+        destructive={pendingResponse?.action === 'reject'}
+        onConfirm={() => void respond()}
+        onCancel={() => setPendingResponse(null)}
+      />
+      <NoticeDialog
+        visible={notice !== null}
+        title={notice?.title ?? ''}
+        message={notice?.message}
+        onClose={() => setNotice(null)}
       />
     </Screen>
   );

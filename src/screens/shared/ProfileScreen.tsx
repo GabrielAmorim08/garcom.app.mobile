@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +13,7 @@ import {
   AppText,
   Avatar,
   Button,
+  ConfirmDialog,
   Icon,
   StatCard,
 } from '../../shared/components';
@@ -30,6 +31,7 @@ export function ProfileScreen() {
   const biometric = useBiometricLogin();
   const mode = useAuthStore(state => state.mode);
   const signOut = useAuthStore(state => state.signOut);
+  const [confirmingSignOut, setConfirmingSignOut] = useState(false);
 
   const { data: user } = useCurrentUser();
   const { data: profile } = useWaiterProfile();
@@ -169,10 +171,23 @@ export function ProfileScreen() {
           <Button
             label={t('auth.signOut')}
             variant="secondary"
-            onPress={() => void signOut()}
+            onPress={() => setConfirmingSignOut(true)}
           />
         </View>
       </ScrollView>
+
+      <ConfirmDialog
+        visible={confirmingSignOut}
+        title={t('dialogs.signOut.title')}
+        message={t('dialogs.signOut.message')}
+        confirmLabel={t('dialogs.signOut.confirm')}
+        destructive
+        onConfirm={() => {
+          setConfirmingSignOut(false);
+          void signOut();
+        }}
+        onCancel={() => setConfirmingSignOut(false)}
+      />
     </TabScreen>
   );
 }

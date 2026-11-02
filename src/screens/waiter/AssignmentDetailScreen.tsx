@@ -16,8 +16,10 @@ import {
   Badge,
   Button,
   Card,
+  ConfirmDialog,
   Icon,
   MapPreview,
+  NoticeDialog,
   Screen,
   ScreenHeader,
 } from '../../shared/components';
@@ -57,8 +59,11 @@ export function AssignmentDetailScreen() {
   const checkOut = useCheckOut();
 
   const [error, setError] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<'checkIn' | 'checkOut' | null>(null);
+  const [done, setDone] = useState<{ kind: 'checkIn' | 'checkOut'; time: string } | null>(null);
 
-  async function registerPoint(action: typeof checkIn | typeof checkOut) {
+  async function registerPoint(kind: 'checkIn' | 'checkOut') {
+    setConfirming(null);
     setError(null);
 
     const location = await requestLocation();
@@ -68,7 +73,9 @@ export function AssignmentDetailScreen() {
     }
 
     try {
+      const action = kind === 'checkIn' ? checkIn : checkOut;
       await action.mutateAsync({ assignmentId: params.assignmentId, location });
+      setDone({ kind, time: formatTime(new Date().toISOString()) });
     } catch (failure) {
       setError(getErrorMessage(failure, t));
     }
@@ -112,7 +119,7 @@ export function AssignmentDetailScreen() {
                   label={t('waiter.assignmentDetail.checkIn')}
                   variant="success"
                   loading={isBusy}
-                  onPress={() => registerPoint(checkIn)}
+                  onPress={() => setConfirming('checkIn')}
                 />
                 <AppText variant="caption" align="center" color={colors.textMuted}>
                   {t('waiter.assignmentDetail.checkInHint')}
@@ -123,7 +130,7 @@ export function AssignmentDetailScreen() {
                 label={t('waiter.assignmentDetail.checkOut')}
                 variant="success"
                 loading={isBusy}
-                onPress={() => registerPoint(checkOut)}
+                onPress={() => setConfirming('checkOut')}
               />
             )}
           </View>
@@ -190,6 +197,34 @@ export function AssignmentDetailScreen() {
           </AppText>
         ) : null}
       </View>
+
+      <ConfirmDialog
+        visible={confirming === 'checkIn'}
+        title={t('dialogs.checkIn.confirmTitle')}
+        message={t('dialogs.checkIn.confirmMessage', { time: formatTime(new Date().toISOString()) })}
+        confirmLabel={t('dialogs.checkIn.confirm')}
+        onConfirm={() => void registerPoint('checkIn')}
+        onCancel={() => setConfirming(null)}
+      />
+      <ConfirmDialog
+        visible={confirming === 'checkOut'}
+        title={t('dialogs.checkOut.confirmTitle')}
+        message={t('dialogs.checkOut.confirmMessage')}
+        confirmLabel={t('dialogs.checkOut.confirm')}
+        destructive
+        onConfirm={() => void registerPoint('checkOut')}
+        onCancel={() => setConfirming(null)}
+      />
+      <NoticeDialog
+        visible={done !== null}
+        title={done?.kind === 'checkOut' ? t('dialogs.checkOut.doneTitle') : t('dialogs.checkIn.doneTitle')}
+        message={
+          done?.kind === 'checkOut'
+            ? t('dialogs.checkOut.doneMessage', { time: done.time })
+            : t('dialogs.checkIn.doneMessage', { time: done?.time ?? '' })
+        }
+        onClose={() => setDone(null)}
+      />
     </Screen>
   );
 }

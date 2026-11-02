@@ -4,6 +4,8 @@ export { Badge } from './Badge';
 export { Button } from './Button';
 export { Card } from './Card';
 export { CodeInput } from './CodeInput';
+export { ConfirmDialog } from './ConfirmDialog';
+export { NoticeDialog } from './NoticeDialog';
 export { EmptyState } from './EmptyState';
 export { FieldRow } from './FieldRow';
 export { Icon } from './Icon';
