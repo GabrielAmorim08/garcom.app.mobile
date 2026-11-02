@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 
 import { useAuthStore } from '../../entities/auth/authStore';
@@ -7,6 +7,7 @@ import { useChatMessages, useSendChatMessage } from '../../entities/chat/useChat
 import type { ChatMessage } from '../../entities/chat/types';
 import type { RootStackParamList } from '../../navigation/types';
 import { AppText, Icon, Screen, ScreenHeader } from '../../shared/components';
+import { useKeyboardLift } from '../../shared/hooks/useKeyboardLift';
 import { formatTime } from '../../shared/utils/format';
 import { colors, radius, spacing, typography } from '../../theme';
 
@@ -15,6 +16,7 @@ export function ChatConversationScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'ChatConversation'>>();
   const userId = useAuthStore(state => state.user?.id);
   const [text, setText] = useState('');
+  const keyboardLift = useKeyboardLift();
   const { data: messages, refetch, isRefetching } = useChatMessages(params.conversationId);
   const { mutateAsync: sendMessage, isPending } = useSendChatMessage(params.conversationId);
   const orderedMessages = useMemo(() => messages ?? [], [messages]);
@@ -33,7 +35,7 @@ export function ChatConversationScreen() {
   return (
     <Screen>
       <ScreenHeader title={params.title} onBack={navigation.goBack} />
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={12}>
+      <View style={[styles.flex, { paddingBottom: keyboardLift }]}>
         <View style={styles.context}>
           <Icon name="note" size={16} color={colors.primaryPressed} />
           <AppText variant="caption" color={colors.textSecondary} numberOfLines={1} style={styles.contextText}>
@@ -69,7 +71,7 @@ export function ChatConversationScreen() {
             <Icon name="navigate" size={19} color={colors.onPrimary} />
           </Pressable>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </Screen>
   );
 }
