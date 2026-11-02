@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -59,6 +59,7 @@ export function NewRequestStepTwoScreen() {
   const { isLocating, request } = useCurrentLocation();
 
   const [openPicker, setOpenPicker] = useState<OpenPicker>(null);
+  const [draftValue, setDraftValue] = useState<Date>(() => new Date());
   const [addressMode, setAddressMode] = useState<AddressMode | null>(() =>
     useNewRequestStore.getState().address.street || useNewRequestStore.getState().address.postalCode
       ? 'manual'
@@ -82,6 +83,37 @@ export function NewRequestStepTwoScreen() {
   const setAddress = useNewRequestStore(state => state.setAddress);
   const isStepTwoValid = useNewRequestStore(state => state.isStepTwoValid);
 
+  function isDatePicker(picking: Exclude<OpenPicker, null>): boolean {
+    return picking === 'startDate' || picking === 'endDate';
+  }
+
+  function minimumDateFor(picking: Exclude<OpenPicker, null>): Date | undefined {
+    if (picking === 'startDate') {
+      return new Date();
+    }
+
+    return picking === 'endDate' ? startDate ?? new Date() : undefined;
+  }
+
+  function currentValueFor(picking: Exclude<OpenPicker, null>): Date {
+    switch (picking) {
+      case 'startDate':
+        return startDate ?? new Date();
+      case 'endDate':
+        return endDate ?? startDate ?? new Date();
+      case 'startTime':
+        return startTime ?? new Date();
+      default:
+        return endTime ?? startTime ?? new Date();
+    }
+  }
+
+  function openPickerFor(picking: Exclude<OpenPicker, null>) {
+    setDraftValue(currentValueFor(picking));
+    setOpenPicker(picking);
+  }
+
+  /** Android shows its own dialog and reports the choice once. */
   function handlePicked(event: DateTimePickerEvent, value?: Date) {
     const picking = openPicker;
     setOpenPicker(null);
@@ -90,6 +122,20 @@ export function NewRequestStepTwoScreen() {
       return;
     }
 
+    applyPicked(picking, value);
+  }
+
+  /** iOS shows the wheel in a sheet, and the choice only counts when it is confirmed. */
+  function confirmDraft() {
+    const picking = openPicker;
+    setOpenPicker(null);
+
+    if (picking) {
+      applyPicked(picking, draftValue);
+    }
+  }
+
+  function applyPicked(picking: Exclude<OpenPicker, null>, value: Date) {
     if (picking === 'startDate') {
       setStartDate(value);
       return;
@@ -228,7 +274,7 @@ export function NewRequestStepTwoScreen() {
               label={t('serviceRequest.step2.startDate')}
               value={startDate ? formatLongDate(startDate.toISOString()) : null}
               placeholder={t('errors.invalidDate')}
-              onPress={() => setOpenPicker('startDate')}
+              onPress={() => openPickerFor('startDate')}
             />
           </View>
           <View style={styles.timeField}>
@@ -237,7 +283,7 @@ export function NewRequestStepTwoScreen() {
               label={t('serviceRequest.step2.startTime')}
               value={startTime ? formatTime(startTime.toISOString()) : null}
               placeholder="--:--"
-              onPress={() => setOpenPicker('startTime')}
+              onPress={() => openPickerFor('startTime')}
             />
           </View>
         </View>
@@ -249,7 +295,7 @@ export function NewRequestStepTwoScreen() {
               label={t('serviceRequest.step2.endDate')}
               value={endDate ? formatLongDate(endDate.toISOString()) : null}
               placeholder={t('errors.invalidDate')}
-              onPress={() => setOpenPicker('endDate')}
+              onPress={() => openPickerFor('endDate')}
             />
           </View>
           <View style={styles.timeField}>
@@ -258,7 +304,7 @@ export function NewRequestStepTwoScreen() {
               label={t('serviceRequest.step2.endTime')}
               value={endTime ? formatTime(endTime.toISOString()) : null}
               placeholder="--:--"
-              onPress={() => setOpenPicker('endTime')}
+              onPress={() => openPickerFor('endTime')}
             />
           </View>
         </View>
@@ -394,28 +440,50 @@ export function NewRequestStepTwoScreen() {
         {addressMode !== null ? <MapPreview location={location} height={140} /> : null}
       </View>
 
-      {openPicker ? (
+      {openPicker && Platform.OS === 'android' ? (
         <DateTimePicker
-          value={
-            openPicker === 'startDate'
-              ? startDate ?? new Date()
-              : openPicker === 'endDate'
-                ? endDate ?? startDate ?? new Date()
-                : openPicker === 'startTime'
-                ? startTime ?? new Date()
-                : endTime ?? startTime ?? new Date()
-          }
-          mode={openPicker === 'startDate' || openPicker === 'endDate' ? 'date' : 'time'}
+          value={currentValueFor(openPicker)}
+          mode={isDatePicker(openPicker) ? 'date' : 'time'}
           is24Hour
-          minimumDate={
-            openPicker === 'startDate'
-              ? new Date()
-              : openPicker === 'endDate'
-                ? startDate ?? new Date()
-                : undefined
-          }
+          minimumDate={minimumDateFor(openPicker)}
           onChange={handlePicked}
         />
+      ) : null}
+
+      {Platform.OS === 'ios' ? (
+        <Modal visible={openPicker !== null} transparent animationType="slide" onRequestClose={() => setOpenPicker(null)}>
+          <Pressable style={styles.pickerBackdrop} onPress={() => setOpenPicker(null)} />
+          <View style={styles.pickerSheet}>
+            <View style={styles.pickerActions}>
+              <Pressable onPress={() => setOpenPicker(null)} accessibilityRole="button">
+                <AppText variant="bodyStrong" color={colors.textSecondary}>
+                  {t('common.cancel')}
+                </AppText>
+              </Pressable>
+              <Pressable onPress={confirmDraft} accessibilityRole="button">
+                <AppText variant="bodyStrong" color={colors.primaryPressed}>
+                  {t('common.confirm')}
+                </AppText>
+              </Pressable>
+            </View>
+            {openPicker ? (
+              <DateTimePicker
+                value={draftValue}
+                mode={isDatePicker(openPicker) ? 'date' : 'time'}
+                display="spinner"
+                themeVariant="light"
+                is24Hour
+                locale="pt-BR"
+                minimumDate={minimumDateFor(openPicker)}
+                onChange={(_event, value) => {
+                  if (value) {
+                    setDraftValue(value);
+                  }
+                }}
+              />
+            ) : null}
+          </View>
+        </Modal>
       ) : null}
     </Screen>
   );
@@ -556,6 +624,19 @@ async function tryLookupBrasilApi(digits: string): Promise<PostalCodeLookupResul
 }
 
 const styles = StyleSheet.create({
+  pickerBackdrop: { flex: 1, backgroundColor: colors.overlay },
+  pickerSheet: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    paddingBottom: spacing.xxl,
+  },
+  pickerActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
+  },
   content: { paddingHorizontal: spacing.xl, gap: spacing.md },
   dateTimeGrid: { flexDirection: 'row', gap: spacing.md },
   timeField: { width: 132 },
