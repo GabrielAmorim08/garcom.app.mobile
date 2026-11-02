@@ -47,6 +47,8 @@ export function MessagesScreen() {
 }
 
 function ConversationRow({ item, onPress }: { item: ChatConversation; onPress: () => void }) {
+  const { t } = useTranslation();
+
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed ? styles.rowPressed : null]}>
       <Avatar name={item.otherUserName} uri={item.otherUserPhotoPath} size={48} />
@@ -57,11 +59,11 @@ function ConversationRow({ item, onPress }: { item: ChatConversation; onPress: (
         </View>
         <View style={styles.rowBottom}>
           <AppText variant="caption" color={colors.textSecondary} numberOfLines={1} style={styles.preview}>
-            {item.lastMessagePreview ?? item.jobTitle}
+            {item.lastMessagePreview ?? t('chat.noMessagesYet')}
           </AppText>
           {item.unreadCount > 0 ? <View style={styles.unread}><AppText variant="caption" color={colors.onPrimary}>{item.unreadCount > 9 ? '9+' : item.unreadCount}</AppText></View> : null}
         </View>
-        <AppText variant="caption" color={colors.textMuted} numberOfLines={1}>{item.jobTitle}</AppText>
+        <AppText variant="caption" color={colors.textMuted} numberOfLines={1}>{`#${item.jobReferenceCode} · ${item.jobTitle}`}</AppText>
       </View>
     </Pressable>
   );

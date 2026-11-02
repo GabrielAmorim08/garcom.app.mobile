@@ -48,6 +48,10 @@ export const en: TranslationSchema = {
     version: 'Version {{version}}',
   },
 
+  chat: {
+    noMessagesYet: 'No messages yet',
+  },
+
   tabs: {
     home: 'Home',
     services: 'Services',

@@ -49,6 +49,10 @@ export const ptBR = {
     version: 'Versão {{version}}',
   },
 
+  chat: {
+    noMessagesYet: 'Nenhuma mensagem ainda',
+  },
+
   tabs: {
     home: 'Início',
     services: 'Serviços',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
@@ -18,6 +18,7 @@ import {
   StepProgress,
 } from '../../shared/components';
 import { useCurrentLocation } from '../../shared/hooks/useCurrentLocation';
+import type { GeoPoint } from '../../shared/types/common';
 import { formatLongDate, formatTime } from '../../shared/utils/format';
 import { colors, radius, spacing, typography } from '../../theme';
 
@@ -76,6 +77,14 @@ export function NewRequestStepTwoScreen() {
   const endTime = useNewRequestStore(state => state.endTime);
   const address = useNewRequestStore(state => state.address);
   const location = useNewRequestStore(state => state.location);
+  // Typing in the address clears the stored point, so the server looks the address up
+  // again; the map keeps showing the last known place meanwhile instead of the whole country.
+  const [lastKnownPoint, setLastKnownPoint] = useState<GeoPoint | null>(location);
+  useEffect(() => {
+    if (location) {
+      setLastKnownPoint(location);
+    }
+  }, [location]);
   const setStartDate = useNewRequestStore(state => state.setStartDate);
   const setEndDate = useNewRequestStore(state => state.setEndDate);
   const setStartTime = useNewRequestStore(state => state.setStartTime);
@@ -205,7 +214,11 @@ export function NewRequestStepTwoScreen() {
   }
 
   function updateAddress(patch: Partial<typeof address>) {
-    const venueChanged = 'postalCode' in patch || 'street' in patch || 'number' in patch || 'city' in patch || 'state' in patch;
+    // A position read from the device stays right whatever is typed: the fields only
+    // correct the text. A position found from a typed address goes stale when it changes.
+    const venueChanged =
+      addressMode !== 'location'
+      && ('postalCode' in patch || 'street' in patch || 'number' in patch || 'city' in patch || 'state' in patch);
     setAddress({ ...address, ...patch, country: 'BR' }, venueChanged ? null : location);
   }
 
@@ -437,7 +450,7 @@ export function NewRequestStepTwoScreen() {
           ) : null}
         </View>
 
-        {addressMode !== null ? <MapPreview location={location} height={140} /> : null}
+        {addressMode !== null ? <MapPreview location={location ?? lastKnownPoint} height={140} /> : null}
       </View>
 
       {openPicker && Platform.OS === 'android' ? (

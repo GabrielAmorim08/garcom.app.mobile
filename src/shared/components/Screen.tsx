@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleProp,
   StyleSheet,
@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Edge, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useKeyboardHeight } from '../hooks/useKeyboardHeight';
 import { useKeyboardVisible } from '../hooks/useKeyboardVisible';
 import { useTabBarClearance } from '../hooks/useTabBarClearance';
 import { colors, spacing } from '../../theme';
@@ -43,16 +44,23 @@ export function Screen({
   // The keyboard already covers the system navigation area, so counting it again would leave a gap.
   const footerInset = keyboardVisible ? 0 : insets.bottom;
   const tabBarClearance = useTabBarClearance();
+  // The keyboard goes over the screen on both systems instead of pushing it up. iOS makes
+  // room in the scroll by itself; on Android the scroll gets the keyboard's height as extra
+  // room at the end, so the last fields can still be scrolled above the keyboard.
+  const keyboardHeight = useKeyboardHeight();
+  const androidKeyboardRoom = Platform.OS === 'android' ? keyboardHeight : 0;
 
   const scrollPaddingBottom =
     ((StyleSheet.flatten(contentStyle)?.paddingBottom as number | undefined) ?? spacing.xxl) +
-    tabBarClearance;
+    tabBarClearance +
+    androidKeyboardRoom;
 
   const body = scrollable ? (
     <ScrollView
       style={styles.flex}
       contentContainerStyle={[styles.scrollContent, contentStyle, { paddingBottom: scrollPaddingBottom }]}
       keyboardShouldPersistTaps="handled"
+      automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
       showsVerticalScrollIndicator={false}>
       {children}
     </ScrollView>
@@ -67,16 +75,20 @@ export function Screen({
     </View>
   );
 
+  const content = (
+    <>
+      {body}
+      {footer ? (
+        <View style={[styles.footer, { paddingBottom: spacing.lg + footerInset }]}>
+          {footer}
+        </View>
+      ) : null}
+    </>
+  );
+
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: background }]} edges={edges}>
-      <KeyboardAvoidingView style={styles.flex} behavior="padding">
-        {body}
-        {footer ? (
-          <View style={[styles.footer, { paddingBottom: spacing.lg + footerInset }]}>
-            {footer}
-          </View>
-        ) : null}
-      </KeyboardAvoidingView>
+      <View style={styles.flex}>{content}</View>
     </SafeAreaView>
   );
 }

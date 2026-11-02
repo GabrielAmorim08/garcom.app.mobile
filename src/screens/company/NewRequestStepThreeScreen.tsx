@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -42,21 +42,25 @@ export function NewRequestStepThreeScreen() {
   const { mutateAsync: createJobPost, isPending } = useCreateJobPost();
   const [payAmountText, setPayAmountText] = useState(payAmount ? toCurrencyInput(payAmount) : '');
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // The suggested value is filled in once. Without this, clearing the field puts it back.
+  const suggestionApplied = useRef(payAmount !== null);
 
   const title = providerKind
     ? t(`serviceRequest.step1.providers.${providerKindKey(providerKind)}.label` as never)
     : '';
 
   useEffect(() => {
-    if (!estimate || payAmount !== null) {
+    if (!estimate || suggestionApplied.current || payAmount !== null) {
       return;
     }
 
+    suggestionApplied.current = true;
     setPayAmount(estimate.maxAmount);
     setPayAmountText(toCurrencyInput(estimate.maxAmount));
   }, [estimate, payAmount, setPayAmount]);
 
   function changePayAmount(value: string) {
+    suggestionApplied.current = true;
     setPayAmountText(value);
     setPayAmount(parseCurrencyInput(value));
   }
