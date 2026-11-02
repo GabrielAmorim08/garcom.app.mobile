@@ -20,9 +20,17 @@ export function useUnreadMessagesCount(): number {
 }
 
 export function useChatMessages(conversationId: string) {
+  const queryClient = useQueryClient();
+
   return useQuery<ChatMessage[]>({
     queryKey: queryKeys.chat.messages(conversationId),
-    queryFn: () => chatService.getMessages(conversationId),
+    queryFn: async () => {
+      const messages = await chatService.getMessages(conversationId);
+      // Fetching the messages is what marks them read on the server, so the inbox
+      // and the tab badge are refreshed right away instead of on their next poll.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.chat.inbox });
+      return messages;
+    },
     enabled: Boolean(conversationId),
     refetchInterval: 8_000,
   });
