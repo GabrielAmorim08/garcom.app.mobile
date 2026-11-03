@@ -1,21 +1,23 @@
 import {
-  AuthorizationStatus,
   getInitialNotification,
   getMessaging,
   getToken,
   onMessage,
   onNotificationOpenedApp,
   onTokenRefresh,
-  requestPermission as requestMessagingPermission,
   type RemoteMessage,
 } from '@react-native-firebase/messaging';
-import notifee, { AndroidImportance } from '@notifee/react-native';
-import { PermissionsAndroid, Platform } from 'react-native';
+import notifee, { AndroidImportance, AuthorizationStatus } from '@notifee/react-native';
+import { Platform } from 'react-native';
 
 import { authService } from '../../entities/auth/authService';
 import { queryClient, queryKeys } from '../api/queryClient';
 
 const ANDROID_CHANNEL_ID = 'taxaup-important-events';
+
+type FirebaseMessaging = ReturnType<typeof getMessaging>;
+
+let stopListening: (() => void) | null = null;
 
 function refreshAfterNotification() {
   void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
@@ -25,18 +27,35 @@ function refreshAfterNotification() {
   void queryClient.invalidateQueries({ queryKey: queryKeys.chat.inbox });
 }
 
-async function requestPushPermission(firebaseMessaging: ReturnType<typeof getMessaging>): Promise<boolean> {
-  if (Platform.OS === 'android') {
-    if (Platform.Version < 33) {
-      return true;
-    }
+function isAllowed(status: AuthorizationStatus): boolean {
+  return status === AuthorizationStatus.AUTHORIZED || status === AuthorizationStatus.PROVISIONAL;
+}
 
-    const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
-    return result === PermissionsAndroid.RESULTS.GRANTED;
+/**
+ * Asks the system for permission. It goes through notifee and not through Firebase on
+ * purpose: iOS only lists "Notifications" in the app's settings after the app asked
+ * once, so the question has to be asked even when the Firebase configuration is missing.
+ */
+export async function requestNotificationPermission(): Promise<boolean> {
+  const settings = await notifee.requestPermission();
+  return isAllowed(settings.authorizationStatus);
+}
+
+export type NotificationPermission = 'granted' | 'denied' | 'undetermined';
+
+export async function getNotificationPermission(): Promise<NotificationPermission> {
+  const settings = await notifee.getNotificationSettings();
+
+  if (isAllowed(settings.authorizationStatus)) {
+    return 'granted';
   }
 
-  const status = await requestMessagingPermission(firebaseMessaging);
-  return status === AuthorizationStatus.AUTHORIZED || status === AuthorizationStatus.PROVISIONAL;
+  return settings.authorizationStatus === AuthorizationStatus.NOT_DETERMINED ? 'undetermined' : 'denied';
+}
+
+/** The only way back in once the user said no: the system settings of the app. */
+export function openNotificationSettings(): Promise<void> {
+  return notifee.openNotificationSettings();
 }
 
 async function showForegroundNotification(message: RemoteMessage) {
@@ -74,54 +93,67 @@ async function showForegroundNotification(message: RemoteMessage) {
   });
 }
 
-async function registerCurrentToken(firebaseMessaging: ReturnType<typeof getMessaging>) {
+async function registerCurrentToken(firebaseMessaging: FirebaseMessaging) {
   const token = await getToken(firebaseMessaging);
   await authService.registerDeviceToken(token, Platform.OS === 'ios' ? 'Ios' : 'Android');
 }
 
-/**
- * Requests consent only for an authenticated user, registers the FCM token with our
- * API, and makes foreground events visible immediately. Background notifications are
- * displayed by Android/iOS directly from the FCM notification payload.
- */
-export async function startPushNotifications(): Promise<() => void> {
-  try {
-    // Do not access Firebase while the module is being loaded. A distribution
-    // build without the optional GoogleService-Info.plist must still be able to
-    // show the login screen instead of remaining on the native splash screen.
-    const firebaseMessaging = getMessaging();
-    const allowed = await requestPushPermission(firebaseMessaging);
-    if (!allowed) {
-      return () => undefined;
-    }
+function listen(firebaseMessaging: FirebaseMessaging): () => void {
+  const unsubscribeTokenRefresh = onTokenRefresh(firebaseMessaging, token =>
+    authService.registerDeviceToken(token, Platform.OS === 'ios' ? 'Ios' : 'Android').catch(() => undefined),
+  );
+  const unsubscribeForeground = onMessage(firebaseMessaging, async message => {
+    refreshAfterNotification();
+    await showForegroundNotification(message);
+  });
+  const unsubscribeOpened = onNotificationOpenedApp(firebaseMessaging, () => refreshAfterNotification());
 
-    await registerCurrentToken(firebaseMessaging);
-
-    const unsubscribeTokenRefresh = onTokenRefresh(firebaseMessaging, token =>
-      authService.registerDeviceToken(token, Platform.OS === 'ios' ? 'Ios' : 'Android').catch(() => undefined),
-    );
-    const unsubscribeForeground = onMessage(firebaseMessaging, async message => {
+  // Covers an app started by tapping an OS notification.
+  void getInitialNotification(firebaseMessaging).then(message => {
+    if (message) {
       refreshAfterNotification();
-      await showForegroundNotification(message);
-    });
-    const unsubscribeOpened = onNotificationOpenedApp(firebaseMessaging, () => refreshAfterNotification());
+    }
+  });
 
-    // Covers an app started by tapping an OS notification.
-    void getInitialNotification(firebaseMessaging).then(message => {
-      if (message) {
-        refreshAfterNotification();
-      }
-    });
+  return () => {
+    unsubscribeTokenRefresh();
+    unsubscribeForeground();
+    unsubscribeOpened();
+  };
+}
 
-    return () => {
-      unsubscribeTokenRefresh();
-      unsubscribeForeground();
-      unsubscribeOpened();
-    };
+/**
+ * Asks for consent, registers the FCM token with our API and makes foreground events
+ * visible. Safe to call again (after the user turns notifications on in the profile):
+ * the previous listeners are replaced, never doubled. Background notifications are
+ * displayed by Android/iOS directly from the FCM payload.
+ */
+export async function startPushNotifications(): Promise<void> {
+  stopPushNotifications();
+
+  try {
+    if (!(await requestNotificationPermission())) {
+      return;
+    }
   } catch (error) {
-    // Firebase configuration is intentionally absent for contributors who do not
-    // have project access. The in-app notification centre remains available.
-    console.warn('Push notifications could not be initialized.', error);
-    return () => undefined;
+    console.warn('Notification permission could not be requested.', error);
+    return;
   }
+
+  try {
+    // Do not access Firebase while the module is being loaded. A distribution build
+    // without GoogleService-Info.plist must still show the login screen.
+    const firebaseMessaging = getMessaging();
+    await registerCurrentToken(firebaseMessaging);
+    stopListening = listen(firebaseMessaging);
+  } catch (error) {
+    // Firebase configuration is absent for contributors who do not have project access.
+    // The in-app notification centre keeps working.
+    console.warn('Push notifications could not be initialized.', error);
+  }
+}
+
+export function stopPushNotifications() {
+  stopListening?.();
+  stopListening = null;
 }

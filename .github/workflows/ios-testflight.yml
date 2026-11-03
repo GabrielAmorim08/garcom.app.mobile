@@ -60,6 +60,35 @@ jobs:
           path: ios/Pods
           key: pods-${{ runner.os }}-${{ hashFiles('package-lock.json', 'ios/Podfile') }}
 
+      # GoogleService-Info.plist is not versioned. Without it the app is built with no Firebase
+      # configuration and push notifications never start.
+      #   FIREBASE_IOS_PLIST_BASE64   base64 of the GoogleService-Info.plist of the iOS app com.taxaup.app
+      - name: Write Firebase configuration
+        env:
+          FIREBASE_IOS_PLIST_BASE64: ${{ secrets.FIREBASE_IOS_PLIST_BASE64 }}
+        run: |
+          if [ -z "$FIREBASE_IOS_PLIST_BASE64" ]; then
+            echo "::warning::FIREBASE_IOS_PLIST_BASE64 is not set: the build has no Firebase and push notifications will not work."
+            exit 0
+          fi
+          printf '%s' "$FIREBASE_IOS_PLIST_BASE64" | base64 --decode > ios/GoogleService-Info.plist
+
+      # The file only reaches the app if the target lists it as a resource. The Xcode project in
+      # the repository does not, so contributors without the secret still build; CI adds it here.
+      - name: Bundle Firebase configuration
+        working-directory: ios
+        run: |
+          [ -f GoogleService-Info.plist ] || exit 0
+          bundle exec ruby -e '
+            require "xcodeproj"
+            project = Xcodeproj::Project.open("ServeUp.xcodeproj")
+            target = project.targets.find { |item| item.name == "ServeUp" }
+            reference = project.main_group.find_file_by_path("GoogleService-Info.plist") ||
+              project.main_group.new_file("GoogleService-Info.plist")
+            target.resources_build_phase.add_file_reference(reference, true)
+            project.save
+          '
+
       - name: Install CocoaPods
         working-directory: ios
         run: bundle exec pod install

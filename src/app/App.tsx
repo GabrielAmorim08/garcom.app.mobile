@@ -9,7 +9,7 @@ import '../i18n';
 import { RootNavigator } from '../navigation/RootNavigator';
 import { setSessionExpiredHandler } from '../shared/api/httpClient';
 import { queryClient } from '../shared/api/queryClient';
-import { startPushNotifications } from '../shared/notifications/pushNotifications';
+import { startPushNotifications, stopPushNotifications } from '../shared/notifications/pushNotifications';
 
 
 export function App() {
@@ -32,12 +32,9 @@ export function App() {
       return undefined;
     }
 
-    let dispose: () => void = () => undefined;
-    void startPushNotifications().then(cleanup => {
-      dispose = cleanup;
-    });
+    void startPushNotifications();
 
-    return () => dispose();
+    return () => stopPushNotifications();
   }, [userId]);
 
   return (

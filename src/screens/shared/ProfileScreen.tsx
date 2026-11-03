@@ -19,6 +19,7 @@ import {
 } from '../../shared/components';
 import { TabScreen } from '../../navigation/TabScreen';
 import { useTabBarClearance } from '../../shared/hooks/useTabBarClearance';
+import { useNotificationPermission } from '../../shared/notifications/useNotificationPermission';
 import { changeLanguage } from '../../i18n';
 import { formatRating } from '../../shared/utils/format';
 import { colors, spacing } from '../../theme';
@@ -29,6 +30,7 @@ export function ProfileScreen() {
 
   const tabBarClearance = useTabBarClearance();
   const biometric = useBiometricLogin();
+  const notifications = useNotificationPermission();
   const mode = useAuthStore(state => state.mode);
   const signOut = useAuthStore(state => state.signOut);
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
@@ -158,6 +160,19 @@ export function ProfileScreen() {
               title={t('biometric.profileTitle')}
               subtitle={t('biometric.profileEnabled')}
               onPress={confirmDisableBiometric}
+            />
+          ) : null}
+          {notifications.permission !== null ? (
+            <ProfileOption
+              title={t('profile.notifications')}
+              subtitle={t(
+                notifications.permission === 'granted'
+                  ? 'profile.notificationsOn'
+                  : notifications.permission === 'denied'
+                    ? 'profile.notificationsOff'
+                    : 'profile.notificationsAsk',
+              )}
+              onPress={() => void notifications.enable()}
             />
           ) : null}
           <ProfileOption
