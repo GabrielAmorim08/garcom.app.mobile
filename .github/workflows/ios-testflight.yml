@@ -101,10 +101,14 @@ jobs:
           printf '%s' "$APP_STORE_CONNECT_PRIVATE_KEY" > "$KEY_PATH"
           echo "KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
 
-      # The archive is built unsigned: a Release archive would otherwise ask for a development
-      # provisioning profile, which needs a registered test device. The distribution
-      # certificate and profile are created and applied by the export step below.
-      - name: Archive
+      # Sign the archive through Xcode's cloud-managed App Store profile. Besides producing a
+      # distributable archive, this makes capability mismatches fail here instead of yielding a
+      # TestFlight app that cannot obtain an APNs/FCM token at runtime.
+      - name: Archive and sign with the App Store profile
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
           set -o pipefail
           xcodebuild archive \
@@ -113,11 +117,21 @@ jobs:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/App.xcarchive" \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" \
+            -authenticationKeyID "$KEY_ID" \
+            -authenticationKeyIssuerID "$ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_STYLE=Automatic \
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             2>&1 | tee "$RUNNER_TEMP/archive.log"
+
+      - name: Verify APNs entitlement in signed archive
+        run: |
+          APP="$RUNNER_TEMP/App.xcarchive/Products/Applications/ServeUp.app"
+          ENTITLEMENTS=$(/usr/bin/codesign -d --entitlements :- "$APP" 2>/dev/null)
+          printf '%s' "$ENTITLEMENTS" | grep -A1 '<key>aps-environment</key>' | grep -qx '<string>production</string>' \
+            || { echo 'The signed archive is missing the production APNs entitlement.'; exit 1; }
 
       # The real compiler messages are buried under thousands of lines of build graph.
       - name: Show archive errors
