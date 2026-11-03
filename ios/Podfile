@@ -8,11 +8,9 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
-linkage = ENV['USE_FRAMEWORKS']
-if linkage != nil
-  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
-  use_frameworks! :linkage => linkage.to_sym
-end
+# React Native Firebase resolves Firebase through Swift Package Manager. The
+# Firebase products must be dynamic here; static Pods duplicate their symbols.
+use_frameworks! :linkage => :dynamic
 
 target 'ServeUp' do
   config = use_native_modules!
