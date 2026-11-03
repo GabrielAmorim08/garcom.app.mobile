@@ -139,6 +139,13 @@ jobs:
           echo "=== final archive output ==="
           tail -100 "$LOG" | cut -c1-400 || true
 
+      - name: Verify Firebase configuration in archive
+        run: |
+          CONFIG="$RUNNER_TEMP/App.xcarchive/Products/Applications/ServeUp.app/GoogleService-Info.plist"
+          test -f "$CONFIG" || { echo "Firebase plist was not bundled in the app archive."; exit 1; }
+          /usr/libexec/PlistBuddy -c "Print :BUNDLE_ID" "$CONFIG" | grep -qx "$BUNDLE_ID" \
+            || { echo "Firebase plist does not match the TaxaUp bundle identifier."; exit 1; }
+
       - name: Export and upload to TestFlight
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}

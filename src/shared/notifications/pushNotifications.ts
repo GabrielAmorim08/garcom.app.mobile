@@ -2,9 +2,11 @@ import {
   getInitialNotification,
   getMessaging,
   getToken,
+  isDeviceRegisteredForRemoteMessages,
   onMessage,
   onNotificationOpenedApp,
   onTokenRefresh,
+  registerDeviceForRemoteMessages,
   type RemoteMessage,
 } from '@react-native-firebase/messaging';
 import notifee, { AndroidImportance, AuthorizationStatus } from '@notifee/react-native';
@@ -174,6 +176,11 @@ export async function startPushNotifications(): Promise<void> {
     // Do not access Firebase while the module is being loaded. A distribution build
     // without GoogleService-Info.plist must still show the login screen.
     const firebaseMessaging = getMessaging();
+    // On iOS the APNs registration must be complete before FCM can issue a
+    // device token. Android handles this registration automatically.
+    if (Platform.OS === 'ios' && !isDeviceRegisteredForRemoteMessages(firebaseMessaging)) {
+      await registerDeviceForRemoteMessages(firebaseMessaging);
+    }
     await registerCurrentToken(firebaseMessaging);
     stopListening = listen(firebaseMessaging);
     setRegistration({ state: 'registered' });
