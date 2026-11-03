@@ -3,7 +3,7 @@ import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
-import type { JobPost, JobPostStatus, ProviderKind } from '../../entities/jobPost/types';
+import type { JobPost, JobPostStatus } from '../../entities/jobPost/types';
 import {
   AppText,
   Badge,
@@ -170,8 +170,12 @@ function CompanyServiceCard({ jobPost, onPress }: CompanyServiceCardProps) {
   const isExpired = new Date(jobPost.shiftEnd).getTime() <= Date.now();
   const isClosed = isExpired || ['Cancelled', 'Completed'].includes(jobPost.status);
   const addressLine = [jobPost.address.street, jobPost.address.number].filter(Boolean).join(', ');
-  const providerLabel = t(providerKindKey(jobPost.providerKind));
-  const statusLabel = isExpired ? 'Expirada' : t(statusKey(jobPost.status));
+  const isStarted = Boolean(jobPost.startedAt);
+  const statusLabel = isStarted
+    ? t('company.serviceDetail.inProgress')
+    : isExpired
+      ? 'Expirada'
+      : t(statusKey(jobPost.status));
 
   return (
     <Card onPress={onPress} style={styles.serviceCard}>
@@ -180,14 +184,13 @@ function CompanyServiceCard({ jobPost, onPress }: CompanyServiceCardProps) {
           <AppText variant="bodyStrong" numberOfLines={1}>
             {jobPost.title}
           </AppText>
-          <AppText variant="caption" color={colors.textMuted}>
-            {providerLabel}
-          </AppText>
         </View>
         <Badge
-          tone={isClosed ? 'neutral' : isFilled ? 'success' : 'gold'}
+          tone={isStarted || isFilled ? 'success' : isClosed ? 'neutral' : 'gold'}
           label={
-            isExpired
+            isStarted
+              ? statusLabel
+              : isExpired
               ? 'Expirada'
               : isClosed
               ? statusLabel
@@ -198,34 +201,6 @@ function CompanyServiceCard({ jobPost, onPress }: CompanyServiceCardProps) {
         />
       </View>
 
-      <View style={styles.progressBlock}>
-        <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: `${fillPercent * 100}%` }]} />
-        </View>
-        <View style={styles.progressTextRow}>
-          <AppText variant="captionStrong" color={colors.textPrimary}>
-            {t('company.services.fillProgress', {
-              filled: jobPost.slotsFilled,
-              total: jobPost.slots,
-            })}
-          </AppText>
-          <AppText variant="caption" color={openSlots > 0 ? colors.primaryPressed : colors.success}>
-            {openSlots > 0
-              ? t('company.services.remainingSlots', { count: openSlots })
-              : t('company.services.noRemainingSlots')}
-          </AppText>
-        </View>
-      </View>
-
-      {jobPost.pendingApplicationsCount > 0 ? (
-        <View style={styles.applicantsNotice}>
-          <Icon name="users" size={16} color={colors.primaryPressed} />
-          <AppText variant="captionStrong" color={colors.primaryPressed}>
-            {t('company.services.pendingApplicants', { count: jobPost.pendingApplicationsCount })}
-          </AppText>
-        </View>
-      ) : null}
-
       <View style={styles.metaGrid}>
         <MetaItem
           icon="calendar"
@@ -235,9 +210,35 @@ function CompanyServiceCard({ jobPost, onPress }: CompanyServiceCardProps) {
           )}`}
         />
         <MetaItem icon="pin" text={addressLine || jobPost.address.city || '-'} />
-        <MetaItem icon="users" text={t('company.services.providerCount', { count: jobPost.slots })} />
-        <MetaItem icon="note" text={formatCurrency(jobPost.payAmount)} strong />
+        <MetaItem icon="note" text={`${formatCurrency(jobPost.payAmount)} / profissional`} strong />
       </View>
+
+      <View style={styles.progressBlock}>
+        <View style={styles.progressTextRow}>
+          <AppText variant="bodyStrong" color={colors.textPrimary}>
+            {t('company.services.fillProgress', { filled: jobPost.slotsFilled, total: jobPost.slots })}
+          </AppText>
+          {openSlots > 0 ? (
+            <AppText variant="caption" color={colors.textMuted}>
+              {t('company.services.remainingSlots', { count: openSlots })}
+            </AppText>
+          ) : null}
+        </View>
+        <View style={styles.progressTrack}>
+          <View style={[styles.progressFill, { width: `${fillPercent * 100}%` }]} />
+        </View>
+      </View>
+
+      {jobPost.pendingApplicationsCount > 0 ? (
+        <View style={styles.applicantsNotice}>
+          <Icon name="users" size={18} color={colors.primaryPressed} />
+          <AppText variant="captionStrong" color={colors.primaryPressed} style={styles.applicantsText}>
+            {t('company.services.pendingApplicants', { count: jobPost.pendingApplicationsCount })}
+          </AppText>
+          <AppText variant="captionStrong" color={colors.primaryPressed}>Ver candidatos</AppText>
+          <Icon name="chevronRight" size={18} color={colors.primaryPressed} />
+        </View>
+      ) : null}
 
       <View style={styles.cardFooter}>
         <AppText variant="caption" color={colors.textMuted}>
@@ -330,20 +331,6 @@ function statusKey(status: JobPostStatus) {
   return keys[status];
 }
 
-function providerKindKey(kind: ProviderKind) {
-  const keys = {
-    Waiter: 'serviceRequest.step1.providers.waiter.label',
-    KitchenAssistant: 'serviceRequest.step1.providers.kitchenAssistant.label',
-    PantryAttendant: 'serviceRequest.step1.providers.pantryAttendant.label',
-    Bartender: 'serviceRequest.step1.providers.bartender.label',
-    Receptionist: 'serviceRequest.step1.providers.receptionist.label',
-    Cleaner: 'serviceRequest.step1.providers.cleaner.label',
-    Other: 'serviceRequest.step1.providers.other.label',
-  } as const satisfies Record<ProviderKind, string>;
-
-  return keys[kind];
-}
-
 const styles = StyleSheet.create({
   list: {
     paddingHorizontal: spacing.xl,
@@ -421,14 +408,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: spacing.md,
   },
-  applicantsNotice: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  applicantsNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    padding: spacing.md,
+    borderRadius: 12,
+    backgroundColor: colors.primarySoft,
+  },
+  applicantsText: { flex: 1 },
   metaGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
   metaItem: {
-    width: '48%',
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
