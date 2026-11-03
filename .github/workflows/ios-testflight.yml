@@ -105,6 +105,9 @@ jobs:
           echo "=== 60 lines before the first failed command ==="
           N=$(grep -n -m1 "failed with a nonzero exit code" "$LOG" | cut -d: -f1)
           if [ -n "$N" ]; then sed -n "$((N>60 ? N-60 : 1)),$((N+3))p" "$LOG" | cut -c1-400; fi
+          echo "=== unresolved symbols ==="
+          N=$(grep -n -m1 "Undefined symbols for architecture" "$LOG" | cut -d: -f1)
+          if [ -n "$N" ]; then sed -n "${N},$((N+40))p" "$LOG" | cut -c1-1000; fi
           echo "=== final archive output ==="
           tail -100 "$LOG" | cut -c1-400 || true
 
