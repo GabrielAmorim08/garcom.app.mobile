@@ -186,6 +186,8 @@ export const ptBR = {
     notificationsOn: 'Ativadas. Toque para gerenciar',
     notificationsOff: 'Desativadas. Toque para ativar nos Ajustes',
     notificationsAsk: 'Toque para ativar',
+    notificationsDeviceOk: 'Aparelho conectado ao envio de avisos',
+    notificationsDeviceFailed: 'Aparelho não conectado: {{reason}}',
     personalData: 'Dados pessoais',
     companyData: 'Dados da empresa',
     companyAddress: 'Endereço da empresa',

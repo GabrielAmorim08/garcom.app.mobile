@@ -3,9 +3,12 @@ import { AppState } from 'react-native';
 
 import {
   getNotificationPermission,
+  getPushRegistration,
   NotificationPermission,
   openNotificationSettings,
+  PushRegistration,
   startPushNotifications,
+  subscribePushRegistration,
 } from './pushNotifications';
 
 /**
@@ -14,6 +17,9 @@ import {
  */
 export function useNotificationPermission() {
   const [permission, setPermission] = useState<NotificationPermission | null>(null);
+  const [registration, setRegistration] = useState<PushRegistration>(getPushRegistration);
+
+  useEffect(() => subscribePushRegistration(setRegistration), []);
 
   const refresh = useCallback(async () => {
     try {
@@ -45,5 +51,5 @@ export function useNotificationPermission() {
     await openNotificationSettings();
   }, [permission, refresh]);
 
-  return { permission, enable };
+  return { permission, registration, enable };
 }

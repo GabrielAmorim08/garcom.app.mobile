@@ -185,6 +185,8 @@ export const en: TranslationSchema = {
     notificationsOn: 'On. Tap to manage',
     notificationsOff: 'Off. Tap to turn on in Settings',
     notificationsAsk: 'Tap to turn on',
+    notificationsDeviceOk: 'Device connected to push delivery',
+    notificationsDeviceFailed: 'Device not connected: {{reason}}',
     personalData: 'Personal data',
     companyData: 'Company data',
     companyAddress: 'Company address',

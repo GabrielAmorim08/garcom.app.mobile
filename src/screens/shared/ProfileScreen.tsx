@@ -165,13 +165,23 @@ export function ProfileScreen() {
           {notifications.permission !== null ? (
             <ProfileOption
               title={t('profile.notifications')}
-              subtitle={t(
-                notifications.permission === 'granted'
-                  ? 'profile.notificationsOn'
-                  : notifications.permission === 'denied'
-                    ? 'profile.notificationsOff'
-                    : 'profile.notificationsAsk',
-              )}
+              subtitle={[
+                t(
+                  notifications.permission === 'granted'
+                    ? 'profile.notificationsOn'
+                    : notifications.permission === 'denied'
+                      ? 'profile.notificationsOff'
+                      : 'profile.notificationsAsk',
+                ),
+                notifications.permission === 'granted' && notifications.registration.state === 'registered'
+                  ? t('profile.notificationsDeviceOk')
+                  : null,
+                notifications.permission === 'granted' && notifications.registration.state === 'failed'
+                  ? t('profile.notificationsDeviceFailed', { reason: notifications.registration.reason })
+                  : null,
+              ]
+                .filter(Boolean)
+                .join('\n')}
               onPress={() => void notifications.enable()}
             />
           ) : null}
