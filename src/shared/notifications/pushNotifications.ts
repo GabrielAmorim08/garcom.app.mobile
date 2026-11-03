@@ -25,9 +25,7 @@ function refreshAfterNotification() {
   void queryClient.invalidateQueries({ queryKey: queryKeys.chat.inbox });
 }
 
-const firebaseMessaging = getMessaging();
-
-async function requestPushPermission(): Promise<boolean> {
+async function requestPushPermission(firebaseMessaging: ReturnType<typeof getMessaging>): Promise<boolean> {
   if (Platform.OS === 'android') {
     if (Platform.Version < 33) {
       return true;
@@ -76,7 +74,7 @@ async function showForegroundNotification(message: RemoteMessage) {
   });
 }
 
-async function registerCurrentToken() {
+async function registerCurrentToken(firebaseMessaging: ReturnType<typeof getMessaging>) {
   const token = await getToken(firebaseMessaging);
   await authService.registerDeviceToken(token, Platform.OS === 'ios' ? 'Ios' : 'Android');
 }
@@ -88,12 +86,16 @@ async function registerCurrentToken() {
  */
 export async function startPushNotifications(): Promise<() => void> {
   try {
-    const allowed = await requestPushPermission();
+    // Do not access Firebase while the module is being loaded. A distribution
+    // build without the optional GoogleService-Info.plist must still be able to
+    // show the login screen instead of remaining on the native splash screen.
+    const firebaseMessaging = getMessaging();
+    const allowed = await requestPushPermission(firebaseMessaging);
     if (!allowed) {
       return () => undefined;
     }
 
-    await registerCurrentToken();
+    await registerCurrentToken(firebaseMessaging);
 
     const unsubscribeTokenRefresh = onTokenRefresh(firebaseMessaging, token =>
       authService.registerDeviceToken(token, Platform.OS === 'ios' ? 'Ios' : 'Android').catch(() => undefined),

@@ -7,8 +7,13 @@ import { getMessaging, setBackgroundMessageHandler } from '@react-native-firebas
 import App from './App';
 import { name as appName } from './app.json';
 
-// The operating system displays notification payloads while the app is in the
-// background. Registering this handler keeps data-only events acknowledged too.
-setBackgroundMessageHandler(getMessaging(), async () => undefined);
+// The Firebase plist is injected only in distribution environments. Never let a
+// missing optional push configuration prevent React Native from registering the
+// application and replacing the native splash screen.
+try {
+  setBackgroundMessageHandler(getMessaging(), async () => undefined);
+} catch {
+  // Push remains unavailable until Firebase is configured, while the app works.
+}
 
 AppRegistry.registerComponent(appName, () => App);
