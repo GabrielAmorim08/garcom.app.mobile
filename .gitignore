@@ -34,6 +34,8 @@ local.properties
 *.keystore
 !debug.keystore
 android/app/taxaup-upload-signing.local.properties
+android/app/google-services.json
+ios/GoogleService-Info.plist
 .kotlin/
 
 # node.js

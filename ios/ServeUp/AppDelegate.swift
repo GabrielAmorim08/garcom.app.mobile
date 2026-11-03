@@ -3,6 +3,7 @@ import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
 import RNBootSplash
+import FirebaseCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,6 +16,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
+    // GoogleService-Info.plist is injected only in local/CI environments that have
+    // Firebase access; it must never be committed with server credentials.
+    if let firebaseConfigPath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+       let options = FirebaseOptions(contentsOfFile: firebaseConfigPath) {
+      FirebaseApp.configure(options: options)
+    }
+
     let delegate = ReactNativeDelegate()
     let factory = RCTReactNativeFactory(delegate: delegate)
     delegate.dependencyProvider = RCTAppDependencyProvider()

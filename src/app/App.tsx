@@ -9,11 +9,13 @@ import '../i18n';
 import { RootNavigator } from '../navigation/RootNavigator';
 import { setSessionExpiredHandler } from '../shared/api/httpClient';
 import { queryClient } from '../shared/api/queryClient';
+import { startPushNotifications } from '../shared/notifications/pushNotifications';
 
 
 export function App() {
   const hydrate = useAuthStore(state => state.hydrate);
   const setUser = useAuthStore(state => state.setUser);
+  const userId = useAuthStore(state => state.user?.id);
 
   useEffect(() => {
     void hydrate();
@@ -24,6 +26,19 @@ export function App() {
       queryClient.clear();
     });
   }, [hydrate, setUser]);
+
+  useEffect(() => {
+    if (!userId) {
+      return undefined;
+    }
+
+    let dispose: () => void = () => undefined;
+    void startPushNotifications().then(cleanup => {
+      dispose = cleanup;
+    });
+
+    return () => dispose();
+  }, [userId]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
