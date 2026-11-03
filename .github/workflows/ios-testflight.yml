@@ -145,6 +145,16 @@ jobs:
           /usr/libexec/PlistBuddy -c "Print :BUNDLE_ID" "$CONFIG" | grep -qx "$BUNDLE_ID" \
             || { echo "Firebase plist does not match the TaxaUp bundle identifier."; exit 1; }
 
+      # An unsigned archive carries no entitlements, and the export only re-signs it: the app would
+      # reach TestFlight without aps-environment and iOS refuses to issue a push token. Signing
+      # ad hoc with the entitlements file embeds them, and the export keeps them when it re-signs.
+      - name: Embed entitlements in archive
+        run: |
+          APP="$RUNNER_TEMP/App.xcarchive/Products/Applications/ServeUp.app"
+          codesign --force --sign - --entitlements ios/ServeUp/ServeUp.entitlements "$APP"
+          codesign -d --entitlements :- "$APP" | grep -A1 aps-environment \
+            || { echo "aps-environment missing from the archived app."; exit 1; }
+
       - name: Export and upload to TestFlight
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
