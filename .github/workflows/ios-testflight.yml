@@ -101,10 +101,12 @@ jobs:
           vm_stat | head -6
           echo "=== lines with error-like text ==="
           grep -nEi "error|fatal|undefined symbols|no space left|killed|segmentation|signal|crash|PLEASE submit" "$LOG" \
-            | grep -v "Explicit dependency" | grep -v "warning:" | head -80 || true
+            | grep -v "Explicit dependency" | grep -v "warning:" | cut -c1-400 | tail -80 || true
           echo "=== 60 lines before the first failed command ==="
           N=$(grep -n -m1 "failed with a nonzero exit code" "$LOG" | cut -d: -f1)
           if [ -n "$N" ]; then sed -n "$((N>60 ? N-60 : 1)),$((N+3))p" "$LOG" | cut -c1-400; fi
+          echo "=== final archive output ==="
+          tail -100 "$LOG" | cut -c1-400 || true
 
       - name: Export and upload to TestFlight
         env:
