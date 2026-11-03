@@ -29,6 +29,20 @@ target 'ServeUp' do
       # :ccache_enabled => true
     )
 
+    # react-native-image-picker imports legacy UTType APIs from
+    # MobileCoreServices but does not declare the framework itself. With dynamic
+    # Pods (required by React Native Firebase's SPM integration), that omission
+    # becomes an arm64 linker error while archiving.
+    image_picker_target = installer.pods_project.targets.find { |target| target.name == 'react-native-image-picker' }
+    if image_picker_target
+      image_picker_target.build_configurations.each do |build_configuration|
+        other_ldflags = build_configuration.build_settings['OTHER_LDFLAGS'] || '$(inherited)'
+        unless other_ldflags.include?('MobileCoreServices')
+          build_configuration.build_settings['OTHER_LDFLAGS'] = "#{other_ldflags} -framework MobileCoreServices"
+        end
+      end
+    end
+
     # MapLibre ships its native SDK as a Swift package; this hook adds it to the Pods
     # project and to the app target, otherwise MapLibre/MapLibre.h is not found.
     $MLRN.post_install(installer)
