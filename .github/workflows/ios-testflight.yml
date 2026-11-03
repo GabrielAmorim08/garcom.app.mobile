@@ -26,9 +26,7 @@ concurrency:
 
 jobs:
   testflight:
-    # macos-26 defaults to an ARM runner, whose pool has been intermittently unavailable.
-    # Intel has the same hosted capacity for this build and avoids that queue.
-    runs-on: macos-15-intel
+    runs-on: macos-26
     timeout-minutes: 60
     env:
       SCHEME: ServeUp
