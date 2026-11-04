@@ -165,6 +165,7 @@ export const ptBR = {
     emailVerificationCodeInvalid: 'Informe o código de 6 dígitos.',
     emailVerificationConfirm: 'Verificar e-mail',
     emailVerificationResend: 'Reenviar código',
+    emailVerificationResendIn: 'Reenviar código em {{seconds}}s',
     emailVerificationSent: 'Enviamos um novo código para o seu e-mail.',
     useAnotherAccount: 'Usar outra conta',
   },

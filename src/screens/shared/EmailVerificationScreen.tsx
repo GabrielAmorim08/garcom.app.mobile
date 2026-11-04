@@ -117,7 +117,7 @@ export function EmailVerificationScreen() {
             variant="bodyStrong"
             color={resendSeconds > 0 ? colors.textMuted : colors.primary}>
             {resendSeconds > 0
-              ? t('signUp.resendIn', { seconds: resendSeconds })
+              ? t('auth.emailVerificationResendIn', { seconds: resendSeconds })
               : t('auth.emailVerificationResend')}
           </AppText>
         </Pressable>

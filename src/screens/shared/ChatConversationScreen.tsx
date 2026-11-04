@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 
@@ -16,10 +16,39 @@ export function ChatConversationScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'ChatConversation'>>();
   const userId = useAuthStore(state => state.user?.id);
   const [text, setText] = useState('');
+  const [unseenMessages, setUnseenMessages] = useState(0);
+  const listRef = useRef<FlatList<ChatMessage>>(null);
+  const followLatest = useRef(true);
+  const lastMessageId = useRef<string | null>(null);
   const keyboardLift = useKeyboardLift();
   const { data: messages, refetch, isRefetching } = useChatMessages(params.conversationId);
   const { mutateAsync: sendMessage, isPending } = useSendChatMessage(params.conversationId);
-  const orderedMessages = useMemo(() => messages ?? [], [messages]);
+  const orderedMessages = useMemo(
+    () => [...(messages ?? [])].sort((first, second) => first.createdAt.localeCompare(second.createdAt)),
+    [messages],
+  );
+
+  const scrollToLatest = useCallback((animated = true) => {
+    followLatest.current = true;
+    setUnseenMessages(0);
+    requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated }));
+  }, []);
+
+  useEffect(() => {
+    const latestId = orderedMessages.at(-1)?.id ?? null;
+    if (!latestId || latestId === lastMessageId.current) {
+      return;
+    }
+
+    const isFirstLoad = lastMessageId.current === null;
+    lastMessageId.current = latestId;
+    if (isFirstLoad || followLatest.current) {
+      scrollToLatest(!isFirstLoad);
+      return;
+    }
+
+    setUnseenMessages(count => count + 1);
+  }, [orderedMessages, scrollToLatest]);
 
   async function send() {
     const trimmed = text.trim();
@@ -27,6 +56,7 @@ export function ChatConversationScreen() {
     try {
       await sendMessage(trimmed);
       setText('');
+      scrollToLatest();
     } catch {
       Alert.alert('Mensagem não enviada', 'Verifique sua conexão e tente novamente.');
     }
@@ -43,14 +73,42 @@ export function ChatConversationScreen() {
           </AppText>
         </View>
         <FlatList
+          ref={listRef}
           data={orderedMessages}
           keyExtractor={item => item.id}
           contentContainerStyle={styles.messages}
+          onContentSizeChange={() => {
+            if (followLatest.current) {
+              scrollToLatest(false);
+            }
+          }}
+          onScroll={({ nativeEvent }) => {
+            const distanceFromBottom = nativeEvent.contentSize.height
+              - nativeEvent.contentOffset.y
+              - nativeEvent.layoutMeasurement.height;
+            followLatest.current = distanceFromBottom < 72;
+            if (followLatest.current && unseenMessages > 0) {
+              setUnseenMessages(0);
+            }
+          }}
+          scrollEventThrottle={16}
           onRefresh={() => { refetch(); }}
           refreshing={isRefetching}
           renderItem={({ item }) => <MessageBubble message={item} mine={item.senderUserId === userId} />}
           ListEmptyComponent={<View style={styles.empty}><Icon name="message" size={28} color={colors.textMuted} /><AppText variant="body" color={colors.textSecondary} align="center">Envie a primeira mensagem para começar.</AppText></View>}
         />
+        {unseenMessages > 0 ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Ver novas mensagens"
+            onPress={() => scrollToLatest()}
+            style={styles.newMessages}>
+            <Icon name="message" size={16} color={colors.onPrimary} />
+            <AppText variant="captionStrong" color={colors.onPrimary}>
+              {unseenMessages === 1 ? 'Nova mensagem' : `${unseenMessages} novas mensagens`}
+            </AppText>
+          </Pressable>
+        ) : null}
         <View style={styles.composer}>
           <TextInput
             value={text}
@@ -90,6 +148,7 @@ const styles = StyleSheet.create({
   context: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginHorizontal: spacing.lg, marginTop: spacing.xs, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, backgroundColor: colors.primarySoft, borderRadius: radius.md },
   contextText: { flex: 1 },
   messages: { padding: spacing.lg, gap: spacing.sm, flexGrow: 1, justifyContent: 'flex-end' },
+  newMessages: { position: 'absolute', bottom: 76, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.pill, backgroundColor: colors.heroBackground, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md, paddingHorizontal: spacing.huge },
   bubble: { maxWidth: '82%', paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.md, gap: spacing.xxs },
   bubbleMine: { alignSelf: 'flex-end', backgroundColor: colors.heroBackground, borderBottomRightRadius: spacing.xs },

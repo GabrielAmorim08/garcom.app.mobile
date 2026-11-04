@@ -32,7 +32,10 @@ export function useChatMessages(conversationId: string) {
       return messages;
     },
     enabled: Boolean(conversationId),
-    refetchInterval: 8_000,
+    // A conversation needs to feel immediate, while the inbox can remain lighter.
+    refetchInterval: 4_000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 }
 

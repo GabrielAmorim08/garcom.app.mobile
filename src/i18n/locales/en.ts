@@ -164,6 +164,7 @@ export const en: TranslationSchema = {
     emailVerificationCodeInvalid: 'Enter the 6-digit code.',
     emailVerificationConfirm: 'Verify e-mail',
     emailVerificationResend: 'Resend code',
+    emailVerificationResendIn: 'Resend code in {{seconds}}s',
     emailVerificationSent: 'We sent a new code to your e-mail.',
     useAnotherAccount: 'Use another account',
   },
