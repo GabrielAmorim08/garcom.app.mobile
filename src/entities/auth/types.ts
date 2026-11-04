@@ -14,8 +14,6 @@ export interface SignUpRequest {
   /** CPF of the provider. A company owner signs in with the company CNPJ instead. */
   document?: string;
   password: string;
-  /** Proof that the phone received and confirmed its SMS code. */
-  phoneVerificationId: string;
   role: 'Waiter' | 'CompanyOwner';
   device: DeviceInfoRequest;
   company?: CompanySignUpRequest;
@@ -44,15 +42,6 @@ export interface CompanySignUpRequest {
   companyEmail: string;
   companyPhone: string;
   address: Address;
-}
-
-export interface SendPhoneCodeResponse {
-  expiresAt: string;
-  resendAvailableAt: string;
-}
-
-export interface VerifyPhoneCodeResponse {
-  verificationId: string;
 }
 
 export interface VerifyEmailRequest {

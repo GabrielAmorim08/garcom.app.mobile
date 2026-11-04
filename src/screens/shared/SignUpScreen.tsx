@@ -1,20 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, BackHandler, Pressable, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
-import { authService } from '../../entities/auth/authService';
 import { lookupCnpj } from '../../entities/company/cnpjLookup';
 import type { Address } from '../../shared/types/common';
 import { getDeviceInfo } from '../../entities/auth/deviceInfo';
 import { useAuthStore } from '../../entities/auth/authStore';
 import type { RootStackParamList } from '../../navigation/types';
-import { ApiError } from '../../shared/api/apiError';
 import { getErrorMessage } from '../../shared/api/errorMessage';
 import {
   AppText,
   Button,
-  CodeInput,
   Icon,
   OptionCard,
   PasswordField,
@@ -41,22 +38,18 @@ type StepId =
   | 'contact'
   | 'companyContact'
   | 'responsible'
-  | 'code'
   | 'password';
 
-const PROVIDER_STEPS: StepId[] = ['profile', 'personal', 'contact', 'code', 'password'];
+const PROVIDER_STEPS: StepId[] = ['profile', 'personal', 'contact', 'password'];
 const COMPANY_STEPS: StepId[] = [
   'profile',
   'company',
   'companyContact',
   'responsible',
-  'code',
   'password',
 ];
 
 const MIN_PASSWORD_LENGTH = 8;
-const CODE_LENGTH = 6;
-const RESEND_COOLDOWN_SECONDS = 60;
 
 function isEmail(value: string): boolean {
   return value.trim().includes('@');
@@ -94,15 +87,7 @@ export function SignUpScreen() {
   const [cnpjLookupState, setCnpjLookupState] = useState<
     'idle' | 'loading' | 'found' | 'notFound' | 'failed'
   >('idle');
-  const [code, setCode] = useState('');
-  const [verification, setVerification] = useState<{ id: string; phone: string } | null>(null);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [isSendingCode, setIsSendingCode] = useState(false);
-  const [resendSeconds, setResendSeconds] = useState(0);
-  const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const lastSentPhone = useRef<string | null>(null);
-  const sendingCode = useRef(false);
 
   const steps = role === 'CompanyOwner' ? COMPANY_STEPS : PROVIDER_STEPS;
   const step = steps[stepIndex];
@@ -126,58 +111,6 @@ export function SignUpScreen() {
     return () => subscription.remove();
   }, [hasPreviousStep]);
 
-  const phoneDigits = onlyDigits(phone);
-  const isPhoneVerified = verification?.phone === phoneDigits;
-
-  const sendCode = useCallback(
-    async (resend: boolean) => {
-      if (sendingCode.current) {
-        return;
-      }
-
-      sendingCode.current = true;
-      setError(null);
-      setMessage(null);
-      setIsSendingCode(true);
-      lastSentPhone.current = phoneDigits;
-      try {
-        await authService.sendPhoneCode(phone);
-        setCode('');
-        setResendSeconds(RESEND_COOLDOWN_SECONDS);
-        if (resend) {
-          setMessage(t('signUp.codeResent'));
-        }
-      } catch (caught) {
-        if (caught instanceof ApiError && caught.status === 409) {
-          // The API still holds a code sent moments ago: it is on its way, not a failure.
-          setResendSeconds(RESEND_COOLDOWN_SECONDS);
-          setMessage(t('signUp.codeAlreadySent'));
-        } else {
-          setError(getErrorMessage(caught, t));
-        }
-      } finally {
-        sendingCode.current = false;
-        setIsSendingCode(false);
-      }
-    },
-    [phone, phoneDigits, t],
-  );
-
-  const isCodeStep = step === 'code';
-  useEffect(() => {
-    if (isCodeStep && !isPhoneVerified && lastSentPhone.current !== phoneDigits) {
-      void sendCode(false);
-    }
-  }, [isCodeStep, isPhoneVerified, phoneDigits, sendCode]);
-
-  useEffect(() => {
-    if (resendSeconds <= 0) {
-      return undefined;
-    }
-
-    const timer = setTimeout(() => setResendSeconds(seconds => seconds - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [resendSeconds]);
 
   const companyTaxIdDigits = onlyDigits(companyTaxId);
   const lookedUpCnpj = useRef<string | null>(null);
@@ -280,11 +213,6 @@ export function SignUpScreen() {
           return t('errors.required');
         }
         return isEmail(email) ? null : t('signUp.emailInvalid');
-      case 'code':
-        if (isPhoneVerified) {
-          return null;
-        }
-        return code.length === CODE_LENGTH ? null : t('signUp.codeInvalid');
       case 'password':
         if (!password) {
           return t('errors.required');
@@ -310,10 +238,6 @@ export function SignUpScreen() {
 
   async function submit() {
     setError(null);
-    if (!verification) {
-      return;
-    }
-
     try {
       await signUp({
         fullName: fullName.trim(),
@@ -321,7 +245,6 @@ export function SignUpScreen() {
         phone: phone.trim(),
         document: role === 'Waiter' ? onlyDigits(cpf) : undefined,
         password,
-        phoneVerificationId: verification.id,
         role,
         device: await getDeviceInfo(),
         company: role === 'CompanyOwner'
@@ -353,20 +276,6 @@ export function SignUpScreen() {
       return;
     }
 
-    if (step === 'code' && !isPhoneVerified) {
-      setIsVerifying(true);
-      try {
-        const result = await authService.verifyPhoneCode(phone, code);
-        setVerification({ id: result.verificationId, phone: phoneDigits });
-      } catch (caught) {
-        setError(getErrorMessage(caught, t));
-        return;
-      } finally {
-        setIsVerifying(false);
-      }
-    }
-
-    setMessage(null);
     setStepIndex(index => index + 1);
   }
 
@@ -380,7 +289,7 @@ export function SignUpScreen() {
           <Button
             label={isLastStep ? t('signUp.finish') : t('common.continue')}
             onPress={handleContinue}
-            loading={isSigningUp || isVerifying}
+            loading={isSigningUp}
           />
           {stepIndex === 0 ? (
             <Pressable onPress={() => navigation.navigate('SignIn')} style={styles.link}>
@@ -569,46 +478,6 @@ export function SignUpScreen() {
               textContentType="telephoneNumber"
               placeholder="(11) 99999-9999"
             />
-          </>
-        ) : null}
-
-        {step === 'code' ? (
-          <>
-            <StepTitle
-              title={t('signUp.codeTitle')}
-              subtitle={t('signUp.codeSubtitle', { phone })}
-            />
-            <CodeInput
-              label={t('signUp.codeLabel')}
-              value={isPhoneVerified ? '' : code}
-              onChange={setCode}
-              length={CODE_LENGTH}
-              editable={!isPhoneVerified}
-              error={error !== null}
-            />
-            {isPhoneVerified ? (
-              <AppText variant="captionStrong" color={colors.success}>
-                {t('signUp.phoneVerified')}
-              </AppText>
-            ) : (
-              <Pressable
-                onPress={() => void sendCode(true)}
-                disabled={resendSeconds > 0 || isSendingCode}
-                style={styles.link}>
-                <AppText
-                  variant="bodyStrong"
-                  color={resendSeconds > 0 || isSendingCode ? colors.textMuted : colors.primary}>
-                  {resendSeconds > 0
-                    ? t('signUp.resendIn', { seconds: resendSeconds })
-                    : t('signUp.resend')}
-                </AppText>
-              </Pressable>
-            )}
-            {message ? (
-              <AppText variant="caption" color={colors.textMuted} align="center">
-                {message}
-              </AppText>
-            ) : null}
           </>
         ) : null}
 
