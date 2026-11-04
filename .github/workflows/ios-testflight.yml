@@ -26,8 +26,9 @@ concurrency:
 
 jobs:
   testflight:
-    # Keep the native ARM performance while avoiding the capacity-constrained macos-26 image.
-    runs-on: macos-15
+    # The ARM macOS pools are capacity constrained. The Intel image is stable and
+    # has more memory, which is safer for the React Native/Xcode archive.
+    runs-on: macos-15-intel
     timeout-minutes: 60
     env:
       SCHEME: ServeUp
