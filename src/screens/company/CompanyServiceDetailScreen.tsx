@@ -46,8 +46,8 @@ export function CompanyServiceDetailScreen() {
   const history = useMemo(() => (applicants ?? []).filter(item => item.status !== 'Pending' && item.status !== 'Invited'), [applicants]);
 
   useEffect(() => {
-    if (jobPost) setTab(jobPost.startedAt || pending.length === 0 ? 'team' : 'candidates');
-  }, [jobPost?.id, jobPost?.startedAt, pending.length]);
+    if (jobPost) setTab(jobPost.startedAt || pending.length + invited.length === 0 ? 'team' : 'candidates');
+  }, [jobPost?.id, jobPost?.startedAt, pending.length, invited.length]);
 
   async function answer() {
     const next = response;
@@ -98,7 +98,7 @@ export function CompanyServiceDetailScreen() {
   const team = (providers ?? []).filter(provider => provider.status !== 'Cancelled');
   const tabs: SegmentOption<DetailTab>[] = [
     { value: 'team', label: t('company.serviceDetail.teamTab', { count: team.length }) },
-    { value: 'candidates', label: t('company.serviceDetail.candidatesTab', { count: pending.length }) },
+    { value: 'candidates', label: t('company.serviceDetail.candidatesTab', { count: pending.length + invited.length }) },
   ];
   const footer = canStart ? <View style={styles.footer}><Button label={t('company.serviceDetail.startService')} loading={starting} onPress={() => setAction('start')} /><AppText variant="caption" align="center" color={colors.textMuted}>{t('company.serviceDetail.startHint')}</AppText></View> : canComplete ? <Button label={t('company.serviceDetail.completeService')} loading={updating} onPress={() => setAction('complete')} /> : undefined;
 
@@ -118,9 +118,10 @@ export function CompanyServiceDetailScreen() {
       {team.length ? team.map(provider => <ProviderCard key={provider.assignmentId} provider={provider} />) : <EmptyState icon="users" title={t('company.serviceDetail.providersEmpty')} message={t('company.serviceDetail.providersEmptyHint')} />}
       {jobPost.slotsFilled < jobPost.slots ? <View style={styles.slotHint}><Icon name="note" size={18} color={colors.textMuted} /><AppText variant="caption" color={colors.textSecondary}>{t('company.serviceDetail.openSlotsHint', { count: jobPost.slots - jobPost.slotsFilled })}</AppText></View> : null}
     </View> : <View style={styles.section}>
+      {jobPost.status === 'Published' && !hasEnded && !started ? <Button label={t('member.lookup.openCta')} variant="secondary" onPress={() => navigation.navigate('MemberLookup', { jobPostId: params.jobPostId })} /> : null}
+      {invited.length ? <View style={styles.section}><AppText variant="subtitle">{t('company.serviceDetail.invitedTitle')}</AppText>{invited.map(item => <InvitedCard key={item.applicationId} applicant={item} loading={cancellingInvite} onPress={() => navigation.navigate('CandidateProfile', { jobPostId: params.jobPostId, applicant: item })} onCancel={() => setInviteToCancel({ id: item.applicationId, name: item.fullName })} />)}</View> : null}
       <AppText variant="subtitle">{t('company.serviceDetail.awaitingReview')}</AppText>
       {loadingApplicants ? <AppText variant="caption" align="center" style={styles.loading}>{t('common.loading')}</AppText> : pending.length ? pending.map(item => <ApplicantCard key={item.applicationId} applicant={item} onPress={() => navigation.navigate('CandidateProfile', { jobPostId: params.jobPostId, applicant: item })} onAccept={() => setResponse({ id: item.applicationId, action: 'accept', name: item.fullName })} onReject={() => setResponse({ id: item.applicationId, action: 'reject', name: item.fullName })} loading={accepting || rejecting} canAccept={jobPost.status === 'Published' && !hasEnded} />) : <EmptyState icon="users" title={t('company.serviceDetail.emptyApplicants')} message={t('company.serviceDetail.emptyApplicantsHint')} />}
-      {invited.length ? <View style={styles.section}><AppText variant="subtitle">{t('company.serviceDetail.invitedTitle')}</AppText>{invited.map(item => <InvitedCard key={item.applicationId} applicant={item} loading={cancellingInvite} onPress={() => navigation.navigate('CandidateProfile', { jobPostId: params.jobPostId, applicant: item })} onCancel={() => setInviteToCancel({ id: item.applicationId, name: item.fullName })} />)}</View> : null}
       {history.length ? <View style={styles.history}><Icon name="users" size={18} color={colors.primaryPressed} /><AppText variant="bodyStrong">{t('company.serviceDetail.applicationHistory', { count: history.length })}</AppText><Icon name="chevronRight" size={18} color={colors.primaryPressed} /></View> : null}
     </View>}
     {canCancel ? <Button label={t('company.serviceDetail.cancelService')} variant="danger" loading={updating} onPress={() => setAction('cancel')} /> : null}

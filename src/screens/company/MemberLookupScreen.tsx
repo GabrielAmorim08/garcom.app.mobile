@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
 import { useInviteMember } from '../../entities/jobApplication/useJobApplications';
@@ -9,6 +9,7 @@ import type { JobPost } from '../../entities/jobPost/types';
 import { useMyJobPosts } from '../../entities/jobPost/useJobPosts';
 import { KindStatsList } from '../../entities/user/components/KindStatsList';
 import { useFindMember } from '../../entities/user/useUser';
+import type { RootStackParamList } from '../../navigation/types';
 import { getErrorMessage } from '../../shared/api/errorMessage';
 import {
   AppText,
@@ -44,6 +45,7 @@ function canInviteTo(service: JobPost): boolean {
 export function MemberLookupScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
+  const lockedJobPostId = useRoute<RouteProp<RootStackParamList, 'MemberLookup'>>().params?.jobPostId;
   const { mutateAsync: findMember, data: member, isPending, reset } = useFindMember();
   const { mutateAsync: invite, isPending: isInviting } = useInviteMember();
   const { data: myServices } = useMyJobPosts();
@@ -54,7 +56,10 @@ export function MemberLookupScreen() {
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [invitedTo, setInvitedTo] = useState<JobPost | null>(null);
 
-  const services = useMemo(() => (myServices?.items ?? []).filter(canInviteTo), [myServices?.items]);
+  const services = useMemo(
+    () => (myServices?.items ?? []).filter(service => canInviteTo(service) && (!lockedJobPostId || service.id === lockedJobPostId)),
+    [myServices?.items, lockedJobPostId],
+  );
 
   async function search() {
     const digits = onlyDigits(number);

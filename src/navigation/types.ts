@@ -30,7 +30,7 @@ export type RootStackParamList = {
   RequestSent: { jobPostId: string };
   CompanyServiceDetail: { jobPostId: string };
   CandidateProfile: { jobPostId: string; applicant: JobApplicant };
-  MemberLookup: undefined;
+  MemberLookup: { jobPostId?: string } | undefined;
   ChatConversation: { conversationId: string; title: string; context: string };
 
   WaiterTabs: NavigatorScreenParams<WaiterTabParamList>;
