@@ -21,7 +21,8 @@ export function ChatConversationScreen() {
   const followLatest = useRef(true);
   const lastMessageId = useRef<string | null>(null);
   const keyboardLift = useKeyboardLift();
-  const { data: messages, refetch, isRefetching } = useChatMessages(params.conversationId);
+  const [pulling, setPulling] = useState(false);
+  const { data: messages, refetch } = useChatMessages(params.conversationId);
   const { mutateAsync: sendMessage, isPending } = useSendChatMessage(params.conversationId);
   const orderedMessages = useMemo(
     () => [...(messages ?? [])].sort((first, second) => first.createdAt.localeCompare(second.createdAt)),
@@ -49,6 +50,12 @@ export function ChatConversationScreen() {
 
     setUnseenMessages(count => count + 1);
   }, [orderedMessages, scrollToLatest]);
+
+  useEffect(() => {
+    if (keyboardLift > 0) {
+      scrollToLatest(false);
+    }
+  }, [keyboardLift, scrollToLatest]);
 
   async function send() {
     const trimmed = text.trim();
@@ -92,8 +99,16 @@ export function ChatConversationScreen() {
             }
           }}
           scrollEventThrottle={16}
-          onRefresh={() => { refetch(); }}
-          refreshing={isRefetching}
+          onLayout={() => {
+            if (followLatest.current) {
+              listRef.current?.scrollToEnd({ animated: false });
+            }
+          }}
+          onRefresh={() => {
+            setPulling(true);
+            void refetch().finally(() => setPulling(false));
+          }}
+          refreshing={pulling}
           renderItem={({ item }) => <MessageBubble message={item} mine={item.senderUserId === userId} />}
           ListEmptyComponent={<View style={styles.empty}><Icon name="message" size={28} color={colors.textMuted} /><AppText variant="body" color={colors.textSecondary} align="center">Envie a primeira mensagem para começar.</AppText></View>}
         />

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useApplyToJobPost } from '../../entities/jobApplication/useJobApplications';
 import type { JobApplicationStatus } from '../../entities/jobApplication/types';
+import { useAnswerInvitation, useMyApplications } from '../../entities/jobApplication/useWaiterApplications';
 import { useOpenChatConversation } from '../../entities/chat/useChat';
 import { useAuthStore } from '../../entities/auth/authStore';
 import { useJobPost } from '../../entities/jobPost/useJobPosts';
@@ -55,6 +56,8 @@ export function ServiceDetailScreen() {
   const { mutateAsync: apply, isPending } = useApplyToJobPost();
   const { mutateAsync: openConversation, isPending: isOpeningConversation } = useOpenChatConversation();
   const userId = useAuthStore(state => state.user?.id);
+  const { data: myApplications } = useMyApplications();
+  const { mutateAsync: answerInvitation, isPending: isAnswering } = useAnswerInvitation();
   const [applyError, setApplyError] = useState<string | null>(null);
   const [confirmingApply, setConfirmingApply] = useState(false);
   const [applied, setApplied] = useState(false);
@@ -82,6 +85,24 @@ export function ServiceDetailScreen() {
     }
 
     setApplied(true);
+  }
+
+  const invitation = (myApplications?.items ?? []).find(
+    item => item.jobPostId === params.jobPostId && item.status === 'Invited',
+  );
+  const canAnswerInvitation = Boolean(invitation)
+    && Boolean(data)
+    && new Date(data!.shiftStart).getTime() > Date.now();
+
+  async function answer(accept: boolean) {
+    if (!invitation) return;
+    setApplyError(null);
+    try {
+      await answerInvitation({ applicationId: invitation.id, accept });
+      if (!accept) navigation.goBack();
+    } catch (failure) {
+      setApplyError(getErrorMessage(failure, t));
+    }
   }
 
   function closeAppliedNotice() {
@@ -131,7 +152,21 @@ export function ServiceDetailScreen() {
               {applyError}
             </AppText>
           ) : null}
-          {jobPost.hasApplied ? (
+          {canAnswerInvitation ? (
+            <>
+              <AppText variant="caption" color={colors.textSecondary} align="center">
+                {t('waiter.invitation.hint', { company: jobPost.companyName })}
+              </AppText>
+              <View style={styles.answer}>
+                <View style={styles.answerButton}>
+                  <Button label={t('waiter.invitation.decline')} variant="secondary" disabled={isAnswering} onPress={() => { void answer(false); }} />
+                </View>
+                <View style={styles.answerButton}>
+                  <Button label={t('waiter.invitation.accept')} loading={isAnswering} onPress={() => { void answer(true); }} />
+                </View>
+              </View>
+            </>
+          ) : jobPost.hasApplied ? (
             <Button
               label="Conversar com a empresa"
               icon={<Icon name="message" size={19} color={colors.onPrimary} />}
@@ -300,5 +335,7 @@ const styles = StyleSheet.create({
   contactCard: { marginTop: spacing.xs },
   contactCardDisabled: { opacity: 0.62 },
   footer: { gap: spacing.sm },
+  answer: { flexDirection: 'row', gap: spacing.md },
+  answerButton: { flex: 1 },
   loading: { paddingVertical: spacing.huge },
 });
