@@ -43,6 +43,11 @@ export const userService = {
     return data;
   },
 
+  async searchMembers(query: string): Promise<WaiterCard[]> {
+    const { data } = await httpClient.get<WaiterCard[]>('/waiter-profiles/search', { params: { q: query } });
+    return data;
+  },
+
   async setAvailability(isAvailable: boolean): Promise<WaiterProfile> {
     const { data } = await httpClient.patch<WaiterProfile>('/waiter-profiles/me/availability', {
       isAvailable,

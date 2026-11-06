@@ -8,7 +8,8 @@ import { providerKindKey } from '../../entities/jobPost/providerKinds';
 import type { JobPost } from '../../entities/jobPost/types';
 import { useMyJobPosts } from '../../entities/jobPost/useJobPosts';
 import { KindStatsList } from '../../entities/user/components/KindStatsList';
-import { useFindMember } from '../../entities/user/useUser';
+import type { WaiterCard } from '../../entities/user/types';
+import { useSearchMembers } from '../../entities/user/useUser';
 import type { RootStackParamList } from '../../navigation/types';
 import { getErrorMessage } from '../../shared/api/errorMessage';
 import {
@@ -28,10 +29,9 @@ import {
   formatShortDate,
   formatTimeRange,
 } from '../../shared/utils/format';
-import { onlyDigits } from '../../shared/utils/masks';
 import { colors, spacing } from '../../theme';
 
-const MEMBER_NUMBER_LENGTH = 7;
+const MAX_QUERY_LENGTH = 60;
 
 /** A service can still take an invitation while it is published, has room and has not started. */
 function canInviteTo(service: JobPost): boolean {
@@ -46,11 +46,12 @@ export function MemberLookupScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const lockedJobPostId = useRoute<RouteProp<RootStackParamList, 'MemberLookup'>>().params?.jobPostId;
-  const { mutateAsync: findMember, data: member, isPending, reset } = useFindMember();
+  const { mutateAsync: searchMembers, data: results, isPending, reset } = useSearchMembers();
   const { mutateAsync: invite, isPending: isInviting } = useInviteMember();
   const { data: myServices } = useMyJobPosts();
 
-  const [number, setNumber] = useState('');
+  const [text, setText] = useState('');
+  const [picked, setPicked] = useState<WaiterCard | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [chosen, setChosen] = useState<JobPost | null>(null);
   const [inviteError, setInviteError] = useState<string | null>(null);
@@ -61,17 +62,20 @@ export function MemberLookupScreen() {
     [myServices?.items, lockedJobPostId],
   );
 
+  const member = picked ?? (results?.length === 1 ? results[0] : null);
+
   async function search() {
-    const digits = onlyDigits(number);
-    if (!digits) {
+    const query = text.trim();
+    if (!query) {
       setError(t('member.lookup.invalid'));
       return;
     }
 
     setError(null);
     setInviteError(null);
+    setPicked(null);
     try {
-      await findMember(Number(digits));
+      await searchMembers(query);
     } catch (caught) {
       setError(getErrorMessage(caught, t));
     }
@@ -99,19 +103,45 @@ export function MemberLookupScreen() {
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <TextField
           label={t('member.lookup.label')}
-          value={number}
+          value={text}
           onChangeText={value => {
-            setNumber(onlyDigits(value).slice(0, MEMBER_NUMBER_LENGTH));
+            setText(value);
             setError(null);
             setInviteError(null);
+            setPicked(null);
             reset();
           }}
-          keyboardType="number-pad"
-          maxLength={MEMBER_NUMBER_LENGTH}
-          placeholder="0000050"
+          maxLength={MAX_QUERY_LENGTH}
+          autoCapitalize="words"
+          returnKeyType="search"
+          onSubmitEditing={() => { void search(); }}
+          placeholder={t('member.lookup.placeholder')}
           error={error}
         />
         <Button label={t('member.lookup.action')} loading={isPending} onPress={search} />
+
+        {results && results.length === 0 ? (
+          <AppText variant="body" color={colors.textSecondary}>
+            {t('member.lookup.empty')}
+          </AppText>
+        ) : null}
+
+        {results && results.length > 1 && !picked ? (
+          <View style={styles.invite}>
+            <AppText variant="subtitle">{t('member.lookup.results', { count: results.length })}</AppText>
+            {results.map(item => (
+              <Card key={item.userId} style={styles.result} onPress={() => setPicked(item)}>
+                <Avatar name={item.fullName} uri={item.profilePhotoPath} size={44} />
+                <View style={styles.headerCopy}>
+                  <AppText variant="bodyStrong">{item.fullName}</AppText>
+                  <AppText variant="caption" color={colors.primaryPressed}>
+                    {t('member.number', { number: formatMemberNumber(item.memberNumber) })}
+                  </AppText>
+                </View>
+              </Card>
+            ))}
+          </View>
+        ) : null}
 
         {member ? (
           <>
@@ -210,4 +240,5 @@ const styles = StyleSheet.create({
   headerCopy: { flex: 1, gap: spacing.xxs },
   invite: { gap: spacing.md },
   service: { gap: spacing.xxs },
+  result: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
 });

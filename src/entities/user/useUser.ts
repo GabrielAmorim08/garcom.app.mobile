@@ -37,9 +37,9 @@ export function useUpdateWaiterProfile() {
   });
 }
 
-export function useFindMember() {
-  return useMutation<WaiterCard, Error, number>({
-    mutationFn: memberNumber => userService.findMemberByNumber(memberNumber),
+export function useSearchMembers() {
+  return useMutation<WaiterCard[], Error, string>({
+    mutationFn: query => userService.searchMembers(query),
   });
 }
 
