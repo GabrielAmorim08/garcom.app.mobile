@@ -1,5 +1,6 @@
 import type { IsoDateTime } from '../../shared/types/common';
-import type { JobPost } from '../jobPost/types';
+import type { JobPost, ProviderKind } from '../jobPost/types';
+import type { ProviderKindStats } from '../user/types';
 
 export type JobApplicationStatus =
   | 'Pending'
@@ -35,6 +36,9 @@ export interface JobApplicant {
   distanceMeters: number | null;
   message: string | null;
   status: JobApplicationStatus;
+  memberNumber?: number | null;
+  providerKinds?: ProviderKind[];
+  kindStats?: ProviderKindStats[];
 }
 
 export interface ApplyRequest {

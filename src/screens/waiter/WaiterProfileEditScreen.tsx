@@ -3,6 +3,8 @@ import { StyleSheet, Switch, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
+import { ProviderKindPicker } from '../../entities/jobPost/components/ProviderKindPicker';
+import type { ProviderKind } from '../../entities/jobPost/types';
 import type { PixKeyType } from '../../entities/user/types';
 import {
   useSetAvailability,
@@ -21,6 +23,8 @@ import {
   TextArea,
   TextField,
 } from '../../shared/components';
+import { KindStatsList } from '../../entities/user/components/KindStatsList';
+import { formatMemberNumber } from '../../shared/utils/format';
 import { maskCpf, maskPhone, onlyDigits } from '../../shared/utils/masks';
 import { colors, spacing } from '../../theme';
 
@@ -73,6 +77,7 @@ export function WaiterProfileEditScreen() {
   const { mutateAsync: changeAvailability, isPending: isTogglingAvailability } = useSetAvailability();
 
   const [bio, setBio] = useState('');
+  const [providerKinds, setProviderKinds] = useState<ProviderKind[]>([]);
   const [experienceYears, setExperienceYears] = useState(0);
   const [radiusKm, setRadiusKm] = useState(10);
   const [hourlyRate, setHourlyRate] = useState('');
@@ -86,6 +91,7 @@ export function WaiterProfileEditScreen() {
     }
 
     setBio(profile.bio ?? '');
+    setProviderKinds(profile.providerKinds ?? []);
     setExperienceYears(profile.experienceYears);
     setRadiusKm(Math.round(profile.searchRadiusMeters / 1000));
     setHourlyRate(profile.hourlyRate === null ? '' : String(profile.hourlyRate));
@@ -125,6 +131,7 @@ export function WaiterProfileEditScreen() {
         homeLocation: profile.homeLocation,
         pixKey: rawKey || null,
         pixKeyType: rawKey ? pixType : null,
+        providerKinds,
       });
       setMessage({ text: t('waiter.profileEdit.saved'), isError: false });
     } catch (error) {
@@ -151,6 +158,16 @@ export function WaiterProfileEditScreen() {
       <ScreenHeader title={t('waiter.profileEdit.title')} onBack={navigation.goBack} />
 
       <View style={styles.content}>
+        {profile ? (
+          <Card style={styles.member}>
+            <AppText variant="subtitle" color={colors.primaryPressed}>
+              {t('member.number', { number: formatMemberNumber(profile.memberNumber) })}
+            </AppText>
+            <AppText variant="bodyStrong">{t('member.stats.title')}</AppText>
+            <KindStatsList stats={profile.kindStats} />
+          </Card>
+        ) : null}
+
         <Card style={styles.availability}>
           <View style={styles.availabilityTexts}>
             <AppText variant="bodyStrong">{t('waiter.profileEdit.availability')}</AppText>
@@ -166,6 +183,14 @@ export function WaiterProfileEditScreen() {
             accessibilityLabel={t('waiter.profileEdit.availability')}
           />
         </Card>
+
+        <View style={styles.kinds}>
+          <AppText variant="bodyStrong">{t('waiter.profileEdit.kinds')}</AppText>
+          <AppText variant="caption" color={colors.textMuted}>
+            {t('waiter.profileEdit.kindsHint')}
+          </AppText>
+          <ProviderKindPicker value={providerKinds} onChange={setProviderKinds} />
+        </View>
 
         <TextArea
           label={t('waiter.profileEdit.bio')}
@@ -240,5 +265,7 @@ const styles = StyleSheet.create({
   },
   stepperLabel: { flex: 1 },
   pix: { gap: spacing.md },
+  kinds: { gap: spacing.sm },
+  member: { gap: spacing.md },
   footer: { gap: spacing.sm },
 });

@@ -1,3 +1,4 @@
+import type { ProviderKind } from '../jobPost/types';
 import type { User } from '../user/types';
 import type { Address } from '../../shared/types/common';
 
@@ -17,6 +18,8 @@ export interface SignUpRequest {
   role: 'Waiter' | 'CompanyOwner';
   device: DeviceInfoRequest;
   company?: CompanySignUpRequest;
+  /** Roles a provider works as, picked during sign-up. */
+  providerKinds?: ProviderKind[];
 }
 
 export interface AuthSession {

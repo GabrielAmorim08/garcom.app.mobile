@@ -1,5 +1,5 @@
 import { httpClient } from '../../shared/api/httpClient';
-import type { UpdateWaiterProfileRequest, User, WaiterProfile } from './types';
+import type { UpdateWaiterProfileRequest, User, WaiterCard, WaiterProfile } from './types';
 
 export interface ImageFile {
   uri: string;
@@ -35,6 +35,11 @@ export const userService = {
 
   async updateWaiterProfile(payload: UpdateWaiterProfileRequest): Promise<WaiterProfile> {
     const { data } = await httpClient.put<WaiterProfile>('/waiter-profiles/me', payload);
+    return data;
+  },
+
+  async findMemberByNumber(memberNumber: number): Promise<WaiterCard> {
+    const { data } = await httpClient.get<WaiterCard>(`/waiter-profiles/by-number/${memberNumber}`);
     return data;
   },
 

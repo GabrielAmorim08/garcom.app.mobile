@@ -40,6 +40,9 @@ export const mockWaiterProfile: WaiterProfile = {
   pixKey: null,
   pixKeyType: null,
   canReceivePayouts: false,
+  providerKinds: ['Waiter'],
+  memberNumber: 50,
+  kindStats: [],
 };
 
 export const mockNearbyJobPosts: NearbyJobPost[] = [

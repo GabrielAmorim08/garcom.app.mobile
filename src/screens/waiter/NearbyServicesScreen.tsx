@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
 import { JobPostCard } from '../../entities/jobPost/components/JobPostCard';
+import { PROVIDER_KINDS, providerKindKey } from '../../entities/jobPost/providerKinds';
+import type { ProviderKind } from '../../entities/jobPost/types';
 import { useNearbyJobPosts } from '../../entities/jobPost/useJobPosts';
 import { useWaiterProfile } from '../../entities/user/useUser';
 import {
@@ -37,6 +39,7 @@ export function NearbyServicesScreen() {
   const [isSearchingLocation, setIsSearchingLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [searchAddress, setSearchAddress] = useState<string | null>(null);
+  const [providerFilter, setProviderFilter] = useState<ProviderKind | null>(null);
 
   const { data: profile } = useWaiterProfile();
   useEffect(() => {
@@ -56,7 +59,14 @@ export function NearbyServicesScreen() {
     radiusMeters: radiusKm * 1000,
   });
 
-  const items = data?.items ?? [];
+  const ownKinds = profile?.providerKinds ?? [];
+  const orderedKinds = [
+    ...PROVIDER_KINDS.filter(kind => ownKinds.includes(kind)),
+    ...PROVIDER_KINDS.filter(kind => !ownKinds.includes(kind)),
+  ];
+
+  const allItems = data?.items ?? [];
+  const items = providerFilter ? allItems.filter(item => item.providerKind === providerFilter) : allItems;
 
   async function refreshLocation() {
     const point = await requestLocation();
@@ -147,6 +157,31 @@ export function NearbyServicesScreen() {
             ))}
           </View>
         </View>
+
+        {profile && ownKinds.length === 0 ? (
+          <Pressable onPress={() => navigation.navigate('WaiterProfileEdit')} style={styles.kindsPrompt}>
+            <View style={styles.kindsPromptCopy}>
+              <AppText variant="bodyStrong">{t('waiter.nearby.noKindsTitle')}</AppText>
+              <AppText variant="caption" color={colors.textSecondary}>{t('waiter.nearby.noKindsHint')}</AppText>
+            </View>
+            <AppText variant="captionStrong" color={colors.primaryPressed}>{t('waiter.nearby.noKindsAction')}</AppText>
+          </Pressable>
+        ) : null}
+
+        <View style={styles.radiusRow}>
+          <AppText variant="caption" color={colors.textMuted}>{t('waiter.nearby.filterLabel')}</AppText>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.kindOptions}>
+            <KindChip label={t('waiter.nearby.filterAll')} active={providerFilter === null} onPress={() => setProviderFilter(null)} />
+            {orderedKinds.map(kind => (
+              <KindChip
+                key={kind}
+                label={t(`serviceRequest.step1.providers.${providerKindKey(kind)}.label` as never)}
+                active={providerFilter === kind}
+                onPress={() => setProviderFilter(kind)}
+              />
+            ))}
+          </ScrollView>
+        </View>
       </View>
 
       <View style={styles.switcher}>
@@ -199,8 +234,8 @@ export function NearbyServicesScreen() {
               </AppText>
             ) : (
               <EmptyState
-                title={t('waiter.nearby.empty')}
-                message={t('waiter.nearby.emptyHint')}
+                title={t(providerFilter ? 'waiter.nearby.emptyFiltered' : 'waiter.nearby.empty')}
+                message={t(providerFilter ? 'waiter.nearby.emptyFilteredHint' : 'waiter.nearby.emptyHint')}
               />
             )
           }
@@ -210,8 +245,24 @@ export function NearbyServicesScreen() {
   );
 }
 
+function KindChip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      style={[styles.kindChip, active && styles.radiusChipActive]}>
+      <AppText variant="captionStrong" color={active ? colors.onPrimary : colors.textSecondary}>{label}</AppText>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   switcherControl: { flex: 1 },
+  kindOptions: { gap: spacing.xs },
+  kindsPrompt: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.primarySoft },
+  kindsPromptCopy: { flex: 1, gap: spacing.xxs },
+  kindChip: { alignItems: 'center', paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.pill, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   controls: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, gap: spacing.md },
   locationRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   locationCopy: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },

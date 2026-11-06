@@ -58,6 +58,11 @@ export function formatDistanceKm(meters: number): string {
   }).format(km);
 }
 
+/** Cooperative member number as printed on the member card: always seven digits. */
+export function formatMemberNumber(value: number): string {
+  return String(value).padStart(7, '0');
+}
+
 export function formatRating(value: number): string {
   return new Intl.NumberFormat(currentLocale(), {
     minimumFractionDigits: 1,

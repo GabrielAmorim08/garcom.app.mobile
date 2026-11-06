@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
 import { useNewRequestStore } from '../../entities/jobPost/newRequestStore';
+import { providerKindKey } from '../../entities/jobPost/providerKinds';
 import { useCreateJobPost, useJobPostEstimate } from '../../entities/jobPost/useJobPosts';
 import {
   AppText,
@@ -213,25 +214,6 @@ function parseCurrencyInput(value: string) {
 
 function toCurrencyInput(value: number) {
   return value.toFixed(2).replace('.', ',');
-}
-
-function providerKindKey(kind: string): string {
-  switch (kind) {
-    case 'Waiter':
-      return 'waiter';
-    case 'KitchenAssistant':
-      return 'kitchenAssistant';
-    case 'PantryAttendant':
-      return 'pantryAttendant';
-    case 'Bartender':
-      return 'bartender';
-    case 'Receptionist':
-      return 'receptionist';
-    case 'Cleaner':
-      return 'cleaner';
-    default:
-      return 'other';
-  }
 }
 
 const styles = StyleSheet.create({

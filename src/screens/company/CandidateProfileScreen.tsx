@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 import type { RootStackParamList } from '../../navigation/types';
 import { AppText, Avatar, Button, Card, Icon, Screen, ScreenHeader } from '../../shared/components';
 import { useOpenChatConversation } from '../../entities/chat/useChat';
-import { formatRating } from '../../shared/utils/format';
+import { KindStatsList } from '../../entities/user/components/KindStatsList';
+import { formatMemberNumber, formatRating } from '../../shared/utils/format';
 import { colors, radius, spacing } from '../../theme';
 
 export function CandidateProfileScreen() {
@@ -37,6 +38,11 @@ export function CandidateProfileScreen() {
         <View style={styles.hero}>
           <Avatar name={applicant.fullName} uri={applicant.profilePhotoPath} size={96} />
           <AppText variant="title" align="center">{applicant.fullName}</AppText>
+          {applicant.memberNumber ? (
+            <AppText variant="captionStrong" color={colors.primaryPressed}>
+              {t('member.number', { number: formatMemberNumber(applicant.memberNumber) })}
+            </AppText>
+          ) : null}
           <View style={styles.ratingLine}>
             <Icon name="star" size={22} color={colors.primary} filled />
             <AppText variant="subtitle">{formatRating(applicant.averageRating)}</AppText>
@@ -53,6 +59,13 @@ export function CandidateProfileScreen() {
           <View style={styles.divider} />
           <Stat value={applicant.distanceMeters == null ? '—' : `${Math.round(applicant.distanceMeters / 1000)} km`} label="distância" />
         </Card>
+
+        {applicant.kindStats && applicant.kindStats.length > 0 ? (
+          <Card style={styles.section}>
+            <AppText variant="subtitle">{t('member.stats.title')}</AppText>
+            <KindStatsList stats={applicant.kindStats} />
+          </Card>
+        ) : null}
 
         {applicant.message ? (
           <Card style={styles.section}>

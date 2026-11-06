@@ -15,6 +15,9 @@ export type ProviderKind =
   | 'Bartender'
   | 'Receptionist'
   | 'Cleaner'
+  | 'Cook'
+  | 'GrillCook'
+  | 'BarbecueCook'
   | 'Other';
 
 export interface JobPost {

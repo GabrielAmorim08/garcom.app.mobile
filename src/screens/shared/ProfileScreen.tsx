@@ -21,7 +21,7 @@ import { TabScreen } from '../../navigation/TabScreen';
 import { useTabBarClearance } from '../../shared/hooks/useTabBarClearance';
 import { useNotificationPermission } from '../../shared/notifications/useNotificationPermission';
 import { changeLanguage } from '../../i18n';
-import { formatRating } from '../../shared/utils/format';
+import { formatMemberNumber, formatRating } from '../../shared/utils/format';
 import { colors, spacing } from '../../theme';
 
 export function ProfileScreen() {
@@ -107,6 +107,11 @@ export function ProfileScreen() {
             <AppText variant="caption" color={colors.textMuted}>
               {isCompany ? company?.email ?? user?.email ?? '-' : user?.email ?? '-'}
             </AppText>
+            {!isCompany && profile?.memberNumber ? (
+              <AppText variant="captionStrong" color={colors.primaryPressed}>
+                {t('member.number', { number: formatMemberNumber(profile.memberNumber) })}
+              </AppText>
+            ) : null}
             <Pressable
               onPress={() => void selectPhoto()}
               disabled={isUploadingPhoto}

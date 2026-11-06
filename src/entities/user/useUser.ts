@@ -6,7 +6,7 @@ import { queryClient, queryKeys } from '../../shared/api/queryClient';
 import { shouldUseApi } from '../../shared/api/shouldUseApi';
 import { tokenStorage } from '../../shared/api/tokenStorage';
 import { type ImageFile, userService } from './userService';
-import type { UpdateWaiterProfileRequest, User, WaiterProfile } from './types';
+import type { UpdateWaiterProfileRequest, User, WaiterCard, WaiterProfile } from './types';
 
 const waiterProfileKey = ['waiterProfile'] as const;
 
@@ -34,6 +34,12 @@ export function useUpdateWaiterProfile() {
     onSuccess: profile => {
       queryClient.setQueryData(waiterProfileKey, profile);
     },
+  });
+}
+
+export function useFindMember() {
+  return useMutation<WaiterCard, Error, number>({
+    mutationFn: memberNumber => userService.findMemberByNumber(memberNumber),
   });
 }
 

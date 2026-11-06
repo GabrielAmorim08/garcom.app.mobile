@@ -4,6 +4,8 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
 import { lookupCnpj } from '../../entities/company/cnpjLookup';
+import { ProviderKindPicker } from '../../entities/jobPost/components/ProviderKindPicker';
+import type { ProviderKind } from '../../entities/jobPost/types';
 import type { Address } from '../../shared/types/common';
 import { getDeviceInfo } from '../../entities/auth/deviceInfo';
 import { useAuthStore } from '../../entities/auth/authStore';
@@ -34,13 +36,14 @@ type SignUpRole = 'Waiter' | 'CompanyOwner';
 type StepId =
   | 'profile'
   | 'personal'
+  | 'kinds'
   | 'company'
   | 'contact'
   | 'companyContact'
   | 'responsible'
   | 'password';
 
-const PROVIDER_STEPS: StepId[] = ['profile', 'personal', 'contact', 'password'];
+const PROVIDER_STEPS: StepId[] = ['profile', 'personal', 'kinds', 'contact', 'password'];
 const COMPANY_STEPS: StepId[] = [
   'profile',
   'company',
@@ -73,6 +76,7 @@ export function SignUpScreen() {
 
   const [fullName, setFullName] = useState('');
   const [cpf, setCpf] = useState('');
+  const [providerKinds, setProviderKinds] = useState<ProviderKind[]>([]);
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [companyLegalName, setCompanyLegalName] = useState('');
@@ -193,6 +197,8 @@ export function SignUpScreen() {
           return t('errors.required');
         }
         return isValidCpf(cpf) ? null : t('auth.cpfInvalid');
+      case 'kinds':
+        return providerKinds.length > 0 ? null : t('signUp.kindsRequired');
       case 'company':
         if (!companyLegalName.trim() || !companyTaxId) {
           return t('errors.required');
@@ -246,6 +252,7 @@ export function SignUpScreen() {
         document: role === 'Waiter' ? onlyDigits(cpf) : undefined,
         password,
         role,
+        providerKinds: role === 'Waiter' ? providerKinds : undefined,
         device: await getDeviceInfo(),
         company: role === 'CompanyOwner'
           ? {
@@ -341,6 +348,13 @@ export function SignUpScreen() {
               maxLength={14}
               placeholder="000.000.000-00"
             />
+          </>
+        ) : null}
+
+        {step === 'kinds' ? (
+          <>
+            <StepTitle title={t('signUp.kindsTitle')} subtitle={t('signUp.kindsSubtitle')} />
+            <ProviderKindPicker value={providerKinds} onChange={setProviderKinds} />
           </>
         ) : null}
 

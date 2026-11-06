@@ -56,6 +56,7 @@ function refreshAfterNotification() {
   void queryClient.invalidateQueries({ queryKey: ['jobAssignments'] });
   void queryClient.invalidateQueries({ queryKey: ['jobApplications'] });
   void queryClient.invalidateQueries({ queryKey: queryKeys.chat.inbox });
+  void queryClient.invalidateQueries({ queryKey: ['chat', 'messages'] });
 }
 
 function isAllowed(status: AuthorizationStatus): boolean {

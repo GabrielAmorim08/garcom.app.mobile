@@ -16,6 +16,9 @@ const PROVIDER_KINDS: Array<{ kind: ProviderKind; icon: IconName; key: string }>
   { kind: 'Bartender', icon: 'party', key: 'bartender' },
   { kind: 'Receptionist', icon: 'user', key: 'receptionist' },
   { kind: 'Cleaner', icon: 'check', key: 'cleaner' },
+  { kind: 'Cook', icon: 'utensils', key: 'cook' },
+  { kind: 'GrillCook', icon: 'utensils', key: 'grillCook' },
+  { kind: 'BarbecueCook', icon: 'utensils', key: 'barbecueCook' },
   { kind: 'Other', icon: 'dots', key: 'other' },
 ];
 

@@ -139,6 +139,18 @@ export function CompanyHomeScreen() {
           </View>
         ) : null}
 
+        <Card style={styles.recentCard} onPress={() => navigation.navigate('MemberLookup')}>
+          <View style={styles.recentText}>
+            <AppText variant="bodyStrong" color={colors.textPrimary}>
+              {t('member.lookup.openCta')}
+            </AppText>
+            <AppText variant="caption" color={colors.textMuted}>
+              {t('member.lookup.openHint')}
+            </AppText>
+          </View>
+          <Icon name="chevronRight" size={20} color={colors.primaryPressed} />
+        </Card>
+
         <View style={styles.sectionHeader}>
           <AppText variant="subtitle">{t('company.dashboard.recentServices')}</AppText>
           <Button
@@ -200,6 +212,11 @@ export function CompanyHomeScreen() {
               label={t('company.home.myServices')}
               variant="secondary"
               onPress={() => navigation.navigate('CompanyTabs', { screen: 'CompanyServices' })}
+            />
+            <Button
+              label={t('member.lookup.openCta')}
+              variant="ghost"
+              onPress={() => navigation.navigate('MemberLookup')}
             />
           </View>
         </View>
