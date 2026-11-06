@@ -5,7 +5,7 @@ import { apiConfig } from '../../shared/api/config';
 import { queryKeys } from '../../shared/api/queryClient';
 import { tokenStorage } from '../../shared/api/tokenStorage';
 import { jobApplicationService } from './jobApplicationService';
-import type { ApplyRequest, JobApplicant } from './types';
+import type { ApplyRequest, JobApplicant, JobApplication } from './types';
 
 export function useApplyToJobPost() {
   const queryClient = useQueryClient();
@@ -46,6 +46,29 @@ export function useAcceptJobApplication(jobPostId: string) {
       void queryClient.invalidateQueries({ queryKey: queryKeys.jobApplications.byJobPost(jobPostId) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.jobPosts.detail(jobPostId) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.jobPosts.all });
+    },
+  });
+}
+
+export function useInviteMember() {
+  const queryClient = useQueryClient();
+
+  return useMutation<JobApplication, Error, { jobPostId: string; waiterUserId: string }>({
+    mutationFn: ({ jobPostId, waiterUserId }) => jobApplicationService.invite(jobPostId, waiterUserId),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.jobApplications.byJobPost(variables.jobPostId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.jobPosts.detail(variables.jobPostId) });
+    },
+  });
+}
+
+export function useCancelInvitation(jobPostId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: applicationId => jobApplicationService.cancelInvitation(applicationId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.jobApplications.byJobPost(jobPostId) });
     },
   });
 }

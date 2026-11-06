@@ -7,7 +7,12 @@ export type NotificationKind =
   | 'ServiceStarted'
   | 'ServiceCancelled'
   | 'ProviderCheckedIn'
-  | 'ProviderCheckedOut';
+  | 'ProviderCheckedOut'
+  | 'ChatMessageReceived'
+  | 'InvitationReceived'
+  | 'InvitationAccepted'
+  | 'InvitationDeclined'
+  | 'InvitationCancelled';
 
 export interface AppNotification {
   id: string;

@@ -7,7 +7,10 @@ export type JobApplicationStatus =
   | 'Accepted'
   | 'Rejected'
   | 'Withdrawn'
-  | 'Cancelled';
+  | 'Cancelled'
+  /** The company invited the provider and is waiting for an answer. */
+  | 'Invited'
+  | 'Declined';
 
 export interface JobApplication {
   id: string;

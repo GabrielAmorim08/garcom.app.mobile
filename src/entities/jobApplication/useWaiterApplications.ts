@@ -20,6 +20,26 @@ export function useApplicationHistory() {
   });
 }
 
+/** Answering an invitation changes the application, the service, and possibly the schedule. */
+function refreshAfterAnswering(queryClient: ReturnType<typeof useQueryClient>) {
+  void queryClient.invalidateQueries({ queryKey: queryKeys.jobApplications.byWaiter });
+  void queryClient.invalidateQueries({ queryKey: queryKeys.jobPosts.all });
+  void queryClient.invalidateQueries({ queryKey: ['jobAssignments'] });
+  void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+}
+
+export function useAnswerInvitation() {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, { applicationId: string; accept: boolean }>({
+    mutationFn: ({ applicationId, accept }) =>
+      accept
+        ? jobApplicationService.acceptInvitation(applicationId)
+        : jobApplicationService.declineInvitation(applicationId),
+    onSettled: () => refreshAfterAnswering(queryClient),
+  });
+}
+
 export function useWithdrawApplication() {
   const queryClient = useQueryClient();
 

@@ -43,6 +43,29 @@ export const jobApplicationService = {
     await httpClient.post(`/job-applications/${applicationId}/accept`);
   },
 
+  /** Company side: invite a specific provider to one of my published services. */
+  async invite(jobPostId: string, waiterUserId: string): Promise<JobApplication> {
+    const { data } = await httpClient.post<JobApplication>('/job-applications/invitations', {
+      jobPostId,
+      waiterUserId,
+    });
+    return data;
+  },
+
+  /** Provider side: accepting books the provider, the same as a company accepting a candidate. */
+  async acceptInvitation(applicationId: string): Promise<void> {
+    await httpClient.post(`/job-applications/${applicationId}/accept-invitation`);
+  },
+
+  /** Company side: withdraw an invitation the provider has not answered yet. */
+  async cancelInvitation(applicationId: string): Promise<void> {
+    await httpClient.post(`/job-applications/${applicationId}/cancel-invitation`);
+  },
+
+  async declineInvitation(applicationId: string): Promise<void> {
+    await httpClient.post(`/job-applications/${applicationId}/decline-invitation`);
+  },
+
   async reject(applicationId: string, reason?: string): Promise<void> {
     await httpClient.post(`/job-applications/${applicationId}/reject`, { reason });
   },

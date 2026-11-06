@@ -7,6 +7,7 @@ import { ApplicationRow } from '../../entities/jobApplication/components/Applica
 import {
   useApplicationHistory,
   useMyApplications,
+  useAnswerInvitation,
   useWithdrawApplication,
 } from '../../entities/jobApplication/useWaiterApplications';
 import type { JobApplicationWithPost } from '../../entities/jobApplication/types';
@@ -66,6 +67,7 @@ export function MyServicesScreen() {
   const applicationHistory = useApplicationHistory();
   const { data: earnings } = useMonthEarnings(reportMonth);
   const { mutateAsync: withdraw, isPending: isWithdrawing, variables } = useWithdrawApplication();
+  const { mutateAsync: answerInvitation, isPending: isAnswering, variables: answering } = useAnswerInvitation();
 
   const historyItems = useMemo<HistoryItem[]>(() => {
     const assignments = (history.data?.items ?? []).map(value => ({ kind: 'assignment' as const, value }));
@@ -96,6 +98,16 @@ export function MyServicesScreen() {
 
     try {
       await withdraw({ applicationId: application.id, jobPostId: application.jobPostId });
+    } catch (failure) {
+      setError(getErrorMessage(failure, t));
+    }
+  }
+
+  async function answer(application: JobApplicationWithPost, accept: boolean) {
+    setError(null);
+
+    try {
+      await answerInvitation({ applicationId: application.id, accept });
     } catch (failure) {
       setError(getErrorMessage(failure, t));
     }
@@ -190,6 +202,9 @@ export function MyServicesScreen() {
                 isWithdrawing={isWithdrawing && variables?.applicationId === application.id}
                 onPress={() => navigation.navigate('ServiceDetail', { jobPostId: application.jobPostId })}
                 onWithdraw={() => withdrawApplication(application)}
+                onAccept={() => answer(application, true)}
+                onDecline={() => answer(application, false)}
+                isAnswering={isAnswering && answering?.applicationId === application.id}
               />
             );
           }

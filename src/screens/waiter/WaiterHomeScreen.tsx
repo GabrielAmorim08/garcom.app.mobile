@@ -22,6 +22,8 @@ const APPLICATION_TONE: Record<JobApplicationStatus, BadgeTone> = {
   Rejected: 'danger',
   Withdrawn: 'neutral',
   Cancelled: 'neutral',
+  Invited: 'gold',
+  Declined: 'neutral',
 };
 
 export function WaiterHomeScreen() {
